@@ -15,7 +15,7 @@ import { BookingTicketModal } from '../components/bookings/BookingTicketModal';
 
 const MyBookings = () => {
   const { userBookings, cancelBooking, addToast } = useBooking();
-  const { user, isAuthenticated, loading } = useContext(AuthContext);
+  const { isAuthenticated, loading } = useContext(AuthContext);
   const navigate = useNavigate();
 
   // Search & Filter State
