@@ -120,6 +120,17 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/pricing', pricingRoutes);
 
+// Root Landing Route
+app.get('/', (req, res) => {
+  res.json({
+    status: 'OK',
+    name: 'TravelEase API Server',
+    version: '2.0.0',
+    healthCheck: '/api/health',
+    message: 'Welcome to TravelEase Platform API. All endpoints are accessible under /api'
+  });
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : (mongoose.connection.readyState === 2 ? 'connecting' : 'disconnected');
