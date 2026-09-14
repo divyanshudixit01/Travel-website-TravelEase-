@@ -103,7 +103,6 @@ function App() {
                   {/* Dedicated Service Engine Routes */}
                   <Route path="/flights" element={<PageTransition><Flights /></PageTransition>} />
                   <Route path="/hotels" element={<PageTransition><Hotels /></PageTransition>} />
-                  <Route path="/my-bookings" element={<PageTransition><MyBookings /></PageTransition>} />
                   <Route path="/cars" element={<PageTransition><CarRentals /></PageTransition>} />
                   <Route path="/trains" element={<PageTransition><Trains /></PageTransition>} />
                   <Route path="/buses" element={<PageTransition><Buses /></PageTransition>} />
@@ -112,6 +111,14 @@ function App() {
                   <Route path="/experiences" element={<PageTransition><Tours /></PageTransition>} />
 
                   {/* Protected Auth Routes (Require Authenticated User Login) */}
+                  <Route 
+                    path="/my-bookings" 
+                    element={
+                      <ProtectedRoute>
+                        <PageTransition><MyBookings /></PageTransition>
+                      </ProtectedRoute>
+                    } 
+                  />
                   <Route 
                     path="/checkout" 
                     element={

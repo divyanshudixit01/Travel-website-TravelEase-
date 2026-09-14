@@ -6,7 +6,9 @@ import {
   FaArrowRight, FaMapMarkerAlt, FaStar, FaHeart, FaRegHeart, 
   FaSearch, FaChevronLeft, FaChevronRight, FaPlay, FaPause,
   FaCalendarAlt, FaSun, FaCheckCircle, FaCompass, FaShieldAlt,
-  FaPlane, FaHotel, FaCoffee, FaTag, FaSlidersH, FaUndo
+  FaPlane, FaHotel, FaCoffee, FaTag, FaSlidersH, FaUndo,
+  FaLandmark, FaGlobeAmericas, FaGlobeAsia, FaGlobeEurope,
+  FaRoute, FaThLarge, FaEye, FaLightbulb
 } from 'react-icons/fa';
 import { HiOutlineSparkles, HiOutlineLightningBolt } from 'react-icons/hi';
 import { FiActivity, FiCompass, FiShield, FiPercent } from 'react-icons/fi';
@@ -85,78 +87,148 @@ const heroSlides = [
   }
 ];
 
-// 7 Wonders of the World 3D Bento Inventory
+// 7 Wonders of the World Masterpiece Inventory
 const sevenWonders = [
   { 
     id: 'w-1', 
     title: "Great Wall of China", 
-    location: "Huairou, China", 
+    location: "Huairou, Beijing, China", 
+    country: "China",
+    flag: "🇨🇳",
+    region: "asia",
     unescoYear: "1987",
-    image: "/images/destinations/wonders_great_wall.jpg", 
-    cols: "md:col-span-2 md:row-span-2",
+    builtEra: "7th C. BC – 1644 AD",
+    marvelSpec: "21,196 km continuous stone fortifications across mountain ridges",
+    nearestTransit: "Beijing Capital (PEK) · High-Speed Rail to Badaling",
+    bestSeason: "Sep – Nov (Golden Autumn)",
+    estFare: "₹58,000",
+    flightDest: "PEK",
     tag: "Ancient Wonder",
-    description: "Spanning over 21,000 km across mountainous ridges, a testament to human perseverance."
+    description: "Spanning over 21,000 km across dramatic mountain ridges, an epic feat of human defense and architectural endurance across multiple imperial dynasties.",
+    insiderTip: "Head to Mutianyu or Jinshanling at sunrise for ethereal morning mist above the watchtowers with almost zero crowd traffic.",
+    image: "/images/destinations/wonders_great_wall.jpg", 
+    itineraryPrompt: "Plan an architectural 6-day expedition to Beijing, the Mutianyu Great Wall, and the Forbidden City with luxury boutique stays."
   },
   { 
     id: 'w-2', 
     title: "Taj Mahal", 
-    location: "Agra, India", 
+    location: "Agra, Uttar Pradesh, India", 
+    country: "India",
+    flag: "🇮🇳",
+    region: "asia",
     unescoYear: "1983",
+    builtEra: "1632 – 1648 AD",
+    marvelSpec: "Pure Makrana white marble inlaid with 28 semi-precious gem types",
+    nearestTransit: "Delhi (DEL) · 1h 40m via Gatimaan / Vande Bharat Express",
+    bestSeason: "Oct – Mar (Crisp Mornings)",
+    estFare: "₹12,500",
+    flightDest: "DEL",
+    tag: "Marble Symphony",
+    description: "Ivory-white marble mausoleum on the Yamuna river bank, acclaimed worldwide as the supreme crown jewel of Mughal architectural symmetry.",
+    insiderTip: "Arrive at the East Gate by 5:30 AM for the glowing amber sunrise reflection in the Yamuna river without water ripples.",
     image: "/images/destinations/wonders_taj_mahal.jpg", 
-    cols: "md:col-span-1 md:row-span-1",
-    tag: "Marble Poetry",
-    description: "Ivory-white marble mausoleum on the south bank of the Yamuna river."
+    itineraryPrompt: "Plan a luxury Golden Triangle 5-day journey covering the Taj Mahal at sunrise, Agra Fort, and royal heritage palaces."
   },
   { 
     id: 'w-3', 
-    title: "Colosseum", 
-    location: "Rome, Italy", 
-    unescoYear: "1980",
-    image: "/images/destinations/wonders_colosseum.jpg", 
-    cols: "md:col-span-1 md:row-span-1",
-    tag: "Imperial Amphitheatre",
-    description: "The largest ancient amphitheatre ever built, standing in the heart of Rome."
+    title: "Petra", 
+    location: "Wadi Musa, Jordan", 
+    country: "Jordan",
+    flag: "🇯🇴",
+    region: "middle-east",
+    unescoYear: "1985",
+    builtEra: "4th C. BC – 1st C. AD",
+    marvelSpec: "Monolithic Treasury (Al-Khazneh) carved 40m into rose sandstone cliffs",
+    nearestTransit: "Amman (AMM) · 3h Desert Highway VIP transfer",
+    bestSeason: "Mar – May & Sep – Nov",
+    estFare: "₹72,000",
+    flightDest: "AMM",
+    tag: "Rose City",
+    description: "Ancient Nabataean capital carved directly into red-rose sandstone slot canyons, hidden from the Western world for over 500 years.",
+    insiderTip: "Attend 'Petra by Night' when 1,500 flickering candles illuminate the narrow Siq canyon leading to the Treasury facade.",
+    image: "/images/destinations/wonders_petra.jpg", 
+    itineraryPrompt: "Plan a 6-day heritage expedition to Jordan featuring Petra by candlelight, Wadi Rum desert glamping, and Dead Sea wellness."
   },
   { 
     id: 'w-4', 
-    title: "Machu Picchu", 
-    location: "Cusco Region, Peru", 
-    unescoYear: "1983",
-    image: "/images/destinations/wonders_machu_picchu.jpg", 
-    cols: "md:col-span-1 md:row-span-1",
-    tag: "Citadel in Clouds",
-    description: "Inca citadel situated on a mountain ridge 2,430 metres above sea level."
+    title: "The Colosseum", 
+    location: "Rome, Lazio, Italy", 
+    country: "Italy",
+    flag: "🇮🇹",
+    region: "europe",
+    unescoYear: "1980",
+    builtEra: "72 – 80 AD",
+    marvelSpec: "Largest Roman amphitheater holding 65,000 spectators with hypogeum",
+    nearestTransit: "Rome Fiumicino (FCO) · Leonardo Express to Termini",
+    bestSeason: "Apr – May & Sep – Oct",
+    estFare: "₹84,000",
+    flightDest: "FCO",
+    tag: "Imperial Arena",
+    description: "A colossal travertine limestone amphitheater that hosted gladiatorial spectacles, engineering marvels, and theatrical reenactments.",
+    insiderTip: "Book the underground Hypogeum and arena floor access for intimate access to gladiatorial tunnels hidden beneath the main floor.",
+    image: "/images/destinations/wonders_colosseum.jpg", 
+    itineraryPrompt: "Plan a 7-day culinary and classical history tour of Rome, the Colosseum underground, the Vatican, and the Amalfi Coast."
   },
   { 
     id: 'w-5', 
-    title: "Petra", 
-    location: "Ma'an Governorate, Jordan", 
-    unescoYear: "1985",
-    image: "/images/destinations/wonders_petra.jpg", 
-    cols: "md:col-span-1 md:row-span-1",
-    tag: "Rose City",
-    description: "Famous rock-cut architecture carved directly into the red sandstone cliffs."
+    title: "Machu Picchu", 
+    location: "Cusco Region, Peru", 
+    country: "Peru",
+    flag: "🇵🇪",
+    region: "americas",
+    unescoYear: "1983",
+    builtEra: "~1450 AD",
+    marvelSpec: "Mortarless dry-ashlar seismic fit at 2,430m cloud forest ridge",
+    nearestTransit: "Cusco (CUZ) · Vistadome Panoramic Scenic Andean Rail",
+    bestSeason: "May – Sep (Dry Andean Season)",
+    estFare: "₹1,25,000",
+    flightDest: "CUZ",
+    tag: "Citadel in Clouds",
+    description: "Royal 15th-century Inca sanctuary perched between two mist-shrouded Andean peaks, untouched by Spanish conquerors.",
+    insiderTip: "Ascend Huayna Picchu or Sun Gate for the iconic elevated panoramic shot of the entire citadel shrouded in morning cloud sea.",
+    image: "/images/destinations/wonders_machu_picchu.jpg", 
+    itineraryPrompt: "Plan a high-altitude luxury Andean 8-day trip to Cusco, the Sacred Valley, and Machu Picchu with Hiram Bingham train transit."
   },
   { 
     id: 'w-6', 
     title: "Christ the Redeemer", 
     location: "Rio de Janeiro, Brazil", 
+    country: "Brazil",
+    flag: "🇧🇷",
+    region: "americas",
     unescoYear: "2012",
-    image: "/images/destinations/wonders_christ_redeemer.jpg", 
-    cols: "md:col-span-1 md:row-span-1",
+    builtEra: "1922 – 1931 AD",
+    marvelSpec: "38m Art Deco sculpture crafted with 6M soapstone tiles on 710m peak",
+    nearestTransit: "Rio Galeão (GIG) · Historic Corcovado Cogwheel Railway",
+    bestSeason: "May – Oct (Clear Blue Skies)",
+    estFare: "₹1,10,000",
+    flightDest: "GIG",
     tag: "Art Deco Icon",
-    description: "Overlooking Rio from the summit of Mount Corcovado in the Tijuca Forest."
+    description: "Arms outstretched over Rio de Janeiro from the summit of Mount Corcovado, standing as an enduring symbol of peace and welcoming grace.",
+    insiderTip: "Take the earliest morning Corcovado cogwheel train through Tijuca Rainforest to stand at Christ's base with clear Guanabara Bay vistas.",
+    image: "/images/destinations/wonders_christ_redeemer.jpg", 
+    itineraryPrompt: "Plan a 7-day Brazilian coastal expedition to Rio de Janeiro, Christ the Redeemer, Sugarloaf Mountain, and Copacabana luxury suites."
   },
   { 
     id: 'w-7', 
     title: "Chichen Itza", 
     location: "Yucatan, Mexico", 
+    country: "Mexico",
+    flag: "🇲🇽",
+    region: "americas",
     unescoYear: "1988",
+    builtEra: "600 – 1200 AD",
+    marvelSpec: "365-step Temple of Kukulcán aligning equinox serpent shadows",
+    nearestTransit: "Cancun (CUN) · Maya Rail / Executive Highway Transfer",
+    bestSeason: "Nov – Apr (Pleasant Dry Weather)",
+    estFare: "₹68,000",
+    flightDest: "CUN",
+    tag: "Mayan Astronomy",
+    description: "Sacred Maya-Toltec ceremonial city centered around El Castillo, engineered with extraordinary acoustic echoes and solar alignment.",
+    insiderTip: "Clap your hands directly in front of El Castillo's stairway to hear the acoustic reverberation perfectly emulate the sacred quetzal bird.",
     image: "/images/destinations/wonders_chichen_itza.jpg", 
-    cols: "md:col-span-2 md:row-span-1",
-    tag: "Mayan Pyramid",
-    description: "Monumental Mayan pyramid complex El Castillo demonstrating astronomical alignment."
-  },
+    itineraryPrompt: "Plan a 6-day Yucatan archaeological luxury tour to Chichen Itza, cenote private swims, and beachfront Tulum boutique resorts."
+  }
 ];
 
 // Comprehensive 24+ Curated Destination Inventory with High-Density MMT Metadata
@@ -675,7 +747,23 @@ export const Destinations = () => {
   const [activeFastFilter, setActiveFastFilter] = useState('all');
   const [searchInput, setSearchInput] = useState(urlQuery);
   const [favorites, setFavorites] = useState({});
-  const [showAllWonders, setShowAllWonders] = useState(false);
+  const [activeWonderId, setActiveWonderId] = useState('w-1');
+  const [wonderRegionFilter, setWonderRegionFilter] = useState('all');
+  const [wonderViewMode, setWonderViewMode] = useState('spotlight'); // 'spotlight' | 'grid'
+
+  const filteredWonders = useMemo(() => {
+    if (wonderRegionFilter === 'all') return sevenWonders;
+    return sevenWonders.filter((w) => w.region === wonderRegionFilter);
+  }, [wonderRegionFilter]);
+
+  const activeWonder = useMemo(() => {
+    const found = sevenWonders.find((w) => w.id === activeWonderId);
+    if (found && (wonderRegionFilter === 'all' || found.region === wonderRegionFilter)) {
+      return found;
+    }
+    return filteredWonders[0] || sevenWonders[0];
+  }, [activeWonderId, wonderRegionFilter, filteredWonders]);
+
   const [liveBackendDests, setLiveBackendDests] = useState([]);
 
   // Hero Slideshow Controls
@@ -853,12 +941,12 @@ export const Destinations = () => {
       {/* Top Ambient Specular Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[450px] bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.09)_0%,transparent_70%)] pointer-events-none z-0" />
 
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 relative z-10 space-y-16 lg:space-y-24">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 md:pt-32 pb-24 relative z-10 space-y-16 lg:space-y-24">
         
         {/* ==================================================================== */}
         {/* SECTION 1: HERO SECTION — KINETIC TRAVEL SLIDESHOW & TELEMETRY HUD  */}
         {/* ==================================================================== */}
-        <div className="relative w-full h-[70vh] min-h-[580px] max-h-[750px] rounded-[2.5rem] lg:rounded-[3.2rem] overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.15)] border border-slate-200/90 dark:border-white/10 group">
+        <div className="relative w-full h-[65vh] sm:h-[70vh] min-h-[520px] sm:min-h-[580px] max-h-[750px] rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3.2rem] overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.15)] border border-slate-200/90 dark:border-white/10 group">
           
           {/* Ken Burns Crossfade Image Layer */}
           <div className="absolute inset-0 bg-slate-950 overflow-hidden">
@@ -1338,103 +1426,451 @@ export const Destinations = () => {
 
 
         {/* ==================================================================== */}
-        {/* SECTION 4: 7 WONDERS OF THE WORLD 3D BENTO SHOWCASE                  */}
+        {/* SECTION 4: 7 WONDERS OF THE WORLD MASTERPIECE SHOWCASE                */}
         {/* ==================================================================== */}
-        <div className="pt-8 space-y-8" id="wonders-showcase-section">
+        <section className="pt-10 space-y-8" id="wonders-showcase-section">
           
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          {/* Header & Controls */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-slate-200/80 dark:border-white/10 pb-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold tracking-widest uppercase mb-3">
-                <HiOutlineSparkles className="w-3.5 h-3.5" />
-                <span>UNESCO GLOBAL MASTERPIECES</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold tracking-widest uppercase mb-3">
+                <HiOutlineSparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+                <span>UNESCO GLOBAL MASTERPIECES · THE 7 WONDERS</span>
               </div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
-                The 7 Wonders of the World.
+                The Seven Wonders <span className="gradient-text">of the World.</span>
               </h2>
-              <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-medium max-w-xl mt-1">
-                Monuments that defy imagination, captured with perspective 3D specular tilt physics.
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium max-w-2xl mt-1.5">
+                Pinnacles of human perseverance and engineering. Explore architectural marvels, nearest multi-modal air and rail hubs, and generate bespoke itineraries.
               </p>
             </div>
 
-            <ThreeUIButton
-              onClick={() => setShowAllWonders(!showAllWonders)}
-              variant="specular-dark"
-              size="sm"
-              icon={FaArrowRight}
-              iconPosition="right"
-            >
-              {showAllWonders ? 'Collapse Grid' : 'View All 7 Wonders'}
-            </ThreeUIButton>
+            {/* Region Filters & View Switcher */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Region Filter Buttons */}
+              <div className="flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-xs font-mono font-bold">
+                {[
+                  { id: 'all', label: 'All 7', icon: FaLandmark },
+                  { id: 'asia', label: 'Asia (2)', icon: FaGlobeAsia },
+                  { id: 'americas', label: 'Americas (3)', icon: FaGlobeAmericas },
+                  { id: 'middle-east', label: 'Mid-East', icon: FaCompass },
+                  { id: 'europe', label: 'Europe', icon: FaGlobeEurope }
+                ].map((rf) => {
+                  const Icon = rf.icon;
+                  const isActive = wonderRegionFilter === rf.id;
+                  return (
+                    <button
+                      key={rf.id}
+                      type="button"
+                      onClick={() => setWonderRegionFilter(rf.id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
+                        isActive
+                          ? 'bg-amber-400 text-slate-950 font-black shadow-sm'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <Icon className="w-3 h-3" />
+                      <span>{rf.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* View Mode Toggle: Spotlight vs Grid */}
+              <div className="flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-xs font-mono">
+                <button
+                  type="button"
+                  onClick={() => setWonderViewMode('spotlight')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
+                    wonderViewMode === 'spotlight'
+                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold shadow-sm'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="Interactive Spotlight Stage"
+                >
+                  <FaEye className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Spotlight</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWonderViewMode('grid')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
+                    wonderViewMode === 'grid'
+                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold shadow-sm'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="Full 7-Card Panorama Grid"
+                >
+                  <FaThLarge className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">All Cards</span>
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* 3D Bento Showcase Grid */}
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[280px] md:auto-rows-[340px]">
-            <AnimatePresence>
-              {sevenWonders.slice(0, showAllWonders ? 7 : 4).map((wonder) => (
-                <div
-                  key={wonder.id}
-                  className={`${wonder.cols} h-full`}
-                >
+          {/* VIEW MODE 1: INTERACTIVE CINEMATIC STAGE */}
+          {wonderViewMode === 'spotlight' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              
+              {/* Main Feature Stage (8 cols) */}
+              <div className="lg:col-span-8 flex flex-col">
+                <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl bg-slate-950 flex-1 min-h-[580px] flex flex-col justify-between p-6 sm:p-10 group">
+                  
+                  {/* Background Layer with Crossfade */}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeWonder.id}
+                      initial={{ opacity: 0, scale: 1.04 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      transition={{ duration: 0.55 }}
+                      className="absolute inset-0 w-full h-full"
+                    >
+                      <img
+                        src={activeWonder.image}
+                        alt={activeWonder.title}
+                        className="w-full h-full object-cover"
+                        loading="eager"
+                        decoding="async"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/hero_mountain_day.jpg';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-black/35" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-transparent to-transparent hidden md:block" />
+                    </motion.div>
+                  </AnimatePresence>
+
+                  {/* Top Bar Badges */}
+                  <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="px-3.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-xs font-mono font-bold flex items-center gap-1.5 shadow-md">
+                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                        <span>UNESCO {activeWonder.unescoYear}</span>
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white text-xs font-mono font-semibold flex items-center gap-1.5">
+                        <span className="text-base">{activeWonder.flag}</span>
+                        <span>{activeWonder.country}</span>
+                      </span>
+                    </div>
+
+                    <span className="px-3.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-mono font-black tracking-wider uppercase shadow-md">
+                      {activeWonder.tag}
+                    </span>
+                  </div>
+
+                  {/* Stage Bottom Information */}
+                  <div className="relative z-10 pt-20 space-y-5">
+                    
+                    {/* Location & Title */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-amber-300 font-mono text-xs font-bold uppercase tracking-wider">
+                        <FaMapMarkerAlt className="w-3 h-3 text-amber-400" />
+                        <span>{activeWonder.location}</span>
+                      </div>
+                      <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight tracking-tight">
+                        {activeWonder.title}
+                      </h3>
+                      <p className="text-slate-200 text-sm sm:text-base font-medium max-w-2xl leading-relaxed">
+                        {activeWonder.description}
+                      </p>
+                    </div>
+
+                    {/* Insider Secret Callout */}
+                    <div className="p-3.5 sm:p-4 rounded-2xl bg-black/60 backdrop-blur-xl border border-amber-400/30 text-xs text-amber-100 flex items-start gap-3 shadow-lg">
+                      <div className="w-7 h-7 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center shrink-0 text-amber-400">
+                        <FaLightbulb className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="leading-relaxed">
+                        <span className="font-mono font-bold text-amber-300 uppercase tracking-wide mr-1.5">INSIDER TIP:</span>
+                        <span>{activeWonder.insiderTip}</span>
+                      </div>
+                    </div>
+
+                    {/* Architectural & Transit Specs Matrix */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                      <div className="p-3 rounded-2xl bg-white/[0.07] backdrop-blur-md border border-white/10">
+                        <div className="text-[10px] font-mono font-bold text-slate-400 uppercase">BUILT ERA</div>
+                        <div className="text-xs sm:text-sm font-black text-white mt-0.5">{activeWonder.builtEra}</div>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-white/[0.07] backdrop-blur-md border border-white/10">
+                        <div className="text-[10px] font-mono font-bold text-slate-400 uppercase">BEST SEASON</div>
+                        <div className="text-xs sm:text-sm font-black text-amber-300 mt-0.5">{activeWonder.bestSeason}</div>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-white/[0.07] backdrop-blur-md border border-white/10 col-span-2 sm:col-span-1">
+                        <div className="text-[10px] font-mono font-bold text-slate-400 uppercase">TRANSIT HUB</div>
+                        <div className="text-xs font-bold text-slate-200 mt-0.5 truncate" title={activeWonder.nearestTransit}>
+                          {activeWonder.nearestTransit.split('·')[0]}
+                        </div>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-white/[0.07] backdrop-blur-md border border-white/10 col-span-2 sm:col-span-1">
+                        <div className="text-[10px] font-mono font-bold text-slate-400 uppercase">EXPEDITION FARE</div>
+                        <div className="text-xs sm:text-sm font-black text-emerald-400 mt-0.5">{activeWonder.estFare}</div>
+                      </div>
+                    </div>
+
+                    {/* Dual Action CTA Buttons */}
+                    <div className="pt-2 flex flex-wrap items-center gap-3">
+                      <ThreeUIButton
+                        variant="amber-glow"
+                        size="md"
+                        icon={FaArrowRight}
+                        iconPosition="right"
+                        onClick={() => navigate('/itinerary', { state: { prompt: activeWonder.itineraryPrompt } })}
+                      >
+                        Plan AI Expedition with Groq™
+                      </ThreeUIButton>
+
+                      <ThreeUIButton
+                        variant="specular-dark"
+                        size="md"
+                        icon={FaPlane}
+                        onClick={() => navigate(`/flights?destination=${activeWonder.flightDest || 'DEL'}`)}
+                      >
+                        Search Flights
+                      </ThreeUIButton>
+
+                      <button
+                        type="button"
+                        onClick={() => navigate('/hotels')}
+                        className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-mono text-xs font-bold border border-white/15 transition-all flex items-center gap-2"
+                      >
+                        <FaHotel className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Find Boutique Stays</span>
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              {/* Wonder Selector Stack (4 cols) */}
+              <div className="lg:col-span-4 flex flex-col justify-between space-y-3">
+                <div className="flex items-center justify-between px-2 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <span className="flex items-center gap-1.5">
+                    <FaRoute className="w-3.5 h-3.5 text-amber-500" />
+                    <span>SELECT WONDER ({filteredWonders.length})</span>
+                  </span>
+                  <span>CLICK TO VIEW</span>
+                </div>
+
+                {/* Scrollable / Stacked List of Wonders */}
+                <div className="space-y-2.5 flex-1 overflow-y-auto max-h-[540px] pr-1 scrollbar-thin">
+                  {filteredWonders.map((w, index) => {
+                    const isSelected = activeWonder.id === w.id;
+                    return (
+                      <button
+                        key={w.id}
+                        type="button"
+                        onClick={() => setActiveWonderId(w.id)}
+                        className={`w-full text-left p-3 rounded-2xl border transition-all duration-300 flex items-center gap-3.5 group relative ${
+                          isSelected
+                            ? 'bg-amber-500/15 dark:bg-amber-400/10 border-amber-500/60 dark:border-amber-400/50 shadow-md ring-1 ring-amber-400/30'
+                            : 'bg-white/80 dark:bg-white/[0.03] border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.07] hover:border-slate-300 dark:hover:border-white/20'
+                        }`}
+                      >
+                        {/* Thumbnail Image */}
+                        <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-slate-200 dark:border-white/15 bg-slate-800">
+                          <img
+                            src={w.image}
+                            alt={w.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/hero_mountain_day.jpg';
+                            }}
+                          />
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-amber-500/20 ring-2 ring-inset ring-amber-400" />
+                          )}
+                        </div>
+
+                        {/* Title and Meta */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-[11px] font-mono font-bold text-slate-400 dark:text-slate-500">
+                              0{index + 1} · {w.country} {w.flag}
+                            </span>
+                            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold uppercase ${
+                              isSelected
+                                ? 'bg-amber-400 text-slate-950'
+                                : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300'
+                            }`}>
+                              {w.tag}
+                            </span>
+                          </div>
+
+                          <h4 className={`text-sm font-bold truncate mt-0.5 transition-colors ${
+                            isSelected
+                              ? 'text-amber-600 dark:text-amber-300 font-black'
+                              : 'text-slate-900 dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-400'
+                          }`}>
+                            {w.title}
+                          </h4>
+
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                            {w.builtEra} · {w.bestSeason}
+                          </div>
+                        </div>
+
+                        {/* Active Arrow Indicator */}
+                        {isSelected && (
+                          <div className="w-6 h-6 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shrink-0 text-xs shadow-sm">
+                            <FaArrowRight className="w-2.5 h-2.5" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Quick Previous / Next Bar */}
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const curIdx = filteredWonders.findIndex(w => w.id === activeWonder.id);
+                      const prevIdx = (curIdx - 1 + filteredWonders.length) % filteredWonders.length;
+                      setActiveWonderId(filteredWonders[prevIdx].id);
+                    }}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 transition-all flex items-center justify-center gap-2"
+                  >
+                    <FaChevronLeft className="w-3 h-3 text-amber-500" />
+                    <span>Previous Wonder</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const curIdx = filteredWonders.findIndex(w => w.id === activeWonder.id);
+                      const nextIdx = (curIdx + 1) % filteredWonders.length;
+                      setActiveWonderId(filteredWonders[nextIdx].id);
+                    }}
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>Next Wonder</span>
+                    <FaChevronRight className="w-3 h-3 text-amber-500" />
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* VIEW MODE 2: BALANCED 7-CARD PANORAMA GRID (Zero Empty Holes) */}
+          {wonderViewMode === 'grid' && (
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {filteredWonders.map((wonder) => (
+                <div key={wonder.id} className="h-full flex flex-col">
                   <ThreeCard3D
-                    maxTilt={8}
+                    maxTilt={6}
                     glare={true}
                     spotlightColor="rgba(245, 158, 11, 0.16)"
-                    className="h-full cursor-pointer group"
-                    onClick={() => navigate('/itinerary', { state: { prompt: `Plan a luxury architectural journey to the ${wonder.title} in ${wonder.location}` } })}
+                    className="h-full rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121422] shadow-lg flex flex-col group"
                   >
-                    {/* Background Image Layer */}
-                    <div className="absolute inset-0 w-full h-full overflow-hidden bg-slate-950">
+                    {/* Card Media Header */}
+                    <div className="relative h-60 overflow-hidden bg-slate-950">
                       <img
                         src={wonder.image}
                         alt={wonder.title}
                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
                         loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/hero_mountain_day.jpg';
+                        }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
-                    </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
 
-                    {/* Wonder Card Metadata */}
-                    <div className="relative z-10 h-full p-6 sm:p-8 flex flex-col justify-between">
-                      
                       {/* Top Badges */}
-                      <div className="flex items-center justify-between">
+                      <div className="absolute top-3 inset-x-3 flex items-center justify-between">
                         <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] font-mono font-bold">
                           UNESCO {wonder.unescoYear}
                         </span>
-                        <span className="px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-[11px] font-mono font-bold tracking-wider">
+                        <span className="px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-[11px] font-mono font-black tracking-wider uppercase shadow-sm">
                           {wonder.tag}
                         </span>
                       </div>
 
-                      {/* Bottom Info */}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1.5 text-amber-300 text-xs font-mono font-bold tracking-wider uppercase">
+                      {/* Flag and Location */}
+                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs font-mono">
+                        <span className="flex items-center gap-1.5 font-bold">
+                          <span className="text-sm">{wonder.flag}</span>
+                          <span>{wonder.country}</span>
+                        </span>
+                        <span className="text-amber-300 font-bold">{wonder.estFare}</span>
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                      <div>
+                        <div className="flex items-center gap-1.5 text-amber-500 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-wider">
                           <FaMapMarkerAlt className="w-3 h-3" />
-                          <span>{wonder.location}</span>
+                          <span className="truncate">{wonder.location}</span>
                         </div>
 
-                        <h4 className="text-2xl sm:text-3xl font-black text-white leading-tight group-hover:text-amber-300 transition-colors">
+                        <h4 className="text-xl font-black text-slate-900 dark:text-white mt-1 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
                           {wonder.title}
                         </h4>
 
-                        <p className="text-xs sm:text-sm text-white/80 font-medium line-clamp-2">
+                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-2 mt-2 leading-relaxed">
                           {wonder.description}
                         </p>
 
-                        <div className="pt-2 flex items-center gap-2 text-xs font-mono font-bold text-amber-400 group-hover:translate-x-1.5 transition-transform">
-                          <span>Generate Custom Itinerary</span>
-                          <FaArrowRight className="w-3 h-3" />
+                        {/* Specs Pills */}
+                        <div className="flex flex-wrap items-center gap-2 pt-3 text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                          <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10">
+                            🏛️ {wonder.builtEra}
+                          </span>
+                          <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10">
+                            ☀️ {wonder.bestSeason}
+                          </span>
                         </div>
+                      </div>
+
+                      {/* Card Action */}
+                      <div className="pt-2 border-t border-slate-100 dark:border-white/10 flex items-center justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveWonderId(wonder.id);
+                            setWonderViewMode('spotlight');
+                            document.getElementById('wonders-showcase-section')?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                          className="text-xs font-mono font-bold text-slate-500 hover:text-amber-500 transition-colors flex items-center gap-1"
+                        >
+                          <FaEye className="w-3 h-3" />
+                          <span>Spotlight</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => navigate('/itinerary', { state: { prompt: wonder.itineraryPrompt } })}
+                          className="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-mono text-xs font-black transition-all flex items-center gap-1.5 shadow-sm"
+                        >
+                          <span>Plan AI Trip</span>
+                          <FaArrowRight className="w-2.5 h-2.5" />
+                        </button>
                       </div>
 
                     </div>
                   </ThreeCard3D>
                 </div>
               ))}
-            </AnimatePresence>
-          </motion.div>
+            </motion.div>
+          )}
 
-        </div>
+        </section>
 
 
         {/* ==================================================================== */}

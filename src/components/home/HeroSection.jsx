@@ -98,7 +98,7 @@ export const HeroSection = () => {
           fetchPriority="high"
           loading="eager"
           decoding="async"
-          className="absolute inset-0 w-full h-full object-cover object-center brightness-105 contrast-[1.02] transition-opacity duration-1000 ease-in-out dark:opacity-0"
+          className="absolute inset-0 w-full h-full object-cover object-[50%_25%] sm:object-[50%_30%] md:object-center brightness-105 contrast-[1.02] transition-opacity duration-1000 ease-in-out dark:opacity-0"
         />
 
         {/* Dark Mode: Natural Alpine mountain peaks under authentic Milky Way & starry night */}
@@ -107,7 +107,7 @@ export const HeroSection = () => {
           alt="Natural Alpine Mountain Peaks Under Milky Way Galaxy and Shooting Star"
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 w-full h-full object-cover object-center brightness-100 contrast-[1.05] opacity-0 transition-opacity duration-1000 ease-in-out dark:opacity-100"
+          className="absolute inset-0 w-full h-full object-cover object-[50%_25%] sm:object-[50%_30%] md:object-center brightness-100 contrast-[1.05] opacity-0 transition-opacity duration-1000 ease-in-out dark:opacity-100"
         />
 
         {/* Natural Location Indicator Badge */}
@@ -118,7 +118,7 @@ export const HeroSection = () => {
         </div>
 
         {/* Cinematic Atmospheric Lighting Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-sky-400/10 via-transparent to-slate-50/90 dark:from-slate-950/40 dark:via-transparent dark:to-[#06080d]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-sky-400/10 via-transparent to-slate-50/80 dark:from-slate-950/40 dark:via-transparent dark:to-[#06080d]/85" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_30%,rgba(0,0,0,0.35)_100%)] dark:bg-[radial-gradient(ellipse_at_top,transparent_30%,rgba(6,8,13,0.55)_100%)]" />
       </motion.div>
 
@@ -128,7 +128,7 @@ export const HeroSection = () => {
       </Suspense>
 
       {/* 2. HERO CONTENT CONTAINER */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-36 pb-12 flex flex-col items-center text-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-24 sm:pt-28 md:pt-36 pb-10 sm:pb-12 flex flex-col items-center text-center">
         
         {/* Live Status Pill with Spring Flip */}
         <motion.div
@@ -153,7 +153,7 @@ export const HeroSection = () => {
         </motion.div>
 
         {/* Dynamic Editorial Headline with Zero-Blink Hardware-Accelerated Container */}
-        <div className="relative w-full max-w-6xl h-[160px] sm:h-[185px] md:h-[205px] mb-6 flex items-center justify-center">
+        <div className="relative w-full max-w-6xl h-[145px] sm:h-[175px] md:h-[205px] mb-4 sm:mb-6 flex items-center justify-center">
           <AnimatePresence initial={false}>
             <motion.div
               key={heroTextIndex}
@@ -162,12 +162,12 @@ export const HeroSection = () => {
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               style={{ transform: 'translateZ(0)', willChange: 'opacity, transform' }}
-              className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
+              className="absolute inset-0 flex flex-col items-center justify-center text-center px-2 sm:px-4"
             >
-              <div className="text-amber-500 dark:text-amber-400 font-mono text-xs md:text-sm font-bold tracking-widest uppercase mb-2 select-none">
+              <div className="text-amber-500 dark:text-amber-400 font-mono text-[11px] sm:text-xs md:text-sm font-bold tracking-widest uppercase mb-1.5 sm:mb-2 select-none">
                 {heroTexts[heroTextIndex].chapter}
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-[2.75rem] lg:text-[3.15rem] xl:text-[3.35rem] font-extrabold tracking-tight leading-[1.12] select-none [text-shadow:0_2px_12px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_18px_rgba(0,0,0,0.85)]">
+              <h1 className="text-2xl sm:text-4xl md:text-[2.75rem] lg:text-[3.15rem] xl:text-[3.35rem] font-extrabold tracking-tight leading-[1.15] sm:leading-[1.12] select-none [text-shadow:0_2px_12px_rgba(255,255,255,0.7)] dark:[text-shadow:0_2px_18px_rgba(0,0,0,0.85)]">
                 <span className="block text-slate-900 dark:text-white whitespace-normal sm:whitespace-nowrap">
                   {heroTexts[heroTextIndex].line1}
                 </span>
@@ -179,7 +179,7 @@ export const HeroSection = () => {
           </AnimatePresence>
         </div>
 
-        <p className="text-slate-900 dark:text-slate-200 font-semibold text-base sm:text-lg md:text-xl max-w-2xl mx-auto mt-2 leading-relaxed [text-shadow:0_1px_8px_rgba(255,255,255,0.8)] dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.9)]">
+        <p className="text-slate-900 dark:text-slate-200 font-semibold text-sm sm:text-lg md:text-xl max-w-2xl mx-auto px-2 mt-1 sm:mt-2 leading-relaxed [text-shadow:0_1px_8px_rgba(255,255,255,0.8)] dark:[text-shadow:0_2px_12px_rgba(0,0,0,0.9)]">
           Intelligent trip planning across 190+ countries. Verified Tatkal trains, flights, boutique stays, and curated experiences.
         </p>
 

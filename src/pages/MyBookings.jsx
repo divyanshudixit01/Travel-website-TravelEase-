@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useBooking } from '../context/BookingContext';
+import AuthContext from '../context/AuthContext';
 import { 
   FaTicketAlt, FaSearch, FaPlane, FaTrain, FaHotel, FaCar, FaBus, 
   FaCheckCircle, FaDownload, FaArrowLeft, FaSuitcase, FaCopy, FaCheck,
@@ -14,6 +15,8 @@ import { BookingTicketModal } from '../components/bookings/BookingTicketModal';
 
 const MyBookings = () => {
   const { userBookings, cancelBooking, addToast } = useBooking();
+  const { user, isAuthenticated, loading } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
@@ -103,6 +106,63 @@ const MyBookings = () => {
       { name: 'My Bookings', url: '/my-bookings' }
     ], '/my-bookings')
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-900 dark:text-white pt-32 pb-20 px-4 transition-colors duration-500 flex items-center justify-center" id="my-bookings-auth-gate">
+        <JsonLd data={schemas} />
+        <div className="max-w-md w-full p-8 rounded-3xl bg-white dark:bg-[#121422] border border-slate-200 dark:border-white/10 shadow-2xl text-center space-y-6">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 text-2xl shadow-inner">
+            <FaShieldAlt />
+          </div>
+
+          <div className="space-y-2">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-500">
+              Authentication Required
+            </span>
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+              Sign In to View Bookings
+            </h2>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Please sign in with your TravelEase credentials or create a new account to view your confirmed tickets, boarding passes, and booking history.
+            </p>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <button
+              type="button"
+              onClick={() => navigate('/login', { state: { from: { pathname: '/my-bookings' } } })}
+              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs font-mono tracking-wider uppercase transition-all shadow-lg shadow-amber-500/20"
+            >
+              Sign In to Your Account
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/register', { state: { from: { pathname: '/my-bookings' } } })}
+              className="w-full py-3.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.10] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold text-xs font-mono tracking-wider uppercase transition-all"
+            >
+              Create Free Account
+            </button>
+          </div>
+
+          <div className="pt-2">
+            <Link to="/" className="text-xs text-slate-400 hover:text-amber-500 transition-colors">
+              ← Return to Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-900 dark:text-white pt-24 pb-20 px-3 sm:px-6 lg:px-8 transition-colors duration-500" id="my-bookings-page">

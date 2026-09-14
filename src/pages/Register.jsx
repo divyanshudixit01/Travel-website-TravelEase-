@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthContext from '../context/AuthContext';
 import ThemeContext from '../context/ThemeContext';
@@ -23,23 +23,26 @@ const calculatePasswordStrength = (pass) => {
 
   switch (score) {
     case 1:
-      return { score: 1, label: 'Weak', color: '#f43f5e', width: '25%' };
+      return { score: 1, label: 'Weak', color: '#ef4444', width: '25%' };
     case 2:
       return { score: 2, label: 'Fair', color: '#f59e0b', width: '50%' };
     case 3:
-      return { score: 3, label: 'Strong', color: '#10b981', width: '75%' };
+      return { score: 3, label: 'Good', color: '#3b82f6', width: '75%' };
     case 4:
-      return { score: 4, label: 'Excellent', color: '#14b8a6', width: '100%' };
+      return { score: 4, label: 'Strong', color: '#10b981', width: '100%' };
     default:
-      return { score: 0, label: 'Too short', color: '#64748b', width: '15%' };
+      return { score: 0, label: '', color: '#94a3b8', width: '0%' };
   }
 };
 
 const Register = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { register } = useContext(AuthContext);
   const { theme } = useContext(ThemeContext);
   const { addToast } = useBooking();
+
+  const redirectPath = location.state?.from?.pathname || location.state?.from || '/';
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -92,7 +95,7 @@ const Register = () => {
       setTimeout(() => {
         setIsLoading(false);
         addToast('Account created successfully! Welcome to TravelEase.', 'success');
-        navigate('/');
+        navigate(redirectPath, { replace: true });
       }, 800);
     } else {
       setIsLoading(false);
@@ -596,6 +599,7 @@ const Register = () => {
               Already have an account?{' '}
               <Link 
                 to="/login" 
+                state={{ from: location.state?.from }}
                 className="text-emerald-600 dark:text-emerald-400 font-bold hover:text-emerald-500 transition-colors underline-offset-4 hover:underline"
               >
                 Sign In

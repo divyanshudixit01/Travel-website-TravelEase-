@@ -46,7 +46,7 @@ const validatePassportExpiry = (expiryDate, travelDate) => {
 const Checkout = () => {
   const navigate = useNavigate();
   const { activeBooking, formatPrice, confirmBooking, addToast } = useBooking();
-  const { user } = useContext(AuthContext);
+  const { user, isAuthenticated } = useContext(AuthContext);
 
   // Form State
   const [fullName, setFullName] = useState(user?.name || '');
@@ -337,6 +337,12 @@ const Checkout = () => {
   const discountUSD = breakdown?.discountUSD || 0;
 
   const handlePayNow = async () => {
+    if (!isAuthenticated || !user) {
+      addToast('Authentication Required: Please log in or create an account to finalize your booking.', 'error');
+      navigate('/login', { state: { from: { pathname: '/checkout' } } });
+      return;
+    }
+
     if (!validateAllFields()) {
       addToast('Please fill in all required traveler details correctly.', 'warning');
       return;

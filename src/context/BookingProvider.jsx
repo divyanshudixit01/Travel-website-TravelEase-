@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { formatCurrency, generateBookingReference } from '../services/realtimeDataEngine';
 import api from '../services/api';
 import { BookingContext } from './BookingContext';
+import AuthContext from './AuthContext';
 
 // Initial rich multi-modal seed bookings for MMT-grade interactive experience
 const DEFAULT_SEED_BOOKINGS = [
@@ -150,25 +151,57 @@ const DEFAULT_SEED_BOOKINGS = [
 ];
 
 export const BookingProvider = ({ children }) => {
+  const { user, isAuthenticated } = useContext(AuthContext);
+
   // Global Currency State: 'USD', 'EUR', 'GBP', 'INR'
   const [currency, setCurrency] = useState(() => {
     return localStorage.getItem('travelease_currency') || 'USD';
   });
 
-  // User Saved Bookings (Hydrated with real interactive multi-modal seed if empty)
-  const [userBookings, setUserBookings] = useState(() => {
-    const saved = localStorage.getItem('travelease_user_bookings');
-    if (saved) {
-      try { 
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      } catch (e) { /* fallback to default */ }
+  // Current Active Booking Draft in progress (Flight, Hotel, Car, Train, etc.)
+  // Persisted in sessionStorage so unauthenticated users who are redirected to /login or /register
+  // retain their booking selection upon logging in or creating an account!
+  const [activeBooking, setActiveBooking] = useState(() => {
+    try {
+      const savedDraft = sessionStorage.getItem('travelease_active_draft_booking');
+      return savedDraft ? JSON.parse(savedDraft) : null;
+    } catch {
+      return null;
     }
-    return DEFAULT_SEED_BOOKINGS;
   });
 
-  // Current Active Booking Draft in progress (Flight, Hotel, Car, Train, etc.)
-  const [activeBooking, setActiveBooking] = useState(null);
+  // User Saved Bookings: Strictly scoped to logged-in user credentials
+  const getUserStorageKey = (u) => {
+    if (!u) return null;
+    const identifier = u.id || u._id || u.email;
+    return identifier ? `travelease_user_bookings_${String(identifier).toLowerCase().trim()}` : null;
+  };
+
+  const [userBookings, setUserBookings] = useState([]);
+
+  // Load bookings strictly when authenticated
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      setUserBookings([]);
+      return;
+    }
+
+    const key = getUserStorageKey(user);
+    if (key) {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            setUserBookings(parsed);
+            return;
+          }
+        } catch {}
+      }
+    }
+    // New user starts with clean empty booking history
+    setUserBookings([]);
+  }, [isAuthenticated, user]);
 
   // Active Toast Notifications
   const [toasts, setToasts] = useState([]);
@@ -178,10 +211,24 @@ export const BookingProvider = ({ children }) => {
     localStorage.setItem('travelease_currency', currency);
   }, [currency]);
 
-  // Sync bookings to local storage
+  // Sync active draft booking to sessionStorage
   useEffect(() => {
-    localStorage.setItem('travelease_user_bookings', JSON.stringify(userBookings));
-  }, [userBookings]);
+    if (activeBooking) {
+      sessionStorage.setItem('travelease_active_draft_booking', JSON.stringify(activeBooking));
+    } else {
+      sessionStorage.removeItem('travelease_active_draft_booking');
+    }
+  }, [activeBooking]);
+
+  // Sync bookings strictly to authenticated user's private storage key
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const key = getUserStorageKey(user);
+      if (key) {
+        localStorage.setItem(key, JSON.stringify(userBookings));
+      }
+    }
+  }, [userBookings, isAuthenticated, user]);
 
   // Toast notification trigger
   const addToast = (message, type = 'info') => {
@@ -199,23 +246,32 @@ export const BookingProvider = ({ children }) => {
 
   // Process and finalize a new booking transaction
   const confirmBooking = (bookingData) => {
+    if (!isAuthenticated || !user) {
+      addToast('Authentication Required: Please log in or create an account to finalize your booking.', 'error');
+      return null;
+    }
+
     const bId = bookingData.bookingId || generateBookingReference('TE');
     const newBooking = {
       bookingId: bId,
       ...bookingData,
+      userId: user.id || user._id || user.email,
+      customerEmail: user.email || bookingData.customerEmail,
+      customerName: user.name || bookingData.customerName || bookingData.passengerName,
       status: 'Confirmed',
       createdAt: new Date().toISOString().split('T')[0]
     };
 
     setUserBookings(prev => [newBooking, ...prev]);
     setActiveBooking(null);
+    sessionStorage.removeItem('travelease_active_draft_booking');
     addToast(`Booking ${newBooking.bookingId} confirmed successfully!`, 'success');
 
     // Asynchronously synchronize with centralized backend database
     api.post('/bookings', {
       bookingId: newBooking.bookingId,
-      customerEmail: newBooking.customerEmail || localStorage.getItem('travelease_user_email') || 'traveler@travelease.com',
-      customerName: newBooking.passengerName || newBooking.customerName || 'Valued Traveler',
+      customerEmail: newBooking.customerEmail || user.email || 'traveler@travelease.com',
+      customerName: newBooking.passengerName || newBooking.customerName || user.name || 'Valued Traveler',
       customerPhone: newBooking.customerPhone || '',
       serviceType: newBooking.type || newBooking.serviceType || 'tour',
       provider: newBooking.provider || 'TravelEase Direct',

@@ -43,6 +43,16 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
       return tex;
     };
 
+    // Helper to compute visible viewport half-dimensions at any depth Z
+    const getFrustumAtDepth = (zDepth) => {
+      if (!camera) return { halfWidth: 600, halfHeight: 400 };
+      const dist = camera.position.z - zDepth;
+      const vFovRad = THREE.MathUtils.degToRad(camera.fov);
+      const halfHeight = Math.tan(vFovRad / 2) * dist;
+      const halfWidth = halfHeight * camera.aspect;
+      return { halfWidth, halfHeight };
+    };
+
     // 1. Procedural Vertical Gradient Sky Texture
     const createSkyTexture = (dark) => {
       const c = document.createElement('canvas');
@@ -538,13 +548,20 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
 
       // Update Cotton Clouds (Brilliant pure white in Light Mode, glowing moonlit silver in Dark Mode)
       if (cloudsData.length > 0) {
+        const curW = typeof window !== 'undefined' ? window.innerWidth : 1200;
+        const curMobile = curW < 768;
+        const curTablet = curW >= 768 && curW < 1024;
+        const cloudOpacity = isDark
+          ? (curMobile ? 0.32 : curTablet ? 0.25 : 0.20)
+          : (curMobile ? 0.38 : curTablet ? 0.30 : 0.24);
+
         cloudsData.forEach((item) => {
           if (isDark) {
             item.mesh.material.color.set(0xb8c9df);
-            item.mesh.material.opacity = 0.18;
+            item.mesh.material.opacity = cloudOpacity;
           } else {
             item.mesh.material.color.set(0xffffff);
-            item.mesh.material.opacity = 0.22;
+            item.mesh.material.opacity = cloudOpacity;
           }
           item.mesh.material.needsUpdate = true;
         });
@@ -580,6 +597,7 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
         const width = container.clientWidth || window.innerWidth || 1200;
         const height = container.clientHeight || 700;
         const isMobile = width < 768 || (typeof navigator !== 'undefined' && navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+        const isTablet = width >= 768 && width < 1024;
 
         // Safe WebGL context detection
         const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
@@ -598,8 +616,12 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
         renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio, 1.25) : Math.min(window.devicePixelRatio, 2));
 
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(50, Math.max(width / Math.max(height, 1), 0.1), 1, 3500);
-        camera.position.set(0, 0, 550);
+
+        // Responsive Camera: Adjust FOV and distance so portrait mobile view keeps full horizontal breadth
+        const cameraFov = isMobile ? 62 : isTablet ? 55 : 50;
+        const cameraZ = isMobile ? 620 : isTablet ? 580 : 550;
+        camera = new THREE.PerspectiveCamera(cameraFov, Math.max(width / Math.max(height, 1), 0.1), 1, 3500);
+        camera.position.set(0, isMobile ? 15 : 0, cameraZ);
 
       // ============================================================
       // 1. CELESTIAL: TWINKLING STARS (DARK MODE: z = -525)
@@ -675,7 +697,7 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
       // ============================================================
       // 3. CELESTIAL: SUN (LIGHT MODE: z = -520)
       // ============================================================
-      const sunGeo = new THREE.PlaneGeometry(360, 360);
+      const sunGeo = new THREE.PlaneGeometry(isMobile ? 260 : 360, isMobile ? 260 : 360);
       const sunMat = new THREE.MeshBasicMaterial({
         map: createSunTexture(),
         transparent: true,
@@ -684,14 +706,17 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
         depthWrite: false,
       });
       sunMesh = new THREE.Mesh(sunGeo, sunMat);
-      sunMesh.position.set(380, 230, -520);
+      const sunFrust = getFrustumAtDepth(-520);
+      const initialSunX = isMobile ? Math.min(sunFrust.halfWidth * 0.45, 170) : isTablet ? 260 : 380;
+      const initialSunY = isMobile ? Math.min(sunFrust.halfHeight * 0.65, 260) : 230;
+      sunMesh.position.set(initialSunX, initialSunY, -520);
       sunMesh.renderOrder = 1;
       scene.add(sunMesh);
 
       // ============================================================
       // 4. CELESTIAL: MOON (DARK MODE: z = -520)
       // ============================================================
-      const moonGeo = new THREE.PlaneGeometry(270, 270);
+      const moonGeo = new THREE.PlaneGeometry(isMobile ? 200 : 270, isMobile ? 200 : 270);
       const moonMat = new THREE.MeshBasicMaterial({
         map: createMoonTexture(),
         transparent: true,
@@ -700,7 +725,9 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
         depthWrite: false,
       });
       moonMesh = new THREE.Mesh(moonGeo, moonMat);
-      moonMesh.position.set(350, 220, -520);
+      const initialMoonX = isMobile ? Math.min(sunFrust.halfWidth * 0.40, 150) : isTablet ? 240 : 350;
+      const initialMoonY = isMobile ? Math.min(sunFrust.halfHeight * 0.62, 240) : 220;
+      moonMesh.position.set(initialMoonX, initialMoonY, -520);
       moonMesh.renderOrder = 1;
       scene.add(moonMesh);
 
@@ -723,7 +750,10 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
         const texture = isPuff ? cottonPuffTexture : cottonCumulusTexture;
         const geometry = isPuff ? geoPuff : geoCumulus;
 
-        const initialOpacity = isDark ? 0.18 : 0.22;
+        const initialOpacity = isDark
+          ? (isMobile ? 0.32 : isTablet ? 0.25 : 0.20)
+          : (isMobile ? 0.38 : isTablet ? 0.30 : 0.24);
+
         const initialColor = isDark
           ? new THREE.Color(0xb8c9df)
           : new THREE.Color(0xffffff);
@@ -740,26 +770,56 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
         const mesh = new THREE.Mesh(geometry, cloudMat);
         mesh.renderOrder = 2;
 
-        const zPos = -120 - i * 30;
-        const xPos = ((i / cloudCount) * 2200) - 1100 + (Math.random() - 0.5) * 80;
+        const zPos = -120 - i * 35;
+        const { halfWidth, halfHeight } = getFrustumAtDepth(zPos);
 
-        // Position ONLY at lower valley mist (-230) and high sky margin (+220), leaving the mountain completely clear!
-        const yPos = i < 2 ? (-230 + Math.random() * 40) : (230 + Math.random() * 40);
+        // Responsive distribution: Ensure clouds spawn directly inside the visible screen!
+        let xPos;
+        if (isMobile) {
+          const mobileOffsets = [-halfWidth * 0.65, -halfWidth * 0.15, halfWidth * 0.40, halfWidth * 0.90];
+          xPos = mobileOffsets[i % mobileOffsets.length] + (Math.random() - 0.5) * 20;
+        } else if (isTablet) {
+          const tabletOffsets = [-halfWidth * 0.70, -halfWidth * 0.20, halfWidth * 0.35, halfWidth * 0.80];
+          xPos = tabletOffsets[i % tabletOffsets.length] + (Math.random() - 0.5) * 35;
+        } else {
+          xPos = ((i / cloudCount) * (halfWidth * 1.8)) - (halfWidth * 0.9) + (Math.random() - 0.5) * 60;
+        }
+
+        // Responsive vertical placement:
+        // Cloud 0: Upper sky wisp
+        // Cloud 1: Mid-sky billow behind mountain peaks & headline
+        // Cloud 2: Valley mist near bottom
+        // Cloud 3: Ambient upper-mid depth wisp
+        let yPos;
+        if (isMobile) {
+          if (i === 0) yPos = Math.min(halfHeight * 0.48, 200);
+          else if (i === 1) yPos = halfHeight * 0.08;
+          else if (i === 2) yPos = Math.max(-halfHeight * 0.36, -180);
+          else yPos = Math.min(halfHeight * 0.32, 140);
+        } else if (isTablet) {
+          if (i === 0) yPos = 210;
+          else if (i === 1) yPos = 50;
+          else if (i === 2) yPos = -210;
+          else yPos = 130;
+        } else {
+          yPos = i < 2 ? (-230 + Math.random() * 40) : (230 + Math.random() * 40);
+        }
 
         mesh.position.set(xPos, yPos, zPos);
 
-        const scale = 0.70 + Math.random() * 0.25;
+        // Scale clouds appropriately for mobile/tablet screen density
+        const baseScale = isMobile ? 0.52 : isTablet ? 0.68 : 0.82;
+        const scale = baseScale + Math.random() * 0.16;
         mesh.scale.set(scale, scale, 1);
 
         cloudsGroup.add(mesh);
 
         cloudsData.push({
           mesh,
-          speedX: 0.10 + Math.random() * 0.10,
+          speedX: (isMobile ? 0.14 : 0.10) + Math.random() * 0.08,
           baseY: yPos,
           floatFreq: 0.0005 + Math.random() * 0.0004,
-          floatAmp: 4 + Math.random() * 4,
-          phase: Math.random() * Math.PI * 2,
+          floatAmp: (isMobile ? 3 : 4) + Math.random() * 4,
         });
       }
 
@@ -843,14 +903,33 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
 
     window.addEventListener('pointermove', onPointerMove, { passive: true });
 
-    // Resize Observer
+    // Resize Observer with responsive camera adaptation
     const onResize = () => {
       if (!container || !renderer || !camera) return;
       const width = container.clientWidth;
       const height = container.clientHeight;
+      const curMob = width < 768;
+      const curTab = width >= 768 && width < 1024;
+
+      camera.fov = curMob ? 62 : curTab ? 55 : 50;
+      camera.position.z = curMob ? 620 : curTab ? 580 : 550;
+      camera.position.y = curMob ? 15 : 0;
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+
+      // Re-align Sun & Moon if viewport aspect ratio shifts
+      const sFrust = getFrustumAtDepth(-520);
+      if (sunMesh) {
+        const sX = curMob ? Math.min(sFrust.halfWidth * 0.45, 170) : curTab ? 260 : 380;
+        const sY = curMob ? Math.min(sFrust.halfHeight * 0.65, 260) : 230;
+        sunMesh.position.set(sX, sY, -520);
+      }
+      if (moonMesh) {
+        const mX = curMob ? Math.min(sFrust.halfWidth * 0.40, 150) : curTab ? 240 : 350;
+        const mY = curMob ? Math.min(sFrust.halfHeight * 0.62, 240) : 220;
+        moonMesh.position.set(mX, mY, -520);
+      }
     };
 
     const resizeObserver = new ResizeObserver(onResize);
@@ -963,22 +1042,43 @@ export const ThreeCloudsCanvas = ({ className = '', showAirplane = false }) => {
         });
       }
 
-      // Continuous natural horizontal wind drift for cotton clouds
+      // Continuous natural horizontal wind drift for cotton clouds with responsive frustum wrap
+      const isMobNow = (container?.clientWidth || window.innerWidth) < 768;
+      const isTabNow = (container?.clientWidth || window.innerWidth) >= 768 && (container?.clientWidth || window.innerWidth) < 1024;
+
       for (let i = 0; i < cloudsData.length; i++) {
         const item = cloudsData[i];
         item.mesh.position.x += item.speedX;
         item.mesh.position.y = item.baseY + Math.sin(elapsedTime * 0.45 + item.phase) * item.floatAmp;
 
-        // Seamless infinite wrap-around
-        if (item.mesh.position.x > 1400) {
-          item.mesh.position.x = -1400;
-          const verticalZone = i % 3;
-          if (verticalZone === 0) {
-            item.baseY = 80 + Math.random() * 180;
-          } else if (verticalZone === 1) {
-            item.baseY = -50 + Math.random() * 120;
+        const cFrustum = getFrustumAtDepth(item.zPos || item.mesh.position.z);
+        const wrapBuffer = isMobNow ? 220 : isTabNow ? 340 : 520;
+        const wrapRight = cFrustum.halfWidth + wrapBuffer;
+        const wrapLeft = -(cFrustum.halfWidth + wrapBuffer);
+
+        // Seamless responsive wrap-around
+        if (item.mesh.position.x > wrapRight) {
+          item.mesh.position.x = wrapLeft;
+          if (isMobNow) {
+            const mobileZones = [
+              Math.min(cFrustum.halfHeight * 0.48, 200),
+              cFrustum.halfHeight * 0.08,
+              Math.max(-cFrustum.halfHeight * 0.36, -180),
+              Math.min(cFrustum.halfHeight * 0.30, 130),
+            ];
+            item.baseY = mobileZones[i % mobileZones.length] + (Math.random() - 0.5) * 20;
+          } else if (isTabNow) {
+            const tabletZones = [210, 50, -210, 130];
+            item.baseY = tabletZones[i % tabletZones.length] + (Math.random() - 0.5) * 30;
           } else {
-            item.baseY = -190 + Math.random() * 110;
+            const verticalZone = i % 3;
+            if (verticalZone === 0) {
+              item.baseY = 80 + Math.random() * 180;
+            } else if (verticalZone === 1) {
+              item.baseY = -50 + Math.random() * 120;
+            } else {
+              item.baseY = -190 + Math.random() * 110;
+            }
           }
         }
       }
