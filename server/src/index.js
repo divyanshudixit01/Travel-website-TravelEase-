@@ -25,7 +25,54 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ─── Security Middleware ──────────────────────────────────────────────────────
+// ─── 1. CORS Configuration (First in middleware chain for preflight OPTIONS) ───
+const clientUrls = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map(u => u.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const defaultDevOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:4173',
+  'http://localhost:3000'
+];
+
+const allowedOriginsList = [...new Set([...clientUrls, ...defaultDevOrigins])];
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true; // server-to-server, postman, mobile apps
+  const clean = origin.replace(/\/+$/, '');
+  if (allowedOriginsList.includes(clean)) return true;
+  // Allow all Vercel domains (*.vercel.app)
+  if (clean.endsWith('.vercel.app') || clean.includes('.vercel.app')) return true;
+  // Allow Render domains
+  if (clean.endsWith('.onrender.com')) return true;
+  // Allow local development
+  if (clean.startsWith('http://localhost:') || clean.startsWith('http://127.0.0.1:')) return true;
+  return false;
+};
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS Blocked] Origin not allowed: ${origin}`);
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Set-Cookie'],
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// ─── 2. Security Middleware ───────────────────────────────────────────────────
 // Helmet sets secure HTTP headers with complete Content Security Policy
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
@@ -44,10 +91,11 @@ app.use(helmet({
   },
 }));
 
-// Rate limiting — protect against brute-force attacks
+// Rate limiting — protect against brute-force attacks (skip OPTIONS preflights)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // Max 20 auth attempts per IP per window
+  max: 30,
+  skip: (req) => req.method === 'OPTIONS',
   message: { success: false, message: 'Too many attempts. Please try again after 15 minutes.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -55,39 +103,14 @@ const authLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 100, // Max 100 requests per IP per minute
+  max: 150,
+  skip: (req) => req.method === 'OPTIONS',
   message: { success: false, message: 'Rate limit exceeded. Please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
 app.use(generalLimiter);
-
-// ─── CORS Configuration ──────────────────────────────────────────────────────
-const clientUrls = (process.env.CLIENT_URL || '')
-  .split(',')
-  .map(u => u.trim())
-  .filter(Boolean);
-
-const defaultDevOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://localhost:4173',
-  'http://localhost:3000'
-];
-
-const allowedOrigins = [...new Set([...clientUrls, ...defaultDevOrigins])];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && origin.startsWith('http://localhost:'))) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
 
 // Body parser with size limit to prevent payload attacks
 // Captures raw body buffer for authentic HMAC webhook verification
