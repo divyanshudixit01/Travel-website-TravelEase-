@@ -149,12 +149,13 @@ export const TrendingDestinations = () => {
                 className="group cursor-pointer flex flex-col h-full"
               >
                 {/* Media Image */}
-                <div className="relative h-64 overflow-hidden rounded-2xl m-3 border border-slate-200 dark:border-white/10">
+                <div className="relative h-64 overflow-hidden rounded-2xl m-3 border border-slate-200 dark:border-white/10 bg-slate-200 dark:bg-slate-800/80">
                   <img
                     src={dest.image}
                     alt={dest.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
+                    decoding="async"
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = '/hero_day_dolomites.jpg';

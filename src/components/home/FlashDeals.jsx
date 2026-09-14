@@ -36,7 +36,7 @@ export const FlashDeals = () => {
       origPrice: '₹15,000',
       remaining: 'Only 2 rooms left',
       progress: 85,
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+      image: '/hero_day_dolomites.jpg',
       path: '/hotels',
     },
     {
@@ -49,7 +49,7 @@ export const FlashDeals = () => {
       origPrice: '₹3,200',
       remaining: '4 seats in window quota',
       progress: 92,
-      image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=800&q=80',
+      image: '/images/trains/ir_vande_bharat.jpg',
       path: '/trains',
     },
     {
@@ -62,7 +62,7 @@ export const FlashDeals = () => {
       origPrice: '₹7,200',
       remaining: '3 villas remaining',
       progress: 78,
-      image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80',
+      image: '/stories-greece-cove.jpg',
       path: '/homestays',
     },
     {
@@ -73,49 +73,50 @@ export const FlashDeals = () => {
       discount: '-32% AIRFARE',
       price: '₹15,400',
       origPrice: '₹22,800',
-      remaining: 'Limited fare tier',
-      progress: 68,
-      image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
+      remaining: 'Last 5 economy fares',
+      progress: 64,
+      image: '/hero_flying_plane.jpg',
       path: '/flights',
     },
   ];
 
   return (
-    <section className="relative py-20 px-4 max-w-7xl mx-auto z-20" id="flash-deals-matrix">
-      {/* Header with Live Countdown */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+    <section className="relative py-20 px-4 max-w-7xl mx-auto z-20" id="flash-deals-countdown">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-500 dark:text-rose-400 text-xs font-mono font-bold uppercase tracking-widest mb-3">
-            <FaFire className="text-rose-500 animate-bounce" />
-            <span>Limited Window Drops</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+            <FaFire className="w-3.5 h-3.5 animate-pulse text-rose-500" />
+            Limited Window Allocations
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Flash deals & <span className="text-gradient-primary">price drops</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+            Flash <span className="gradient-text">Privileges</span>
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base mt-2">
-            Automated algorithm locks lowest rates directly with carriers and resorts.
+          <p className="mt-2 text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-xl">
+            Live inventory sweeps with steep flash discounts expiring when the timer reaches zero.
           </p>
         </div>
 
-        {/* Live Countdown Box */}
-        <div className="flex items-center gap-3 p-3 px-5 rounded-2xl bg-white/90 dark:bg-[#13151f]/90 border border-slate-200 dark:border-white/10 shadow-lg">
-          <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-mono text-xs font-semibold">
-            <FaClock className="text-amber-500 dark:text-amber-400" />
-            <span>EXPIRES IN:</span>
+        {/* Global Countdown HUD */}
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/80 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 shadow-sm backdrop-blur-md">
+          <div className="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500">
+            <FaClock className="w-4 h-4" />
           </div>
-
-          <div className="flex items-center gap-1.5 font-mono font-black text-sm">
-            <span className="px-2 py-1 rounded bg-slate-100 dark:bg-black/60 text-amber-600 dark:text-amber-400 border border-slate-200 dark:border-amber-400/30">
-              {String(timeLeft.hours).padStart(2, '0')}h
-            </span>
-            <span className="text-slate-400 dark:text-slate-500">:</span>
-            <span className="px-2 py-1 rounded bg-slate-100 dark:bg-black/60 text-amber-600 dark:text-amber-400 border border-slate-200 dark:border-amber-400/30">
-              {String(timeLeft.minutes).padStart(2, '0')}m
-            </span>
-            <span className="text-slate-400 dark:text-slate-500">:</span>
-            <span className="px-2 py-1 rounded bg-slate-100 dark:bg-black/60 text-rose-500 dark:text-rose-400 border border-slate-200 dark:border-rose-400/30">
-              {String(timeLeft.seconds).padStart(2, '0')}s
-            </span>
+          <div>
+            <div className="text-[10px] font-mono font-bold uppercase text-slate-400">EXPIRES IN</div>
+            <div className="flex items-center gap-1 font-mono text-sm font-black">
+              <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-black/60 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10">
+                {String(timeLeft.hours).padStart(2, '0')}h
+              </span>
+              <span>:</span>
+              <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-black/60 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10">
+                {String(timeLeft.minutes).padStart(2, '0')}m
+              </span>
+              <span>:</span>
+              <span className="px-2 py-0.5 rounded bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                {String(timeLeft.seconds).padStart(2, '0')}s
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -137,6 +138,10 @@ export const FlashDeals = () => {
                 alt={deal.title}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 loading="lazy"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = '/hero_day_dolomites.jpg';
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 

@@ -22,7 +22,7 @@ export const CulturalExpedition = () => {
       coordinates: '9.4981° N, 76.3388° E',
       desc: 'Gliding silently aboard a handcrafted teak houseboat at dawn, through lotus-carpeted canals where time surrenders to the tide.',
       duration: '5 Nights · Private Houseboat & Ayurvedic Spa',
-      image: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/destinations/hero_amalfi_coast.jpg',
     },
     {
       chapter: '02',
@@ -33,7 +33,7 @@ export const CulturalExpedition = () => {
       coordinates: '26.9157° N, 70.9083° E',
       desc: 'Living sandstone fortresses rising from the Thar sands. Night camps beneath Milky Way constellations and royal Rajput banquets.',
       duration: '6 Nights · Desert Glamping & Royal Haveli',
-      image: 'https://images.unsplash.com/photo-1709338572902-a6fc2559d684?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/destinations/wonders_taj_mahal.jpg',
     },
     {
       chapter: '03',
@@ -44,7 +44,7 @@ export const CulturalExpedition = () => {
       coordinates: '25.3176° N, 82.9739° E',
       desc: 'The ancient spiritual heart where sacred fires reflect along the Ganga. Evening Maha Aarti ceremonies echoing through millennia.',
       duration: '4 Nights · Riverside Heritage Sanctuary',
-      image: 'https://images.unsplash.com/photo-1561359313-0639aad49ca6?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/destinations/hero_varanasi_ghats.jpg',
     },
     {
       chapter: '04',
@@ -55,7 +55,7 @@ export const CulturalExpedition = () => {
       coordinates: '34.1526° N, 77.5771° E',
       desc: 'High-altitude Tibetan Buddhist gompas clinging to sheer granite cliffs, crossing Khardung La into sapphire-blue glacial lakes.',
       duration: '7 Nights · High-Pass Expedition & Monasteries',
-      image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/destinations/hero_swiss_alps.jpg',
     },
   ];
 
@@ -70,20 +70,24 @@ export const CulturalExpedition = () => {
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Editorial Section Header (ThreeUI Kage Style) */}
-        <div className="mb-16">
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs font-mono font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400 mb-5 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400 shadow-[0_0_8px_#f59e0b] animate-pulse" />
-            <span>CHAPTER 02 — THE SACRED ARCHIPELAGO</span>
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200/80 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-semibold uppercase tracking-widest mb-3">
+              <FaCompass className="w-3.5 h-3.5" />
+              <span>Cultural Odyssey 2026</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Incredible <span className="text-gradient-primary">India Expeditions</span>
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base mt-2 max-w-xl">
+              An architectural exploration of spiritual sanctuaries, ancient fortresses, and high-altitude Himalayan valleys.
+            </p>
           </div>
 
-          <h2 className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight max-w-3xl leading-tight">
-            WHERE STILLNESS REVEALS THE <span className="text-gradient-primary">UNSEEN REALMS</span>.
-          </h2>
-
-          <p className="text-slate-600 dark:text-slate-400 font-medium text-base md:text-lg max-w-2xl mt-4 leading-relaxed">
-            Step beyond conventional itineraries into India’s most contemplative landscapes, where craftsmanship, heritage, and quiet grandeur shape the journey.
-          </p>
+          <div className="mt-4 md:mt-0 font-mono text-xs text-slate-500">
+            CHAPTER [ {expeditions[activeExpedition].chapter} / 04 ]
+          </div>
         </div>
 
         {/* 4-Column Editorial Bento Grid */}
@@ -91,16 +95,24 @@ export const CulturalExpedition = () => {
           
           {/* Main Showcase Hero (7 Cols) */}
           <div className="lg:col-span-7">
-            <ThreeCard3D maxTilt={5} spotlightColor="rgba(245, 158, 11, 0.2)" className="h-full flex flex-col justify-between overflow-hidden shadow-md dark:shadow-none">
+            <ThreeCard3D 
+              spotlightColor="rgba(245, 158, 11, 0.15)"
+              className="overflow-hidden flex flex-col h-full"
+            >
               <div className="relative h-[340px] md:h-[420px] overflow-hidden">
                 <motion.img
                   key={activeExpedition}
-                  initial={{ opacity: 0, scale: 1.08 }}
+                  initial={{ opacity: 0, scale: 1.06 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.6 }}
                   src={expeditions[activeExpedition].image}
                   alt={expeditions[activeExpedition].title}
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/hero_mountain_day.jpg';
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
 

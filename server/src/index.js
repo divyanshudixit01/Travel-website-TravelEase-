@@ -126,22 +126,46 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(sanitizeMiddleware);
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
-// Auth routes with stricter rate limiting
+// Auth routes with stricter rate limiting (supports /api/auth and /auth)
 app.use('/api/auth', authLimiter, authRoutes);
+app.use('/auth', authLimiter, authRoutes);
 
-// Service routes
+// Service routes (supports both /api/* and direct /* aliases)
 app.use('/api/destinations', destinationRoutes);
+app.use('/destinations', destinationRoutes);
+
 app.use('/api/itineraries', itineraryRoutes);
+app.use('/itineraries', itineraryRoutes);
+
 app.use('/api/blog', blogRoutes);
+app.use('/blog', blogRoutes);
+
 app.use('/api/v1/ai', aiRoutes);
+app.use('/v1/ai', aiRoutes);
+
 app.use('/api/irctc', irctcRoutes);
+app.use('/irctc', irctcRoutes);
+
 app.use('/api/flights', flightRoutes);
+app.use('/flights', flightRoutes);
+
 app.use('/api/hotels', hotelRoutes);
+app.use('/hotels', hotelRoutes);
+
 app.use('/api/bookings', bookingRoutes);
+app.use('/bookings', bookingRoutes);
+
 app.use('/api/inquiries', inquiryRoutes);
+app.use('/inquiries', inquiryRoutes);
+
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/newsletter', newsletterRoutes);
+
 app.use('/api/payments', paymentRoutes);
+app.use('/payments', paymentRoutes);
+
 app.use('/api/pricing', pricingRoutes);
+app.use('/pricing', pricingRoutes);
 
 // Root Landing Route
 app.get('/', (req, res) => {
@@ -154,8 +178,8 @@ app.get('/', (req, res) => {
   });
 });
 
-// Health Check
-app.get('/api/health', (req, res) => {
+// Health Check (supports both /api/health and /health)
+app.get(['/api/health', '/health'], (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : (mongoose.connection.readyState === 2 ? 'connecting' : 'disconnected');
   res.json({
     status: 'OK',

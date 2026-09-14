@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch, FaArrowRight, FaStar, FaBolt } from 'react-icons/fa';
 import { HiOutlineSparkles } from 'react-icons/hi';
 import { FiTag, FiTrendingDown, FiCheckCircle } from 'react-icons/fi';
-import { ThreeCloudsCanvas } from './ThreeHeroCanvas';
 import { ThreeUIButton } from '../ui/ThreeUIButton';
 import { SegmentedPillToggle } from '../ui/ThreeUIToggle';
+
+const ThreeCloudsCanvas = lazy(() =>
+  import('./ThreeHeroCanvas').then((m) => ({ default: m.ThreeCloudsCanvas }))
+);
 
 export const HeroSection = () => {
   const navigate = useNavigate();
@@ -92,6 +95,9 @@ export const HeroSection = () => {
         <img
           src="/hero_mountain_day.jpg"
           alt="Natural Swiss Alps Mountain Valley Sunrise (Valais, Switzerland)"
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover object-center brightness-105 contrast-[1.02] transition-opacity duration-1000 ease-in-out dark:opacity-0"
         />
 
@@ -99,6 +105,8 @@ export const HeroSection = () => {
         <img
           src="/hero_mountain_night.jpg"
           alt="Natural Alpine Mountain Peaks Under Milky Way Galaxy and Shooting Star"
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover object-center brightness-100 contrast-[1.05] opacity-0 transition-opacity duration-1000 ease-in-out dark:opacity-100"
         />
 
@@ -115,7 +123,9 @@ export const HeroSection = () => {
       </motion.div>
 
       {/* 1. THREE.JS ATMOSPHERE: CELESTIAL SKY (SUN/MOON/STARS/SHOOTING STARS) + 3D PARALLAX + ETHEREAL CLOUDS (NO PLANES) */}
-      <ThreeCloudsCanvas showAirplane={false} />
+      <Suspense fallback={null}>
+        <ThreeCloudsCanvas showAirplane={false} />
+      </Suspense>
 
       {/* 2. HERO CONTENT CONTAINER */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 pt-36 pb-12 flex flex-col items-center text-center">

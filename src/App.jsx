@@ -2,8 +2,8 @@ import React, { lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
-// Lazy-load all route pages for optimal bundle splitting
-const Home = lazy(() => import('./pages/Home'));
+// Primary landing page imported eagerly for instant first paint
+import Home from './pages/Home';
 
 // Lazy-load all secondary route pages for optimal bundle splitting
 const Destinations = lazy(() => import('./pages/Destinations'));

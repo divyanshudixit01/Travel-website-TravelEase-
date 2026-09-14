@@ -1779,7 +1779,7 @@ const Trains = () => {
                                     className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-all"
                                     title="Coach layout"
                                   >
-                                    <IoMdTrain className="text-sm" />
+                                    <FaTrain className="text-sm" />
                                   </button>
                                   <button
                                     onClick={() => handleOpenSchedule(trainNum, trainName)}

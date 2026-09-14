@@ -3,14 +3,11 @@ import axios from 'axios';
 import { ALL_INDIAN_STATIONS } from '../data/allIndianStations.js';
 import { ALL_INDIAN_TRAINS_MASTER } from '../data/indianRailwaysMaster.js';
 
+import { getApiBaseUrl } from './api.js';
+
 export { ALL_INDIAN_STATIONS as POPULAR_STATIONS };
 
-const rawBase = (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_API_BASE_URL || import.meta.env?.VITE_API_URL));
-const API_BASE = rawBase
-  ? `${rawBase.replace(/\/$/, '')}/irctc`
-  : (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
-    ? '/api/irctc'
-    : 'http://localhost:5000/api/irctc');
+const API_BASE = `${getApiBaseUrl()}/irctc`;
 
 const irctcClient = axios.create({
   baseURL: API_BASE,

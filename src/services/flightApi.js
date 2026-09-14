@@ -3,13 +3,9 @@
 // No API keys are exposed to the client
 
 import axios from 'axios';
+import { getApiBaseUrl } from './api.js';
 
-const rawBase = (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_API_BASE_URL || import.meta.env?.VITE_API_URL));
-const API_BASE = rawBase
-  ? `${rawBase.replace(/\/$/, '')}/flights`
-  : (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
-    ? '/api/flights'
-    : 'http://localhost:5000/api/flights');
+const API_BASE = `${getApiBaseUrl()}/flights`;
 
 const flightClient = axios.create({
   baseURL: API_BASE,
