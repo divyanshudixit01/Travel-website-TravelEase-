@@ -106,25 +106,36 @@ const ForgotPassword = () => {
         <div className="w-full lg:w-[50%] flex flex-col justify-center">
           
           {/* Brand Identity Badge */}
-          <Link to="/" className="inline-flex items-center gap-3 w-fit group mb-6">
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-3.5 w-fit group mb-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded-2xl"
+            aria-label="TravelEase Home"
+            title="TravelEase — Home"
+          >
             <div 
-              className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-transform duration-300 group-hover:scale-105"
+              className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-300 group-hover:scale-105 p-2 overflow-hidden"
               style={{
-                background: theme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.75)',
+                background: theme === 'dark' ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.92)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
-                border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.9)',
-                boxShadow: theme === 'dark' ? '0 10px 25px rgba(0,0,0,0.3)' : '0 10px 25px rgba(20, 184, 166, 0.15)',
+                border: theme === 'dark' ? '1px solid rgba(20, 184, 166, 0.4)' : '1px solid rgba(20, 184, 166, 0.45)',
+                boxShadow: theme === 'dark' 
+                  ? '0 10px 25px rgba(0,0,0,0.45), 0 0 20px rgba(20, 184, 166, 0.25)' 
+                  : '0 10px 25px rgba(20, 184, 166, 0.2), 0 2px 10px rgba(0,0,0,0.06)',
               }}
             >
-              <HiOutlineSparkles className="w-6 h-6 text-teal-500 dark:text-teal-400 drop-shadow" />
+              <img 
+                src="/brand/logo-mark.svg" 
+                alt="TravelEase Logo" 
+                className="w-full h-full object-contain filter drop-shadow group-hover:rotate-6 transition-transform duration-300" 
+              />
             </div>
             <div>
               <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-white block drop-shadow-sm">
                 Travel<span className="text-amber-500 dark:text-amber-400">Ease</span>
               </span>
               <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400 block">
-                AI Travel Platform
+                Next-Gen Multi-Modal Travel OS
               </span>
             </div>
           </Link>
@@ -249,12 +260,20 @@ const ForgotPassword = () => {
               <>
                 {/* Header */}
                 <div className="mb-6">
-                  <Link
-                    to="/login"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors mb-4"
-                  >
-                    <FaArrowLeft className="w-3 h-3" /> Back to Sign In
-                  </Link>
+                  <div className="flex items-center justify-between mb-4">
+                    <Link
+                      to="/login"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+                    >
+                      <FaArrowLeft className="w-3 h-3" /> Back to Sign In
+                    </Link>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-teal-500/10 dark:bg-white/[0.06] border border-teal-500/25 dark:border-white/10 shadow-sm">
+                      <img src="/brand/logo-mark.svg" alt="TravelEase Mark" className="w-3.5 h-3.5 object-contain" />
+                      <span className="text-[11px] font-bold text-slate-900 dark:text-white">
+                        Travel<span className="text-amber-500 dark:text-amber-400">Ease</span>
+                      </span>
+                    </div>
+                  </div>
 
                   <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
                     Reset Password

@@ -135,25 +135,36 @@ const Login = () => {
         <div className="w-full lg:w-[50%] flex flex-col justify-center">
           
           {/* Brand Identity Badge */}
-          <Link to="/" className="inline-flex items-center gap-3 w-fit group mb-6">
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-3.5 w-fit group mb-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded-2xl"
+            aria-label="TravelEase Home"
+            title="TravelEase — Home"
+          >
             <div 
-              className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-transform duration-300 group-hover:scale-105"
+              className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl transition-all duration-300 group-hover:scale-105 p-2 overflow-hidden"
               style={{
-                background: theme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.75)',
+                background: theme === 'dark' ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.92)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
-                border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(255, 255, 255, 0.9)',
-                boxShadow: theme === 'dark' ? '0 10px 25px rgba(0,0,0,0.3)' : '0 10px 25px rgba(245, 158, 11, 0.15)',
+                border: theme === 'dark' ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(245, 158, 11, 0.45)',
+                boxShadow: theme === 'dark' 
+                  ? '0 10px 25px rgba(0,0,0,0.45), 0 0 20px rgba(245, 158, 11, 0.25)' 
+                  : '0 10px 25px rgba(245, 158, 11, 0.2), 0 2px 10px rgba(0,0,0,0.06)',
               }}
             >
-              <HiOutlineSparkles className="w-6 h-6 text-amber-500 dark:text-amber-400 drop-shadow" />
+              <img 
+                src="/brand/logo-mark.svg" 
+                alt="TravelEase Logo" 
+                className="w-full h-full object-contain filter drop-shadow group-hover:rotate-6 transition-transform duration-300" 
+              />
             </div>
             <div>
               <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-white block drop-shadow-sm">
                 Travel<span className="text-amber-500 dark:text-amber-400">Ease</span>
               </span>
               <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400 block">
-                AI Travel Platform
+                Next-Gen Multi-Modal Travel OS
               </span>
             </div>
           </Link>
@@ -278,6 +289,15 @@ const Login = () => {
 
             {/* Header */}
             <div className="mb-6">
+              <div className="inline-flex items-center gap-2 mb-3 px-3 py-1.5 rounded-xl bg-amber-500/10 dark:bg-white/[0.06] border border-amber-500/25 dark:border-white/10 shadow-sm">
+                <img src="/brand/logo-mark.svg" alt="TravelEase Mark" className="w-4 h-4 object-contain" />
+                <span className="text-xs font-black tracking-tight text-slate-900 dark:text-white">
+                  Travel<span className="text-amber-500 dark:text-amber-400">Ease</span>
+                </span>
+                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                  SECURE AUTH
+                </span>
+              </div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
                 Welcome back
               </h2>
