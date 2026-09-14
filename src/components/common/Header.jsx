@@ -346,7 +346,11 @@ const Header = () => {
                       setSearchOpen(false);
                     }}
                   >
-                    <FaUserCircle className="w-3.5 h-3.5 text-amber-400" />
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="User Avatar" className="w-4 h-4 rounded-full object-cover border border-amber-400 shrink-0" />
+                    ) : (
+                      <FaUserCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    )}
                     <span className="text-[10.5px] font-bold max-w-[55px] sm:max-w-[70px] truncate ml-1 hidden xs:inline">
                       {user.name?.split(' ')[0] || user.email?.split('@')[0]}
                     </span>
@@ -565,9 +569,20 @@ const Header = () => {
                 transition={{ duration: 0.18 }}
                 className="absolute top-full mt-2.5 right-0 w-52 rounded-xl p-3 z-50 bg-white/95 dark:bg-[#0e121a]/95 text-slate-900 dark:text-white backdrop-blur-2xl border border-slate-200/90 dark:border-white/15 shadow-xl shadow-slate-900/15 dark:shadow-black/80"
               >
-                <div className="pb-2 mb-2 border-b border-slate-200 dark:border-white/10">
-                  <div className="text-xs font-bold text-slate-900 dark:text-white truncate">{user.name || 'Traveler'}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user.email}</div>
+                <div className="pb-2.5 mb-2 border-b border-slate-200 dark:border-white/10 flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-amber-500/40 bg-slate-900 p-0.5 shadow-sm">
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt={user.name || 'User'} className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      <div className="w-full h-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
+                        {user?.name?.[0]?.toUpperCase() || 'U'}
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-bold text-slate-900 dark:text-white truncate">{user.name || 'Traveler'}</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user.email}</div>
+                  </div>
                 </div>
 
                 <Link

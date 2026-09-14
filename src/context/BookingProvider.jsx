@@ -3,19 +3,168 @@ import { formatCurrency, generateBookingReference } from '../services/realtimeDa
 import api from '../services/api';
 import { BookingContext } from './BookingContext';
 
+// Initial rich multi-modal seed bookings for MMT-grade interactive experience
+const DEFAULT_SEED_BOOKINGS = [
+  {
+    bookingId: 'AI-8902B',
+    type: 'flight',
+    serviceType: 'flight',
+    provider: 'Air India',
+    airlineCode: 'AI',
+    flightNumber: 'AI 805',
+    serviceTitle: 'Delhi (DEL) → Mumbai (BOM)',
+    origin: 'New Delhi (DEL)',
+    originCode: 'DEL',
+    originTerminal: 'Terminal 3',
+    destination: 'Mumbai (BOM)',
+    destinationCode: 'BOM',
+    destinationTerminal: 'Terminal 2',
+    departureDate: '2026-09-22',
+    departureTime: '07:15 AM',
+    arrivalDate: '2026-09-22',
+    arrivalTime: '09:30 AM',
+    duration: '2h 15m',
+    flightType: 'Non-stop',
+    cabinClass: 'Economy Prime',
+    seat: '12A (Window)',
+    gate: '42B',
+    boardingPassReady: true,
+    pnr: 'AI8902B',
+    passengerName: 'Alex Johnson',
+    passengerCount: 1,
+    baggage: '15 kg Check-in + 7 kg Cabin',
+    meal: 'Hot Breakfast Included',
+    amountUSD: 94,
+    totalUSD: 94,
+    currency: 'INR',
+    amount: 7850,
+    status: 'Confirmed',
+    createdAt: '2026-09-12'
+  },
+  {
+    bookingId: 'IR-2849105432',
+    type: 'train',
+    serviceType: 'train',
+    provider: 'Indian Railways (IRCTC)',
+    trainNumber: '22436',
+    trainName: 'Vande Bharat Express',
+    serviceTitle: 'Vande Bharat Express (22436)',
+    origin: 'New Delhi (NDLS)',
+    originCode: 'NDLS',
+    originPlatform: 'Platform 16',
+    destination: 'Varanasi Junction (BSB)',
+    destinationCode: 'BSB',
+    destinationPlatform: 'Platform 1',
+    departureDate: '2026-09-28',
+    departureTime: '06:00 AM',
+    arrivalDate: '2026-09-28',
+    arrivalTime: '02:00 PM',
+    duration: '8h 00m',
+    classType: 'Executive Class (EC)',
+    coach: 'E1',
+    berth: '18 (Window Seat)',
+    chartStatus: 'Chart Prepared • Confirmed',
+    pnr: '2849105432',
+    passengerName: 'Alex Johnson',
+    passengerCount: 1,
+    catering: 'Complimentary Morning Tea & Lunch',
+    amountUSD: 36,
+    totalUSD: 36,
+    currency: 'INR',
+    amount: 3020,
+    status: 'Confirmed',
+    createdAt: '2026-09-10'
+  },
+  {
+    bookingId: 'HTL-89104',
+    type: 'hotel',
+    serviceType: 'hotel',
+    provider: 'The Oberoi Hotels & Resorts',
+    serviceTitle: 'The Oberoi Amarvilas, Agra',
+    hotelName: 'The Oberoi Amarvilas, Agra',
+    starRating: 5,
+    location: 'Taj East Gate Road, Agra, India',
+    roomType: 'Premier Taj View Luxury Room',
+    checkInDate: '2026-08-15',
+    checkOutDate: '2026-08-17',
+    checkInTime: '02:00 PM',
+    checkOutTime: '12:00 PM',
+    nights: 2,
+    guests: '2 Adults',
+    amenities: ['Taj Mahal View Balcony', 'Butler Service', 'Complimentary Champagne & Breakfast', 'Free Wi-Fi'],
+    pnr: 'OBR-AGRA-89104',
+    passengerName: 'Alex Johnson',
+    amountUSD: 520,
+    totalUSD: 520,
+    currency: 'INR',
+    amount: 43500,
+    status: 'Completed',
+    createdAt: '2026-08-01'
+  },
+  {
+    bookingId: 'CAB-77120',
+    type: 'car',
+    serviceType: 'car',
+    provider: 'Uber Intercity Premier',
+    serviceTitle: 'DEL Airport to Gurugram Cyber City',
+    vehicleModel: 'Toyota Camry Hybrid (Sedan)',
+    driverName: 'Rajesh Sharma',
+    driverRating: '4.92 ★ (1,240 trips)',
+    pickupDate: '2026-09-02',
+    pickupTime: '11:45 AM',
+    dropoffTime: '12:35 PM',
+    distance: '18.4 km',
+    pnr: 'UBER-IND-77120',
+    passengerName: 'Alex Johnson',
+    amountUSD: 18,
+    totalUSD: 18,
+    currency: 'INR',
+    amount: 1480,
+    status: 'Completed',
+    createdAt: '2026-09-02'
+  },
+  {
+    bookingId: 'BUS-33910',
+    type: 'bus',
+    serviceType: 'bus',
+    provider: 'Zingbus Electric Premium',
+    serviceTitle: 'Delhi (Kashmere Gate) → Manali Mall Road',
+    busType: 'Volvo AC Multi-Axle Sleeper (2+1)',
+    origin: 'ISBT Kashmere Gate, Delhi',
+    destination: 'Private Bus Stand, Manali',
+    departureDate: '2026-07-10',
+    departureTime: '08:30 PM',
+    arrivalDate: '2026-07-11',
+    arrivalTime: '09:00 AM',
+    seat: 'Upper Berth U4',
+    pnr: 'ZING-DEL-MNL-33910',
+    passengerName: 'Alex Johnson',
+    amountUSD: 24,
+    totalUSD: 24,
+    currency: 'INR',
+    amount: 1980,
+    status: 'Cancelled',
+    refundStatus: 'Full Refund Processed (₹1,980 to Original Source)',
+    createdAt: '2026-07-02'
+  }
+];
+
 export const BookingProvider = ({ children }) => {
   // Global Currency State: 'USD', 'EUR', 'GBP', 'INR'
   const [currency, setCurrency] = useState(() => {
     return localStorage.getItem('travelease_currency') || 'USD';
   });
 
-  // User Saved Bookings
+  // User Saved Bookings (Hydrated with real interactive multi-modal seed if empty)
   const [userBookings, setUserBookings] = useState(() => {
     const saved = localStorage.getItem('travelease_user_bookings');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) { return []; }
+      try { 
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) { /* fallback to default */ }
     }
-    return [];
+    return DEFAULT_SEED_BOOKINGS;
   });
 
   // Current Active Booking Draft in progress (Flight, Hotel, Car, Train, etc.)

@@ -1,447 +1,393 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  FaTicketAlt, FaSearch, FaCalendarAlt, FaUser,
-  FaCheckCircle, FaTimesCircle, FaDownload, FaPrint, FaArrowLeft,
-  FaShieldAlt, FaExclamationTriangle, FaSpinner, FaReceipt
-} from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { getBookingById, downloadVoucher, cancelBooking } from '../services/hotelApi';
 import { useBooking } from '../context/BookingContext';
+import { 
+  FaTicketAlt, FaSearch, FaPlane, FaTrain, FaHotel, FaCar, FaBus, 
+  FaCheckCircle, FaDownload, FaArrowLeft, FaSuitcase, FaCopy, FaCheck,
+  FaCalendarAlt, FaTimes, FaShieldAlt, FaExclamationTriangle
+} from 'react-icons/fa';
+import { HiOutlineSparkles } from 'react-icons/hi';
 import JsonLd from '../components/seo/JsonLd';
 import { getWebPageSchema, getBreadcrumbSchema } from '../utils/schemas';
-import { ThreeUIButton } from '../components/ui/ThreeUIButton';
+import { BookingTicketModal } from '../components/bookings/BookingTicketModal';
 
 const MyBookings = () => {
-  const { addToast } = useBooking();
-  const [searchId, setSearchId] = useState('');
-  const [activeBooking, setActiveBooking] = useState(null);
-  const [recentBookings, setRecentBookings] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const [voucherText, setVoucherText] = useState(null);
-  const [isDownloadingVoucher, setIsDownloadingVoucher] = useState(false);
-  const [error, setError] = useState(null);
+  const { userBookings, cancelBooking, addToast } = useBooking();
 
-  // Load recent booking IDs from localStorage
-  useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('travelease_hotel_bookings') || '[]');
-      if (Array.isArray(stored)) {
-        setRecentBookings(stored);
-        // If there's at least one recent booking, auto-load the latest one
-        if (stored.length > 0 && stored[0].bookingId) {
-          handleLookup(stored[0].bookingId);
-        }
-      }
-    } catch (e) {
-      console.warn('Error reading recent bookings:', e);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusTab, setStatusTab] = useState('all'); // 'all' | 'upcoming' | 'completed' | 'cancelled'
+  const [selectedService, setSelectedService] = useState('all'); // 'all' | 'flight' | 'train' | 'hotel' | 'car' | 'bus'
+  
+  // Modals
+  const [ticketModalBooking, setTicketModalBooking] = useState(null);
+  const [cancellingBookingId, setCancellingBookingId] = useState(null);
+  const [copiedPnr, setCopiedPnr] = useState('');
 
-  const handleLookup = async (idToLook) => {
-    const bId = (idToLook || searchId || '').trim();
-    if (!bId) {
-      setError('Please enter a valid Booking Reference ID');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    setVoucherText(null);
-
-    try {
-      const res = await getBookingById(bId);
-      if (res.success && res.booking) {
-        setActiveBooking(res.booking);
-        setSearchId(bId);
-      } else {
-        setError(res.message || 'No reservation found matching this reference ID');
-        setActiveBooking(null);
-      }
-    } catch (err) {
-      setError(err.message || 'Unable to retrieve reservation');
-      setActiveBooking(null);
-    }
-
-    setIsLoading(false);
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedPnr(text);
+    addToast(`Copied PNR ${text} to clipboard`, 'info');
+    setTimeout(() => setCopiedPnr(''), 3000);
   };
 
-  const handleDownloadVoucher = async () => {
-    if (!activeBooking?.bookingId) return;
-    setIsDownloadingVoucher(true);
-    try {
-      const res = await downloadVoucher(activeBooking.bookingId);
-      if (res.success && res.voucher) {
-        setVoucherText(res.voucher);
-        // Also trigger browser download as a text/html voucher file
-        const blob = new Blob([res.voucher], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `Voucher_${activeBooking.bookingId}.txt`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        addToast('Voucher downloaded successfully!', 'success');
-      } else {
-        addToast('Official voucher text received and displayed below.', 'info');
-      }
-    } catch (err) {
-      addToast('Could not download voucher. Please print this page.', 'error');
-    }
-    setIsDownloadingVoucher(false);
+  const handleConfirmCancel = (bookingId) => {
+    cancelBooking(bookingId);
+    setCancellingBookingId(null);
+    addToast(`Reservation ${bookingId} has been cancelled successfully.`, 'success');
   };
 
-  const handleCancelBooking = async () => {
-    if (!activeBooking?.bookingId) return;
-    setIsCancelling(true);
-    try {
-      const res = await cancelBooking(activeBooking.bookingId);
-      if (res.success) {
-        addToast('Reservation cancelled successfully.', 'success');
-        setActiveBooking(prev => ({ ...prev, status: 'CANCELLED' }));
-        setShowCancelConfirm(false);
-      } else {
-        addToast(res.message || 'Failed to cancel reservation.', 'error');
+  // Filter logic
+  const filteredBookings = useMemo(() => {
+    return userBookings.filter((booking) => {
+      // 1. Status Filter
+      if (statusTab === 'upcoming' && booking.status !== 'Confirmed') return false;
+      if (statusTab === 'completed' && booking.status !== 'Completed') return false;
+      if (statusTab === 'cancelled' && booking.status !== 'Cancelled') return false;
+
+      // 2. Service Category Filter
+      if (selectedService !== 'all') {
+        const bType = booking.type || booking.serviceType;
+        if (bType !== selectedService) return false;
       }
-    } catch (err) {
-      addToast(err.message || 'Error cancelling reservation.', 'error');
+
+      // 3. Search Query
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim();
+        const pnr = (booking.pnr || booking.bookingId || '').toLowerCase();
+        const title = (booking.serviceTitle || booking.title || '').toLowerCase();
+        const provider = (booking.provider || '').toLowerCase();
+        const origin = (booking.origin || '').toLowerCase();
+        const dest = (booking.destination || '').toLowerCase();
+        const hotel = (booking.hotelName || '').toLowerCase();
+
+        return pnr.includes(query) || title.includes(query) || provider.includes(query) || 
+               origin.includes(query) || dest.includes(query) || hotel.includes(query);
+      }
+
+      return true;
+    });
+  }, [userBookings, statusTab, selectedService, searchQuery]);
+
+  const upcomingCount = userBookings.filter(b => b.status === 'Confirmed').length;
+  const completedCount = userBookings.filter(b => b.status === 'Completed').length;
+  const cancelledCount = userBookings.filter(b => b.status === 'Cancelled').length;
+
+  const getServiceBadge = (type) => {
+    switch (type) {
+      case 'flight':
+        return { label: 'Flight', icon: <FaPlane />, color: 'bg-sky-500/15 text-sky-500 border-sky-500/30' };
+      case 'train':
+        return { label: 'IRCTC Train', icon: <FaTrain />, color: 'bg-amber-500/15 text-amber-500 border-amber-500/30' };
+      case 'hotel':
+        return { label: 'Stay / Resort', icon: <FaHotel />, color: 'bg-purple-500/15 text-purple-500 border-purple-500/30' };
+      case 'car':
+        return { label: 'Cab & Rental', icon: <FaCar />, color: 'bg-emerald-500/15 text-emerald-500 border-emerald-500/30' };
+      case 'bus':
+        return { label: 'Express Bus', icon: <FaBus />, color: 'bg-rose-500/15 text-rose-500 border-rose-500/30' };
+      default:
+        return { label: 'Trip', icon: <FaSuitcase />, color: 'bg-indigo-500/15 text-indigo-500 border-indigo-500/30' };
     }
-    setIsCancelling(false);
   };
 
   const schemas = [
     getWebPageSchema({
-      name: 'Manage Hotel Bookings & Vouchers',
-      description: 'Look up reservations, download vouchers, and manage check-in details with instant confirmation.',
+      name: 'Manage All Bookings & Vouchers',
+      description: 'Look up reservations, download vouchers, view boarding passes, and manage check-in details with instant confirmation.',
       url: '/my-bookings',
       breadcrumb: true
     }),
     getBreadcrumbSchema([
       { name: 'Home', url: '/' },
-      { name: 'Hotels', url: '/hotels' },
       { name: 'My Bookings', url: '/my-bookings' }
     ], '/my-bookings')
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0e1a] text-slate-900 dark:text-slate-100 pt-24 pb-16 px-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-900 dark:text-white pt-24 pb-20 px-3 sm:px-6 lg:px-8 transition-colors duration-500" id="my-bookings-page">
       <JsonLd data={schemas} />
 
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <Link
-            to="/hotels"
-            className="inline-flex items-center gap-2 text-xs font-bold text-amber-500 hover:text-amber-400 mb-2 transition-colors"
-          >
-            <FaArrowLeft className="text-[10px]" /> Back to Hotel Search
-          </Link>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-black">
-            <FaTicketAlt /> Reservation Management
+      <div className="max-w-6xl mx-auto space-y-8">
+        
+        {/* Header Strip */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-2 text-xs font-bold text-amber-500 hover:text-amber-400 mb-2 transition-colors"
+            >
+              <FaArrowLeft className="text-[10px]" /> Back to Dashboard
+            </Link>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                MMT LUXE SYSTEM
+              </span>
+              <span className="text-xs text-slate-400 font-mono">• {userBookings.length} Active & Past Bookings</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white mt-1">
+              My Trips & Reservations
+            </h1>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-            Manage Your Hotel Bookings
-          </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
-            Retrieve official LiteAPI reservations, download confirmed hotel vouchers, or cancel anytime with zero friction.
-          </p>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to="/itinerary"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-xs shadow-md shadow-amber-500/20 transition-all flex items-center gap-2"
+            >
+              <HiOutlineSparkles /> AI Trip Planner
+            </Link>
+          </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl space-y-4">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleLookup(searchId);
-            }}
-            className="flex flex-col sm:flex-row gap-3"
-          >
-            <div className="relative flex-1">
-              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+        {/* Search & PNR Lookup Hero */}
+        <div className="p-5 sm:p-7 rounded-3xl bg-white dark:bg-[#0c101c] border border-slate-200/90 dark:border-white/10 shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="relative flex-1 w-full">
+              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
               <input
                 type="text"
-                value={searchId}
-                onChange={(e) => setSearchId(e.target.value)}
-                placeholder="Enter Booking Reference ID (e.g. 5DeMgVmY7)"
-                className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-amber-500 transition-colors"
+                placeholder="Enter PNR, Flight No (e.g. AI 805), Train No (22436), Hotel or City..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-11 pr-10 py-3 rounded-2xl bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-amber-400"
               />
-            </div>
-            <ThreeUIButton
-              type="submit"
-              disabled={isLoading}
-              variant="amber-glow"
-              size="md"
-              icon={isLoading ? <FaSpinner className="animate-spin" /> : <FaSearch />}
-              className="shrink-0 disabled:opacity-60"
-            >
-              {isLoading ? 'Retrieving...' : 'Lookup Booking'}
-            </ThreeUIButton>
-          </form>
-
-          {/* Quick Recent Chips */}
-          {recentBookings.length > 0 && (
-            <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-slate-100 dark:border-slate-800">
-              <span className="text-[11px] font-bold text-slate-400">Recent on this device:</span>
-              {recentBookings.slice(0, 4).map((rb, i) => (
+              {searchQuery && (
                 <button
-                  key={i}
                   type="button"
-                  onClick={() => {
-                    setSearchId(rb.bookingId);
-                    handleLookup(rb.bookingId);
-                  }}
-                  className={`text-xs font-bold px-3 py-1 rounded-xl transition-all ${
-                    searchId === rb.bookingId
-                      ? 'bg-amber-500 text-white shadow-md'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <FaTimes className="text-xs" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Status Tabs */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 overflow-x-auto">
+              {[
+                { id: 'all', label: 'All Trips', count: userBookings.length },
+                { id: 'upcoming', label: 'Upcoming', count: upcomingCount },
+                { id: 'completed', label: 'Completed', count: completedCount },
+                { id: 'cancelled', label: 'Cancelled', count: cancelledCount },
+              ].map((tab) => {
+                const isActive = statusTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setStatusTab(tab.id)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                      isActive
+                        ? 'bg-amber-500 text-black font-black shadow-sm'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <span>{tab.label}</span>
+                    <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-mono ${
+                      isActive ? 'bg-black text-amber-400' : 'bg-slate-300 dark:bg-white/10'
+                    }`}>
+                      {tab.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Service Filters */}
+            <div className="flex items-center gap-1.5 overflow-x-auto">
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'flight', label: 'Flights' },
+                { id: 'train', label: 'Trains' },
+                { id: 'hotel', label: 'Stays' },
+                { id: 'car', label: 'Cabs' },
+                { id: 'bus', label: 'Buses' },
+              ].map((svc) => (
+                <button
+                  key={svc.id}
+                  type="button"
+                  onClick={() => setSelectedService(svc.id)}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    selectedService === svc.id
+                      ? 'bg-slate-900 text-white dark:bg-white dark:text-black font-bold'
+                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10'
                   }`}
                 >
-                  {rb.bookingId} ({rb.hotelName ? rb.hotelName.split(' ')[0] : 'Hotel'})
+                  {svc.label}
                 </button>
               ))}
             </div>
-          )}
-
-          {error && (
-            <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold flex items-center gap-2">
-              <FaExclamationTriangle className="shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
+          </div>
         </div>
 
-        {/* Active Booking Voucher & Details Card */}
-        {activeBooking && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden"
-          >
-            {/* Voucher Header Band */}
-            <div className={`p-6 sm:p-8 ${
-              activeBooking.status === 'CANCELLED'
-                ? 'bg-gradient-to-r from-rose-900/60 to-slate-900'
-                : 'bg-gradient-to-r from-amber-600 to-amber-700 text-white'
-            } flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4`}>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                    activeBooking.status === 'CANCELLED'
-                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                      : 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/40'
-                  }`}>
-                    {activeBooking.status === 'CANCELLED' ? <FaTimesCircle className="inline mr-1" /> : <FaCheckCircle className="inline mr-1" />}
-                    {activeBooking.status}
-                  </span>
-                  <span className="text-xs text-white/80 font-semibold">
-                    LiteAPI Guaranteed
-                  </span>
-                </div>
-                <h2 className="text-2xl font-black text-white">
-                  {activeBooking.hotel?.name || 'Hotel Reservation'}
-                </h2>
-                <p className="text-xs text-white/80 mt-1">
-                  Confirmation Reference: <span className="font-mono font-black text-white">{activeBooking.bookingId}</span>
-                </p>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
-                <ThreeUIButton
-                  type="button"
-                  onClick={handleDownloadVoucher}
-                  disabled={isDownloadingVoucher}
-                  variant="specular-dark"
-                  size="sm"
-                  icon={isDownloadingVoucher ? <FaSpinner className="animate-spin" /> : <FaDownload />}
-                >
-                  Download Voucher
-                </ThreeUIButton>
-                <ThreeUIButton
-                  type="button"
-                  onClick={() => window.print()}
-                  variant="specular-dark"
-                  size="sm"
-                  icon={<FaPrint />}
-                >
-                  Print
-                </ThreeUIButton>
-              </div>
+        {/* Bookings Feed */}
+        {filteredBookings.length === 0 ? (
+          <div className="p-16 rounded-3xl bg-white dark:bg-[#0c101c] border border-slate-200 dark:border-white/10 text-center space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/15 text-amber-500 flex items-center justify-center mx-auto text-2xl">
+              <FaSuitcase />
             </div>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white">
+              No matching bookings found
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+              Try modifying your search query or selecting a different service category.
+            </p>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-white/10 text-xs font-bold"
+              >
+                Clear Search
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredBookings.map((b) => {
+              const badge = getServiceBadge(b.type || b.serviceType);
+              const isConfirmed = b.status === 'Confirmed';
+              const isCompleted = b.status === 'Completed';
 
-            {/* Details Grid */}
-            <div className="p-6 sm:p-8 space-y-6">
-              {/* Key Highlights Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 space-y-1">
-                  <div className="flex items-center gap-2 text-slate-400 text-xs font-bold">
-                    <FaCalendarAlt className="text-amber-400" /> Stay Dates
-                  </div>
-                  <p className="text-sm font-black text-slate-900 dark:text-white">
-                    {activeBooking.checkin} → {activeBooking.checkout}
-                  </p>
-                  <p className="text-[11px] text-slate-500">Official check-in from 2:00 PM</p>
-                </div>
+              return (
+                <div
+                  key={b.bookingId}
+                  className="rounded-3xl bg-white dark:bg-[#0c101c] border border-slate-200/90 dark:border-white/10 shadow-lg p-6 space-y-5"
+                >
+                  {/* Top Bar */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-white/5">
+                    <div className="flex items-center gap-2.5">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold border ${badge.color}`}>
+                        {badge.icon}
+                        <span>{b.provider || badge.label}</span>
+                      </span>
 
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 space-y-1">
-                  <div className="flex items-center gap-2 text-slate-400 text-xs font-bold">
-                    <FaUser className="text-amber-400" /> Primary Guest
-                  </div>
-                  <p className="text-sm font-black text-slate-900 dark:text-white">
-                    {activeBooking.holder?.firstName} {activeBooking.holder?.lastName || ''}
-                  </p>
-                  <p className="text-[11px] text-slate-500">{activeBooking.holder?.email}</p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 space-y-1">
-                  <div className="flex items-center gap-2 text-slate-400 text-xs font-bold">
-                    <FaReceipt className="text-amber-400" /> Total Paid
-                  </div>
-                  <p className="text-lg font-black text-amber-500">
-                    {activeBooking.rooms?.[0]?.rate?.retailRate?.total?.amount
-                      ? `${activeBooking.rooms[0].rate.retailRate.total.currency === 'INR' ? '₹' : '$'}${Number(activeBooking.rooms[0].rate.retailRate.total.amount).toLocaleString('en-IN')}`
-                      : 'Prepaid in Full'}
-                  </p>
-                  <p className="text-[11px] text-slate-500">Taxes & fees included</p>
-                </div>
-              </div>
-
-              {/* Booked Rooms Table */}
-              {activeBooking.rooms && activeBooking.rooms.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">
-                    Booked Accommodations
-                  </h3>
-                  <div className="space-y-2">
-                    {activeBooking.rooms.map((rm, idx) => (
-                      <div
-                        key={idx}
-                        className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(b.pnr || b.bookingId)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/[0.05] hover:bg-amber-500/15 text-slate-700 dark:text-slate-300 hover:text-amber-500 text-[11px] font-mono font-bold transition-colors"
+                        title="Click to copy PNR"
                       >
-                        <div>
-                          <p className="text-sm font-black text-slate-900 dark:text-white">
-                            {rm.roomType?.name || 'Deluxe Room'}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                              {rm.boardName || 'Room Only'}
-                            </span>
-                            <span className="text-xs text-slate-500">
-                              {rm.adults || 1} Adult{(rm.adults || 1) !== 1 ? 's' : ''}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-sm font-black text-slate-900 dark:text-white">
-                            Confirmed
-                          </span>
-                          <p className="text-[10px] text-emerald-500 font-bold">Instant Lock</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                        <span>PNR: {b.pnr || b.bookingId}</span>
+                        {copiedPnr === (b.pnr || b.bookingId) ? (
+                          <FaCheck className="text-emerald-500 text-[10px]" />
+                        ) : (
+                          <FaCopy className="text-slate-400 text-[10px]" />
+                        )}
+                      </button>
+                    </div>
 
-              {/* Cancellation Policy and Cancellation Button */}
-              {activeBooking.status !== 'CANCELLED' && (
-                <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <FaShieldAlt className="text-amber-500 text-xl shrink-0" />
-                    <div>
-                      <p className="text-xs font-black text-slate-900 dark:text-white">
-                        Need to change plans?
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        You can cancel this reservation anytime prior to hotel check-in.
-                      </p>
+                    <div className="flex items-center gap-3">
+                      <span className={`px-2.5 py-1 rounded-full text-[10.5px] font-bold uppercase tracking-wider ${
+                        isConfirmed ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25' :
+                        isCompleted ? 'bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/25' :
+                        'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/25'
+                      }`}>
+                        {b.status || 'Confirmed'}
+                      </span>
+
+                      <span className="text-sm font-black font-mono text-slate-900 dark:text-white">
+                        {b.amount ? `₹${b.amount.toLocaleString()}` : `$${b.totalUSD || 100}`}
+                      </span>
                     </div>
                   </div>
 
-                  <ThreeUIButton
-                    type="button"
-                    onClick={() => setShowCancelConfirm(true)}
-                    variant="specular-dark"
-                    size="sm"
-                    className="!text-rose-500 hover:!bg-rose-500/10 shrink-0"
-                  >
-                    Cancel Reservation
-                  </ThreeUIButton>
-                </div>
-              )}
-
-              {/* Cancel Confirmation Modal */}
-              <AnimatePresence>
-                {showCancelConfirm && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-                  >
-                    <motion.div
-                      initial={{ scale: 0.95 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0.95 }}
-                      className="bg-slate-900 p-6 rounded-3xl border border-slate-800 max-w-md w-full space-y-4"
-                    >
-                      <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-xl">
-                        <FaExclamationTriangle />
+                  {/* Trip Summary Details */}
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div className="flex-1">
+                      <h3 className="text-base font-black text-slate-900 dark:text-white">
+                        {b.serviceTitle || b.title}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        {b.departureDate && <span>Date: {b.departureDate}</span>}
+                        {b.checkInDate && <span>Dates: {b.checkInDate} to {b.checkOutDate}</span>}
+                        {b.seat && <span>Seat: {b.seat}</span>}
+                        {b.coach && <span>Coach: {b.coach}, Berth: {b.berth}</span>}
+                        <span>Traveler: {b.passengerName || 'Alex Johnson'}</span>
                       </div>
-                      <div className="text-center space-y-1">
-                        <h4 className="text-base font-black text-white">Cancel this reservation?</h4>
-                        <p className="text-xs text-slate-400">
-                          Are you sure you want to cancel booking <span className="font-mono text-white">{activeBooking.bookingId}</span> at {activeBooking.hotel?.name}?
-                        </p>
-                      </div>
+                    </div>
 
-                      <div className="flex items-center gap-3 pt-2">
-                        <ThreeUIButton
+                    {/* Actions */}
+                    <div className="flex items-center gap-2.5 w-full md:w-auto">
+                      <button
+                        type="button"
+                        onClick={() => setTicketModalBooking(b)}
+                        className="flex-1 md:flex-initial px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs transition-colors flex items-center justify-center gap-2 shadow"
+                      >
+                        <FaTicketAlt /> View E-Ticket
+                      </button>
+
+                      {isConfirmed && (
+                        <button
                           type="button"
-                          onClick={() => setShowCancelConfirm(false)}
-                          variant="specular-dark"
-                          size="md"
-                          className="flex-1"
+                          onClick={() => setCancellingBookingId(b.bookingId)}
+                          className="px-3.5 py-2.5 rounded-xl border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 text-xs font-bold transition-colors"
                         >
-                          Keep Booking
-                        </ThreeUIButton>
-                        <ThreeUIButton
-                          type="button"
-                          onClick={handleCancelBooking}
-                          disabled={isCancelling}
-                          variant="specular-dark"
-                          size="md"
-                          icon={isCancelling ? <FaSpinner className="animate-spin" /> : <FaTimesCircle />}
-                          className="flex-1 !bg-rose-500 hover:!bg-rose-600 !text-white"
-                        >
-                          {isCancelling ? 'Cancelling...' : 'Yes, Cancel'}
-                        </ThreeUIButton>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Voucher Preview if text received */}
-              {voucherText && (
-                <div className="space-y-2 pt-4 border-t border-slate-200 dark:border-slate-800">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Official Voucher Content
-                  </h4>
-                  <pre className="p-4 rounded-2xl bg-slate-950 text-slate-300 text-[11px] font-mono whitespace-pre-wrap overflow-x-auto border border-slate-800 max-h-64">
-                    {voucherText}
-                  </pre>
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
-          </motion.div>
+              );
+            })}
+          </div>
         )}
       </div>
+
+      {/* TICKET / BOARDING PASS MODAL */}
+      <BookingTicketModal
+        isOpen={!!ticketModalBooking}
+        onClose={() => setTicketModalBooking(null)}
+        booking={ticketModalBooking}
+      />
+
+      {/* CANCELLATION CONFIRMATION MODAL */}
+      <AnimatePresence>
+        {cancellingBookingId && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setCancellingBookingId(null)}
+              className="fixed inset-0 bg-black/75 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-md rounded-3xl p-6 bg-white dark:bg-[#0f1422] text-slate-900 dark:text-white shadow-2xl border border-slate-200 dark:border-white/10 z-10 space-y-4"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/15 text-rose-500 flex items-center justify-center text-xl">
+                <FaExclamationTriangle />
+              </div>
+              <h3 className="text-lg font-black">Cancel Reservation?</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Are you sure you want to cancel booking <strong className="text-slate-900 dark:text-white font-mono">{cancellingBookingId}</strong>? Full refund will be automatically credited to your payment source.
+              </p>
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setCancellingBookingId(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10"
+                >
+                  Keep Booking
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleConfirmCancel(cancellingBookingId)}
+                  className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black text-xs shadow-md transition-colors"
+                >
+                  Confirm Cancellation
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

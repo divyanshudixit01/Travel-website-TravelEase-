@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { loginUser, registerUser, getUserProfile } from '../services/auth';
+import { loginUser, registerUser, getUserProfile, updateUserProfile } from '../services/auth';
 
 const AuthContext = createContext();
 
@@ -97,6 +97,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUser = async (updatedFields) => {
+    try {
+      const updatedUser = { ...(user || {}), ...updatedFields };
+      setUser(updatedUser);
+      localStorage.setItem('travelease_auth_user', JSON.stringify(updatedUser));
+
+      if (isAuthenticated && localStorage.getItem('travelease_token')) {
+        await updateUserProfile(updatedFields);
+      }
+      return { success: true, user: updatedUser };
+    } catch (err) {
+      console.warn('Profile update locally persisted. Backend sync warning:', err);
+      return { success: true, user: { ...(user || {}), ...updatedFields } };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('travelease_token');
     localStorage.removeItem('travelease_auth_user');
@@ -112,7 +128,8 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         register,
-        logout
+        logout,
+        updateUser
       }}
     >
       {children}

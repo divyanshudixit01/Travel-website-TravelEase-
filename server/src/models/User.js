@@ -22,6 +22,47 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    avatarType: {
+      type: String,
+      enum: ['svg', 'custom', 'default'],
+      default: 'default'
+    },
+    phone: {
+      type: String,
+      default: ''
+    },
+    nationality: {
+      type: String,
+      default: 'Indian'
+    },
+    passportNumber: {
+      type: String,
+      default: ''
+    },
+    dateOfBirth: {
+      type: String,
+      default: ''
+    },
+    gender: {
+      type: String,
+      default: 'Not specified'
+    },
+    bio: {
+      type: String,
+      default: ''
+    },
+    frequentFlyer: {
+      type: String,
+      default: ''
+    },
+    irctcUserId: {
+      type: String,
+      default: ''
+    },
+    savedTravelers: {
+      type: Array,
+      default: []
+    },
     role: {
       type: String,
       enum: ['user', 'admin'],

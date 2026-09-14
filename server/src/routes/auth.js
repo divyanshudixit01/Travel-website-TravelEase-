@@ -125,11 +125,79 @@ router.get('/me', async (req, res) => {
         email: user.email,
         role: user.role || 'user',
         avatar: user.avatar || '',
+        avatarType: user.avatarType || 'default',
+        phone: user.phone || '',
+        nationality: user.nationality || 'Indian',
+        passportNumber: user.passportNumber || '',
+        dateOfBirth: user.dateOfBirth || '',
+        gender: user.gender || 'Not specified',
+        bio: user.bio || '',
+        frequentFlyer: user.frequentFlyer || '',
+        irctcUserId: user.irctcUserId || '',
+        savedTravelers: user.savedTravelers || [],
         createdAt: user.createdAt
       }
     });
   } catch (error) {
     res.status(401).json({ message: 'Invalid or expired token.' });
+  }
+});
+
+// PUT /api/auth/profile
+router.put('/profile', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'No auth token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, getJwtSecret());
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    const allowedUpdates = [
+      'name', 'phone', 'nationality', 'passportNumber', 'dateOfBirth',
+      'gender', 'bio', 'avatar', 'avatarType', 'frequentFlyer', 'irctcUserId', 'savedTravelers'
+    ];
+
+    allowedUpdates.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        user[field] = req.body[field];
+      }
+    });
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully.',
+      user: {
+        id: user._id,
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role || 'user',
+        avatar: user.avatar || '',
+        avatarType: user.avatarType || 'default',
+        phone: user.phone || '',
+        nationality: user.nationality || 'Indian',
+        passportNumber: user.passportNumber || '',
+        dateOfBirth: user.dateOfBirth || '',
+        gender: user.gender || 'Not specified',
+        bio: user.bio || '',
+        frequentFlyer: user.frequentFlyer || '',
+        irctcUserId: user.irctcUserId || '',
+        savedTravelers: user.savedTravelers || [],
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ message: error.message || 'Error updating profile.' });
   }
 });
 
