@@ -105,6 +105,31 @@
       }
     }
     </script>
+
+    <!-- Global Offline Image Resilience Fallback (Catches failed network images when offline) -->
+    <script>
+      (function() {
+        var OFFLINE_FALLBACKS = [
+          '/hero_day_dolomites.jpg',
+          '/images/destinations/hero_bali_sunsets.jpg',
+          '/images/destinations/hero_amalfi_coast.jpg',
+          '/images/destinations/wonders_taj_mahal.jpg',
+          '/images/trains/ir_vande_bharat.jpg',
+          '/hero_mountain_day.jpg'
+        ];
+        var fallbackIdx = 0;
+        window.addEventListener('error', function(event) {
+          var target = event.target;
+          if (target && target.tagName === 'IMG') {
+            var currentSrc = target.getAttribute('src') || target.src || '';
+            if (!currentSrc.startsWith('/hero_') && !currentSrc.startsWith('/images/')) {
+              target.onerror = null;
+              target.src = OFFLINE_FALLBACKS[(fallbackIdx++) % OFFLINE_FALLBACKS.length];
+            }
+          }
+        }, true);
+      })();
+    </script>
   </head>
   <body class="bg-slate-50 text-slate-900 dark:bg-[#0a0e1a] dark:text-slate-100 font-sans antialiased selection:bg-amber-400/30 selection:text-amber-900 dark:selection:bg-amber-500/20 dark:selection:text-amber-200 transition-colors duration-500">
     <div id="root"></div>

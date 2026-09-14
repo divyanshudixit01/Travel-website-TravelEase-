@@ -35,7 +35,7 @@ export const TrendingDestinations = () => {
       rating: '4.95',
       reviews: '1,240',
       tag: 'Tropical Sanctuary',
-      image: 'https://images.unsplash.com/photo-1742677356610-e9bcea7a41c3?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/destinations/hero_bali_sunsets.jpg',
       days: '6 Days / 5 Nights',
     },
     {
@@ -47,7 +47,7 @@ export const TrendingDestinations = () => {
       rating: '4.88',
       reviews: '890',
       tag: 'City of Lights',
-      image: 'https://images.unsplash.com/photo-1431274172761-fca41d930114?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/destinations/hero_amalfi_coast.jpg',
       days: '7 Days / 6 Nights',
     },
     {
@@ -59,7 +59,7 @@ export const TrendingDestinations = () => {
       rating: '4.96',
       reviews: '2,150',
       tag: 'Shinkansen Expedition',
-      image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/destinations/hero_kyoto_bamboo.jpg',
       days: '8 Days / 7 Nights',
     },
     {
@@ -71,7 +71,7 @@ export const TrendingDestinations = () => {
       rating: '4.98',
       reviews: '740',
       tag: 'Glacier Express',
-      image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/destinations/hero_swiss_alps.jpg',
       days: '6 Days / 5 Nights',
     },
     {
@@ -83,7 +83,7 @@ export const TrendingDestinations = () => {
       rating: '4.97',
       reviews: '960',
       tag: 'Ocean Villa',
-      image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=1200&q=80',
+      image: '/stories-greece-cove.jpg',
       days: '5 Days / 4 Nights',
     },
     {
@@ -95,7 +95,7 @@ export const TrendingDestinations = () => {
       rating: '4.78',
       reviews: '1,530',
       tag: 'Futuristic Luxury',
-      image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80',
+      image: '/images/destinations/wonders_petra.jpg',
       days: '5 Days / 4 Nights',
     },
   ];
@@ -109,31 +109,30 @@ export const TrendingDestinations = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200/80 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-semibold uppercase tracking-widest mb-3">
-            <HiOutlineSparkles className="w-3.5 h-3.5" />
-            <span>Curated Expeditions</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+            <HiOutlineSparkles className="w-3.5 h-3.5 animate-spin" />
+            Top Global Itineraries
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Trending <span className="text-gradient-primary">global escapes</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+            Trending <span className="gradient-text">Destinations</span>
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base mt-2">
-            Handpicked itineraries vetted by travel architects and real traveler reviews.
+          <p className="mt-2 text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-xl">
+            Curated, high-demand escapes with locked multi-modal routes, local verified stays, and real-time availability.
           </p>
         </div>
 
-        {/* Category Pill Switcher */}
-        <div className="overflow-x-auto pb-2 scrollbar-none">
+        {/* Category Pills */}
+        <div className="overflow-x-auto pb-2 -mx-4 px-4 md:overflow-visible">
           <SegmentedPillToggle
             options={categories}
             value={selectedCategory}
             onChange={setSelectedCategory}
-            size="md"
           />
         </div>
       </div>
 
-      {/* 3D Tilt Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* 3D Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         <AnimatePresence mode="popLayout">
           {filteredItems.map((dest, index) => (
             <motion.div
@@ -145,8 +144,7 @@ export const TrendingDestinations = () => {
               transition={{ duration: 0.35, delay: index * 0.05 }}
             >
               <ThreeCard3D
-                maxTilt={6}
-                spotlightColor="rgba(245, 158, 11, 0.15)"
+                depth={28}
                 onClick={() => navigate('/destinations')}
                 className="group cursor-pointer flex flex-col h-full"
               >
@@ -157,6 +155,10 @@ export const TrendingDestinations = () => {
                     alt={dest.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/hero_day_dolomites.jpg';
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
 

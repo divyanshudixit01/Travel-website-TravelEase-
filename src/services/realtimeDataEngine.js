@@ -165,7 +165,7 @@ export const HOTELS_DATA = [
     address: 'Crescent Rd, Palm Jumeirah, Dubai',
     lat: 25.1304,
     lng: 55.1171,
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    image: '/hero_day_dolomites.jpg',
     starRating: 5,
     userRating: 4.9,
     reviewsCount: 1420,
@@ -187,7 +187,7 @@ export const HOTELS_DATA = [
     address: 'Apollo Bunder, Colaba, Mumbai',
     lat: 18.9217,
     lng: 72.8332,
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+    image: '/images/destinations/wonders_taj_mahal.jpg',
     starRating: 5,
     userRating: 4.95,
     reviewsCount: 3840,
@@ -209,7 +209,7 @@ export const HOTELS_DATA = [
     address: 'Darbhanga Ghat, Dashashwamedh, Varanasi',
     lat: 25.3056,
     lng: 83.0104,
-    image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+    image: '/images/destinations/hero_varanasi_ghats.jpg',
     starRating: 5,
     userRating: 4.9,
     reviewsCount: 1120,
@@ -251,7 +251,7 @@ export const CARS_DATA = [
     tripsCount: 18400,
     pricePerKmUSD: 0.28,
     baseFareUSD: 14,
-    image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80',
+    image: '/hero_day_alpine_valley.jpg',
     features: ['Air Conditioned', 'Live GPS Tracking', 'Zero Surge Pricing', 'Verified Chauffeur']
   },
   {
@@ -267,7 +267,7 @@ export const CARS_DATA = [
     tripsCount: 4200,
     pricePerKmUSD: 0.95,
     baseFareUSD: 65,
-    image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80',
+    image: '/hero_mountain_night.jpg',
     features: ['Chilled Bottled Water', 'Airport Meet & Greet', 'Complimentary In-Car WiFi', 'English-Speaking Driver']
   },
   {
@@ -283,7 +283,7 @@ export const CARS_DATA = [
     tripsCount: 9600,
     pricePerKmUSD: 0.42,
     baseFareUSD: 38,
-    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80',
+    image: '/stories-tokyo-culinary.jpg',
     features: ['Spacious Recliner Captain Seats', 'Luggage Carrier', 'Hill-Trained Driver', 'All-India Tourist Permit']
   }
 ];
@@ -330,7 +330,7 @@ export const HOMESTAYS_DATA = [
     pricePerNightUSD: 280,
     rating: 4.96,
     reviewsCount: 84,
-    image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+    image: '/stories-greece-cove.jpg',
     host: 'Superhost Priya',
     amenities: ['Private Plunge Pool', 'Direct Beach Path', 'Dedicated Chef Available', 'High-Speed Starlink WiFi']
   },
@@ -338,15 +338,15 @@ export const HOMESTAYS_DATA = [
     id: 'home-manali-02',
     title: 'The Cedar Alpine Glass Chalet',
     location: 'Manali, Old Manali Apple Orchards',
-    type: 'Heated Himalayan Chalet',
+    type: 'Luxury Alpine Wood Chalet',
     bedrooms: 2,
     guests: 4,
-    pricePerNightUSD: 140,
+    pricePerNightUSD: 190,
     rating: 4.92,
-    reviewsCount: 126,
-    image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
-    host: 'Superhost Vikram',
-    amenities: ['Floor-to-Ceiling Snow Views', 'Wood-Fired Fireplace', 'Radiator Heating', 'Home-Cooked Pahadi Meals']
+    reviewsCount: 52,
+    image: '/images/destinations/hero_swiss_alps.jpg',
+    host: 'Superhost Rohan',
+    amenities: ['Fireplace', 'Panoramic Snow Peak Views', 'Heated Wooden Floors', 'Artisanal Breakfast']
   },
   {
     id: 'home-udaipur-03',
@@ -358,7 +358,7 @@ export const HOMESTAYS_DATA = [
     pricePerNightUSD: 210,
     rating: 4.94,
     reviewsCount: 68,
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    image: '/images/destinations/wonders_taj_mahal.jpg',
     host: 'Rana Family Superhost',
     amenities: ['Sunset Rooftop Jharokha', 'Courtyard Garden', 'Classical Musicians on Request', 'Heritage Antiques']
   }
@@ -374,7 +374,7 @@ export const TOURS_DATA = [
     rating: 4.98,
     reviewsCount: 840,
     priceUSD: 35,
-    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=800&q=80',
+    image: '/images/destinations/hero_varanasi_ghats.jpg',
     highlights: ['Private Hand-Rowed Wooden Boat', 'Dawn Subah-e-Banaras View', 'VIP Ghat Seating for evening Aarti', 'Guided Heritage Storytelling']
   },
   {
@@ -386,7 +386,7 @@ export const TOURS_DATA = [
     rating: 4.95,
     reviewsCount: 1920,
     priceUSD: 75,
-    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
+    image: '/images/destinations/wonders_petra.jpg',
     highlights: ['Dune Bashing in Land Cruiser', 'Sandboarding on High Dunes', 'Bedouin Camp Buffet BBQ', 'Live Falconry & Fire Show']
   },
   {
@@ -398,7 +398,7 @@ export const TOURS_DATA = [
     rating: 4.92,
     reviewsCount: 1430,
     priceUSD: 60,
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80',
+    image: '/images/destinations/hero_bali_sunsets.jpg',
     highlights: ['Uluwatu Cliffside Temple', 'Tegalalang Emerald Terraces', 'Luwak Coffee Plantation Tasting', 'Private Air-Conditioned Van']
   }
 ];

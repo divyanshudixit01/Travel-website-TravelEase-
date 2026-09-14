@@ -110,23 +110,23 @@ const CinematicTrainFlyby = ({ isPlaying, onFinish }) => {
           </div>
 
           {/* Overhead Electric Catenary (OHE) Wire */}
-          <div className="absolute top-24 left-0 right-0 h-[1.5px] bg-slate-400/50 border-t border-dashed border-slate-400/40" />
+          <div className="absolute top-20 sm:top-24 left-0 right-0 h-[1.5px] bg-slate-400/50 border-t border-dashed border-slate-400/40" />
         </div>
 
-        {/* Station Overhead Details (Yellow Board, Clock, LED Board) */}
-        <div className="relative z-20 pt-5 px-6 sm:px-12 flex items-start justify-between">
-          <div className="flex items-center gap-3">
+        {/* Station Overhead Details (Yellow Board, Clock, LED Board, Skip Button) */}
+        <div className="relative z-20 pt-3 sm:pt-5 px-3 sm:px-12 flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Iconic Indian Railways Yellow Station Signboard */}
-            <div className="bg-[#FFD200] border-4 border-black px-4 py-1.5 rounded-md shadow-2xl text-black flex flex-col items-center min-w-[190px] sm:min-w-[240px]">
-              <div className="flex items-center gap-2 font-black text-sm sm:text-base tracking-tight">
+            <div className="bg-[#FFD200] border-2 sm:border-4 border-black px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-md shadow-2xl text-black flex flex-col items-center min-w-[150px] sm:min-w-[240px]">
+              <div className="flex items-center gap-1.5 sm:gap-2 font-black text-xs sm:text-base tracking-tight">
                 <span className="font-serif">NEW DELHI</span>
                 <span>·</span>
                 <span>नई दिल्ली</span>
               </div>
-              <div className="flex items-center justify-between w-full border-t border-black/70 pt-0.5 mt-0.5 text-[9px] font-bold text-black/90">
+              <div className="flex items-center justify-between w-full border-t border-black/70 pt-0.5 mt-0.5 text-[8px] sm:text-[9px] font-bold text-black/90">
                 <span>NDLS</span>
-                <span>समुद्र तल से: 216M</span>
-                <span>PLATFORM 1</span>
+                <span className="hidden xs:inline">समुद्र तल से: 216M</span>
+                <span>PF 1</span>
               </div>
             </div>
 
@@ -137,59 +137,73 @@ const CinematicTrainFlyby = ({ isPlaying, onFinish }) => {
             </div>
           </div>
 
-          {/* Analog Station Clock */}
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-white border-4 border-slate-800 shadow-xl flex items-center justify-center relative">
-              <div className="w-1 h-3 bg-black absolute top-2 rounded-full" />
-              <div className="w-2.5 h-0.5 bg-black absolute right-2.5 rounded-full" />
-              <div className="w-1.5 h-1.5 rounded-full bg-red-600 z-10" />
+          {/* Station Clock & Quick Controls */}
+          <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
+            {/* Analog Station Clock */}
+            <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-white border-2 sm:border-4 border-slate-800 shadow-xl flex items-center justify-center relative shrink-0">
+              <div className="w-0.5 sm:w-1 h-2 sm:h-3 bg-black absolute top-1.5 sm:top-2 rounded-full" />
+              <div className="w-2 sm:w-2.5 h-0.5 bg-black absolute right-1.5 sm:right-2.5 rounded-full" />
+              <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-red-600 z-10" />
               <div className="w-full h-full rounded-full border border-slate-300 flex items-center justify-center">
-                <span className="text-[6px] font-black text-slate-800 tracking-tighter mt-3.5">IR</span>
+                <span className="text-[5px] sm:text-[6px] font-black text-slate-800 tracking-tighter mt-2 sm:mt-3.5">IR</span>
               </div>
             </div>
 
-            {/* Departure Info Banner */}
+            {/* Departure Info Banner (Desktop only) */}
             <div className="hidden md:block bg-black/90 border border-amber-500/40 px-3 py-1.5 rounded-md shadow-lg">
               <div className="text-[9px] font-mono text-amber-400 font-bold flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span>22436 VANDE BHARAT EXP · DEPARTING TO DESTINATION</span>
               </div>
             </div>
+
+            {/* Mobile-Friendly Quick Skip Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setPhase('finished');
+                if (onFinishRef.current) onFinishRef.current();
+              }}
+              className="text-[10px] sm:text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-black/60 hover:bg-black/80 border border-white/25 text-slate-200 transition-all backdrop-blur-md shadow-md active:scale-95"
+            >
+              Skip ➔
+            </button>
           </div>
         </div>
 
         {/* ═══════════════════════════════════════════════════════════
             2. THE UNIFIED STAGE: TRACK, TRAIN & FOREGROUND PLATFORM
             ═══════════════════════════════════════════════════════════ */}
-        <div className="relative w-full h-[65vh] flex flex-col justify-end overflow-hidden">
+        <div className="relative w-full h-[58vh] sm:h-[65vh] flex flex-col justify-end overflow-hidden">
           
-          {/* ─── BALLAST GRAVEL & STEEL TRACK (Directly behind the platform edge) ─── */}
-          <div className="absolute bottom-[130px] left-0 right-0 h-16 bg-[#2B2625] border-t-2 border-[#1E1A19] flex flex-col justify-between shadow-inner z-10">
+          {/* ─── BALLAST GRAVEL & STEEL TRACK ─── */}
+          <div className="absolute bottom-[96px] sm:bottom-[130px] left-0 right-0 h-12 sm:h-16 bg-[#2B2625] border-t-2 border-[#1E1A19] flex flex-col justify-between shadow-inner z-10">
             {/* Railway Sleepers / Ties */}
             <div className="w-full h-full flex justify-between px-1 opacity-75">
-              {[...Array(44)].map((_, i) => (
-                <div key={i} className="w-2 h-full bg-[#4A423D] border-x border-[#1E1A19]" />
+              {[...Array(36)].map((_, i) => (
+                <div key={i} className="w-1.5 sm:w-2 h-full bg-[#4A423D] border-x border-[#1E1A19]" />
               ))}
             </div>
             {/* Top Steel Rail */}
-            <div className="absolute top-2 left-0 right-0 h-[3px] bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
+            <div className="absolute top-1.5 sm:top-2 left-0 right-0 h-[2.5px] sm:h-[3px] bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
             {/* Bottom Steel Rail */}
-            <div className="absolute bottom-2 left-0 right-0 h-[3px] bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
+            <div className="absolute bottom-1.5 sm:bottom-2 left-0 right-0 h-[2.5px] sm:h-[3px] bg-gradient-to-r from-slate-400 via-slate-200 to-slate-400 shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
           </div>
 
-          {/* ─── MOVING TRAIN RAKE (Sits directly on the rails at bottom: 130px) ─── */}
+          {/* ─── MOVING TRAIN RAKE ─── */}
           <motion.div
-            initial={{ x: '-130vw' }}
+            initial={{ x: '-150vw' }}
             animate={{
-              x: isDeparting ? '135vw' : 0
+              x: isDeparting ? '150vw' : 0
             }}
             transition={{
               duration: isDeparting ? 0.9 : 1.2,
               ease: isDeparting ? [0.45, 0, 0.9, 0.2] : [0.18, 1, 0.32, 1]
             }}
-            className="absolute bottom-[134px] left-0 right-0 flex items-center justify-center z-20 pointer-events-none"
+            className="absolute bottom-[100px] sm:bottom-[134px] left-0 right-0 flex items-center justify-center z-20 pointer-events-none"
           >
-            <div className="flex items-center shadow-[0_20px_50px_rgba(0,0,0,0.9)]">
+            {/* Responsive scaling wrapper: scales entire rake proportionally on small viewports */}
+            <div className="flex items-center shadow-[0_20px_50px_rgba(0,0,0,0.9)] transform scale-[0.58] xs:scale-[0.72] sm:scale-[0.88] md:scale-100 origin-bottom transition-transform duration-300">
               {/* 1. Trailing Coach B3 (Left) */}
               <div className="relative w-48 sm:w-64 h-44 sm:h-52 bg-[#002B49] border-y-2 border-l-2 border-slate-700 rounded-l-2xl order-1 flex items-center justify-around p-3 overflow-hidden shadow-2xl">
                 {[1, 2].map((i) => (
@@ -308,33 +322,33 @@ const CinematicTrainFlyby = ({ isPlaying, onFinish }) => {
           </motion.div>
 
           {/* ═══════════════════════════════════════════════════════════
-              3. THE FOREGROUND PLATFORM (Rises flush with the train floor)
+              3. THE FOREGROUND PLATFORM
               ═══════════════════════════════════════════════════════════ */}
-          <div className="relative z-30 h-[130px] bg-gradient-to-b from-[#2A313A] via-[#1E242B] to-[#12161A] border-t-4 border-slate-600 shadow-[0_-15px_30px_rgba(0,0,0,0.8)] flex flex-col justify-between px-6 pb-4 pt-0">
+          <div className="relative z-30 h-[96px] sm:h-[130px] bg-gradient-to-b from-[#2A313A] via-[#1E242B] to-[#12161A] border-t-4 border-slate-600 shadow-[0_-15px_30px_rgba(0,0,0,0.8)] flex flex-col justify-between px-3 sm:px-6 pb-2.5 sm:pb-4 pt-0">
             
             {/* Yellow Tactile Blistered Safety Warning Strip along Platform Edge */}
-            <div className="w-full h-3.5 bg-yellow-400 border-b border-yellow-600 rounded-b-sm flex items-center justify-around overflow-hidden shadow-inner -mt-[2px]">
-              {[...Array(40)].map((_, i) => (
-                <div key={i} className="w-1 h-2.5 bg-black/40 rounded-full" />
+            <div className="w-full h-2.5 sm:h-3.5 bg-yellow-400 border-b border-yellow-600 rounded-b-sm flex items-center justify-around overflow-hidden shadow-inner -mt-[2px]">
+              {[...Array(32)].map((_, i) => (
+                <div key={i} className="w-1 h-2 sm:h-2.5 bg-black/40 rounded-full" />
               ))}
             </div>
 
             {/* Platform Floor Texture & Station Status Narration */}
-            <div className="max-w-4xl mx-auto w-full flex items-center justify-between mt-auto">
-              <div className="flex items-center gap-2.5 text-xs font-bold text-slate-200">
-                <FaTrain className="text-amber-400 text-sm" />
-                <span>
+            <div className="max-w-4xl mx-auto w-full flex items-center justify-between mt-auto gap-2">
+              <div className="flex items-center gap-2 text-[11px] sm:text-xs font-bold text-slate-200 truncate">
+                <FaTrain className="text-amber-400 text-xs sm:text-sm shrink-0" />
+                <span className="truncate">
                   {phase === 'arriving' && 'Train 22436 arriving at Platform 1...'}
-                  {phase === 'doors_open' && 'Train halted at platform · Automatic gates opening...'}
+                  {phase === 'doors_open' && 'Halted at PF 1 · Gates opening...'}
                   {phase === 'passenger_entering' && 'Passenger boarding coach B4...'}
-                  {phase === 'doors_closing' && 'Passenger inside coach · Gates closed...'}
-                  {phase === 'departing' && 'Departing to destination · Opening Train Portal...'}
+                  {phase === 'doors_closing' && 'Passenger inside · Gates closed...'}
+                  {phase === 'departing' && 'Departing · Opening Train Hub...'}
                 </span>
               </div>
 
-              <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
+              <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-slate-400 shrink-0">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>Automated Boarding Transition</span>
+                <span>Automated Boarding</span>
               </div>
             </div>
 
@@ -345,20 +359,20 @@ const CinematicTrainFlyby = ({ isPlaying, onFinish }) => {
                 phase === 'arriving'
                   ? { y: 0, scale: 1, opacity: 1 } // Standing waiting on platform
                   : phase === 'doors_open'
-                  ? { y: -4, scale: 1, opacity: 1 } // Prepares to move as gate opens
+                  ? { y: -3, scale: 1, opacity: 1 } // Prepares to move as gate opens
                   : phase === 'passenger_entering'
-                  ? { y: -50, scale: 0.72, opacity: [1, 0.9, 0] } // Walks 50px UP directly into coach doorway
-                  : { y: -50, scale: 0.72, opacity: 0 } // Disappears inside coach cabin
+                  ? { y: -42, scale: 0.7, opacity: [1, 0.9, 0] } // Walks directly up into coach doorway
+                  : { y: -42, scale: 0.7, opacity: 0 } // Disappears inside coach cabin
               }
               transition={
                 phase === 'passenger_entering'
                   ? { duration: 0.8, ease: [0.25, 1, 0.5, 1] }
                   : { duration: 0.25 }
               }
-              className="absolute top-2 left-1/2 -translate-x-1/2 flex items-end gap-2 pointer-events-none z-40"
+              className="absolute top-1 sm:top-2 left-1/2 -translate-x-1/2 flex items-end gap-1.5 sm:gap-2 pointer-events-none z-40 transform scale-[0.62] xs:scale-[0.72] sm:scale-[0.88] md:scale-100 origin-bottom transition-transform duration-300"
             >
               {/* Red Travel Trolley Suitcase */}
-              <div className="w-4 h-9 bg-red-800 rounded border border-red-950 flex flex-col justify-between p-0.5 shadow-xl">
+              <div className="w-3.5 sm:w-4 h-8 sm:h-9 bg-red-800 rounded border border-red-950 flex flex-col justify-between p-0.5 shadow-xl">
                 <div className="w-2 h-1 bg-slate-900 mx-auto rounded-t" />
                 <div className="w-full h-0.5 bg-amber-400" />
                 <div className="w-full flex justify-between">
@@ -370,18 +384,18 @@ const CinematicTrainFlyby = ({ isPlaying, onFinish }) => {
               {/* Passenger Body */}
               <div className="flex flex-col items-center">
                 {/* Head with cap */}
-                <div className="w-5 h-5 rounded-full bg-amber-200 border-2 border-slate-900 shadow-sm relative">
-                  <div className="w-4 h-1.5 bg-[#002B49] rounded-t-full absolute -top-0.5 left-0.5" />
+                <div className="w-4.5 sm:w-5 h-4.5 sm:h-5 rounded-full bg-amber-200 border-2 border-slate-900 shadow-sm relative">
+                  <div className="w-3.5 sm:w-4 h-1.5 bg-[#002B49] rounded-t-full absolute -top-0.5 left-0.5" />
                 </div>
                 {/* Torso with travel jacket & backpack */}
-                <div className="w-7 h-9 bg-[#002B49] rounded-t-md border-x border-slate-800 shadow-md relative">
-                  <div className="w-1.5 h-6 bg-amber-600 rounded-sm absolute left-0.5 top-1" />
-                  <div className="w-1.5 h-6 bg-amber-600 rounded-sm absolute right-0.5 top-1" />
+                <div className="w-6 sm:w-7 h-8 sm:h-9 bg-[#002B49] rounded-t-md border-x border-slate-800 shadow-md relative">
+                  <div className="w-1 sm:w-1.5 h-5 sm:h-6 bg-amber-600 rounded-sm absolute left-0.5 top-1" />
+                  <div className="w-1 sm:w-1.5 h-5 sm:h-6 bg-amber-600 rounded-sm absolute right-0.5 top-1" />
                 </div>
                 {/* Legs */}
                 <div className="flex gap-1 -mt-0.5">
-                  <div className="w-2.5 h-8 bg-slate-800 rounded-b" />
-                  <div className="w-2.5 h-8 bg-slate-800 rounded-b" />
+                  <div className="w-2 sm:w-2.5 h-7 sm:h-8 bg-slate-800 rounded-b" />
+                  <div className="w-2 sm:w-2.5 h-7 sm:h-8 bg-slate-800 rounded-b" />
                 </div>
               </div>
             </motion.div>
