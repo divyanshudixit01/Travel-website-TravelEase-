@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="canonical" href="https://www.travelease.com/" />
+
+    <!-- SEO Meta Tags -->
+    <title>TravelEase — Next-Gen Multi-Modal Travel OS | IRCTC, Flights, Stays & AI Itineraries</title>
+    <meta name="description" content="TravelEase is the ultimate multi-modal travel platform. Live IRCTC train tracking, international flights, interactive hotel maps, and AI trip architect." />
+    <meta name="keywords" content="travel, IRCTC, flights, hotels, AI trip planner, holiday packages, vacation, booking, travel deals" />
+    <meta name="author" content="TravelEase" />
+    <meta name="theme-color" content="#0b0f19" />
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="TravelEase — Next-Gen Multi-Modal Travel OS" />
+    <meta property="og:description" content="Pan-India IRCTC live train tracking, global flights, interactive maps, and AI-powered itineraries." />
+    <meta property="og:site_name" content="TravelEase" />
+    <meta property="og:url" content="https://www.travelease.com/" />
+    <meta property="og:image" content="/brand/logo-mark.svg" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TravelEase — Next-Gen Multi-Modal Travel OS" />
+    <meta name="twitter:description" content="Pan-India IRCTC live train tracking, global flights, interactive maps, and AI-powered itineraries." />
+    <meta name="twitter:image" content="/brand/logo-mark.svg" />
+
+    <!-- Google Fonts: Space Grotesk (headlines) + DM Sans (body) + Inter (data/numbers) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Schema.org: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": "https://www.travelease.com/#organization",
+      "name": "TravelEase",
+      "url": "https://www.travelease.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.travelease.com/brand/logo-mark.svg",
+        "width": 512,
+        "height": 512
+      },
+      "description": "TravelEase is the ultimate multi-modal travel platform. Pan-India IRCTC live train tracking, international flights, interactive hotel maps, and AI trip architect.",
+      "foundingDate": "2026",
+      "founder": {
+        "@type": "Person",
+        "name": "Alex Johnson",
+        "jobTitle": "Founder & CEO"
+      },
+      "sameAs": [
+        "https://www.facebook.com/travelease",
+        "https://twitter.com/travelease",
+        "https://www.instagram.com/travelease",
+        "https://www.linkedin.com/company/travelease",
+        "https://www.youtube.com/travelease"
+      ],
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "+1-800-123-4567",
+          "contactType": "sales",
+          "availableLanguage": ["English"]
+        },
+        {
+          "@type": "ContactPoint",
+          "email": "support@travelease.com",
+          "contactType": "customer support",
+          "availableLanguage": ["English"]
+        }
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "One World Trade Center, Suite 4500",
+        "addressLocality": "New York",
+        "addressRegion": "NY",
+        "postalCode": "10007",
+        "addressCountry": "US"
+      }
+    }
+    </script>
+
+    <!-- Schema.org: WebSite + SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://www.travelease.com/#website",
+      "name": "TravelEase",
+      "url": "https://www.travelease.com",
+      "publisher": { "@id": "https://www.travelease.com/#organization" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://www.travelease.com/destinations?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 dark:bg-[#0a0e1a] dark:text-slate-100 font-sans antialiased selection:bg-amber-400/30 selection:text-amber-900 dark:selection:bg-amber-500/20 dark:selection:text-amber-200 transition-colors duration-500">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+# TravelEase — robots.txt
+# https://www.travelease.com
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /checkout
+Disallow: /dashboard
+Disallow: /editor
+Disallow: /booking-confirmation/
+
+# Sitemap location
+Sitemap: https://www.travelease.com/sitemap.xml
+
+# Crawl-delay for polite bots
+Crawl-delay: 1

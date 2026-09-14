@@ -1,0 +1,59 @@
+# Dependencies
+node_modules
+server/node_modules
+
+# Production Build
+dist
+dist-ssr
+
+# Environment Variables & Sensitive Files
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor & IDE files (Completely ignored for clean commits)
+.vscode/
+.vscode
+.idea/
+.antigravity/
+.gemini/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Scratch & Test Directories
+test-tailwind/
+scratch/
+db.json
+hero_clean.png
+hero_test.png
+hero_test2.png
+02-trains-hub.png
+image*.png
+*.tmp
+
+# Large Raw Data Files (Exceeds GitHub recommended limits; rebuildable via server/scripts)
+server/src/data/schedules_raw.json
+server/src/data/trainRoutesIndexed.json
+server/src/data/stationTrainStopMap.json
+

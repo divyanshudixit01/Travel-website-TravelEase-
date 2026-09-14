@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" fill="none">
+  <defs>
+    <linearGradient id="favAero" x1="15%" y1="15%" x2="85%" y2="85%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="45%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="favWing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="60%" stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+    <linearGradient id="favOrbit" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background disc for strong contrast in browser tab -->
+  <rect width="120" height="120" rx="28" fill="#0B0F19"/>
+
+  <!-- Orbital Ring -->
+  <ellipse cx="60" cy="60" rx="46" ry="18" transform="rotate(-32 60 60)" 
+           stroke="url(#favOrbit)" stroke-width="3" stroke-dasharray="130 16 12 16" fill="none" />
+  
+  <circle cx="24" cy="40" r="4" fill="#F59E0B" />
+  <circle cx="96" cy="80" r="3.5" fill="#38BDF8" />
+
+  <!-- Supersonic Travel Arrow -->
+  <g>
+    <path d="M60 20 L30 76 L60 62 Z" fill="url(#favWing)" />
+    <path d="M60 20 L90 76 L60 62 Z" fill="url(#favAero)" />
+    <path d="M60 20 L60 86 L55 64 Z" fill="#0284C7" />
+    <path d="M60 20 L60 86 L65 64 Z" fill="#FBBF24" />
+    <polygon points="56,66 60,92 64,66 60,69" fill="#F59E0B" />
+  </g>
+
+  <!-- North Star -->
+  <circle cx="60" cy="20" r="2.5" fill="#FFFFFF" />
+</svg>

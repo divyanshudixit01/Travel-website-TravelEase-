@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 120" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Supersonic Aero Gradient -->
+    <linearGradient id="darkAeroGrad" x1="15%" y1="15%" x2="85%" y2="85%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="45%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+
+    <!-- Wing Depth Gradient -->
+    <linearGradient id="darkWingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="60%" stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+
+    <!-- Orbit Ring Gradient -->
+    <linearGradient id="darkOrbitGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#06B6D4" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <!-- Text Ease Gradient -->
+    <linearGradient id="textEaseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="60%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#FBBF24"/>
+    </linearGradient>
+
+    <!-- Ambient Glow -->
+    <filter id="darkLogoGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- ICON MARK (Left: 0 - 120) -->
+  <g transform="translate(10, 0)">
+    <!-- Precision Rings -->
+    <circle cx="60" cy="60" r="48" stroke="#38BDF8" stroke-opacity="0.25" stroke-width="1.5" stroke-dasharray="2 6" />
+    <circle cx="60" cy="60" r="52" stroke="#F59E0B" stroke-opacity="0.2" stroke-width="1" />
+
+    <!-- Orbital Path -->
+    <ellipse cx="60" cy="60" rx="46" ry="18" transform="rotate(-32 60 60)" 
+             stroke="url(#darkOrbitGrad)" stroke-width="2.5" stroke-dasharray="140 16 10 16" fill="none" filter="url(#darkLogoGlow)" />
+    
+    <circle cx="24" cy="40" r="3" fill="#F59E0B" />
+    <circle cx="96" cy="80" r="2.5" fill="#38BDF8" />
+
+    <!-- Supersonic Jet Arrow -->
+    <g filter="url(#darkLogoGlow)">
+      <path d="M60 18 L28 76 L60 62 Z" fill="url(#darkWingGrad)" opacity="0.95" />
+      <path d="M60 18 L92 76 L60 62 Z" fill="url(#darkAeroGrad)" />
+      <path d="M60 18 L60 88 L55 64 Z" fill="#0284C7" />
+      <path d="M60 18 L60 88 L65 64 Z" fill="#FBBF24" />
+      <polygon points="56,66 60,94 64,66 60,69" fill="#F59E0B" opacity="0.9" />
+    </g>
+
+    <!-- Polaris Star -->
+    <circle cx="60" cy="18" r="2.5" fill="#FFFFFF" />
+    <path d="M60 13 L60 23 M55 18 L65 18" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round" />
+  </g>
+
+  <!-- BRAND TYPOGRAPHY (Right: 135 - 540) -->
+  <!-- "Travel" -->
+  <text x="145" y="72" 
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" 
+        font-size="52" font-weight="800" fill="#F8FAFC" letter-spacing="-1">Travel</text>
+
+  <!-- "Ease" -->
+  <text x="312" y="72" 
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" 
+        font-size="52" font-weight="900" fill="url(#textEaseGrad)" letter-spacing="-1">Ease</text>
+
+  <!-- Tagline / Descriptor -->
+  <text x="148" y="98" 
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+        font-size="11" font-weight="700" fill="#94A3B8" letter-spacing="3.5">MULTI-MODAL TRAVEL OPERATING SYSTEM</text>
+
+  <!-- Micro Accent Dot -->
+  <circle cx="510" cy="94" r="3" fill="#06B6D4" filter="url(#darkLogoGlow)" />
+</svg>
