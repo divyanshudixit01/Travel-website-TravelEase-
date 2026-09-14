@@ -26,29 +26,6 @@ export default defineConfig({
     },
   },
   build: {
-    chunkSizeWarningLimit: 600,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('three')) {
-              return 'vendor-three';
-            }
-            if (id.includes('leaflet') || id.includes('react-leaflet')) {
-              return 'vendor-maps';
-            }
-            if (id.includes('framer-motion')) {
-              return 'vendor-motion';
-            }
-            if (id.includes('react-icons')) {
-              return 'vendor-ui';
-            }
-            if (id.includes('react-router-dom') || id.includes('react-dom') || id.includes('/react/')) {
-              return 'vendor-react';
-            }
-          }
-        }
-      }
-    }
+    chunkSizeWarningLimit: 1600
   }
 });
