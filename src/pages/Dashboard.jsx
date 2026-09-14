@@ -1,6 +1,6 @@
 import React, { useState, useContext, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useBooking } from '../context/BookingContext';
 import AuthContext from '../context/AuthContext';
 import { 
@@ -17,9 +17,8 @@ import { AvatarStudioModal } from '../components/profile/AvatarStudioModal';
 import { TRAVEL_AVATARS } from '../components/profile/travelAvatars';
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-  const { userBookings, cancelBooking, formatPrice, addToast } = useBooking();
-  const { user, updateUser, isAuthenticated } = useContext(AuthContext);
+  const { userBookings, cancelBooking, addToast } = useBooking();
+  const { user, updateUser } = useContext(AuthContext);
 
   // Filter States
   const [statusTab, setStatusTab] = useState('upcoming'); // 'all' | 'upcoming' | 'completed' | 'cancelled'
@@ -358,7 +357,6 @@ const Dashboard = () => {
                 const badge = getServiceBadge(b.type || b.serviceType);
                 const isConfirmed = b.status === 'Confirmed';
                 const isCompleted = b.status === 'Completed';
-                const isCancelled = b.status === 'Cancelled';
 
                 return (
                   <motion.div

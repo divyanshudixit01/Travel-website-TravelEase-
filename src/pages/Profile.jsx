@@ -16,7 +16,7 @@ import { TRAVEL_AVATARS } from '../components/profile/travelAvatars';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, updateUser, isAuthenticated, logout } = useContext(AuthContext);
+  const { user, updateUser, logout } = useContext(AuthContext);
   const { addToast, userBookings } = useBooking();
 
   // Avatar Modal State

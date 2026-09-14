@@ -12,8 +12,6 @@ export const BookingTicketModal = ({ isOpen, onClose, booking }) => {
   const isFlight = booking.type === 'flight' || booking.serviceType === 'flight';
   const isTrain = booking.type === 'train' || booking.serviceType === 'train';
   const isHotel = booking.type === 'hotel' || booking.serviceType === 'hotel';
-  const isCab = booking.type === 'car' || booking.serviceType === 'car';
-  const isBus = booking.type === 'bus' || booking.serviceType === 'bus';
 
   const handlePrint = () => {
     window.print();
