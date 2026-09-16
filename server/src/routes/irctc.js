@@ -150,14 +150,14 @@ router.get('/train/:trainNumber', async (req, res) => {
   }
 });
 
-// GET /api/irctc/seat-availability?train=12004&from=LKO&to=NDLS&date=20260906&class=3A
+// GET /api/irctc/seat-availability?train=12004&from=LKO&to=NDLS&date=20260906&class=3A&quota=GN
 router.get('/seat-availability', async (req, res) => {
   try {
-    const { train, from, to, date, class: classType } = req.query;
+    const { train, from, to, date, class: classType, quota } = req.query;
     if (!train) {
       return res.status(400).json({ success: false, message: 'Missing train parameter' });
     }
-    const data = await getSeatAvailability(train, from, to, date, classType);
+    const data = await getSeatAvailability(train, from, to, date, classType, quota);
     res.json(data);
   } catch (error) {
     console.error('[IRCTC Route] /seat-availability error:', error.message);

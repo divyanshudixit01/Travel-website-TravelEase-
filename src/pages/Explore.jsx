@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { resolveDestination, getLiveExploreDestinations } from '../services/dynamicTravelEngine';
 import { 
   FaSearch, 
   FaDirections, 
@@ -16,6 +18,7 @@ import {
   FaLayerGroup,
   FaRoute,
   FaPlane,
+  FaTrain,
   FaHotel,
   FaCalendarAlt,
   FaCheckCircle,
@@ -27,6 +30,14 @@ import { getWebPageSchema, getBreadcrumbSchema } from '../utils/schemas';
 import ThemeContext from '../context/ThemeContext';
 import { ThreeUIButton } from '../components/ui/ThreeUIButton';
 import { SegmentedPillToggle } from '../components/ui/ThreeUIToggle';
+import { 
+  getHotelsRoute, 
+  getTrainsRoute, 
+  getFlightsRoute, 
+  getItineraryRoute, 
+  getDestinationsRoute, 
+  hasTrainNetwork 
+} from '../utils/travelBridge';
 
 // Leaflet default icon asset fix
 delete L.Icon.Default.prototype._getIconUrl;
@@ -155,230 +166,8 @@ const categoryColors = {
   nature: '#14b8a6'
 };
 
-// Curated Ultra-Rich Destination Dataset
-const destinationsData = [
-  {
-    id: 1,
-    name: "Goa Tropical Beaches",
-    category: "beach",
-    lat: 15.2993,
-    lng: 74.1240,
-    price: "₹8,500",
-    numericPrice: 8500,
-    rating: 4.8,
-    reviews: 1420,
-    weather: { temp: "29°C", status: "Sunny", icon: "sun" },
-    bestSeason: "Nov - Feb",
-    tags: ["Nightlife", "Water Sports", "Portuguese Heritage"],
-    image: "https://images.unsplash.com/photo-1560179406-1c6c60e0dc76?q=80&w=1674&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1560179406-1c6c60e0dc76?q=80&w=1674&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1614082242765-7c98ca0f3df3?q=80&w=1000&auto=format&fit=crop"
-    ],
-    description: "Sun-kissed golden beaches, vibrant seaside shacks, Portuguese colonial architecture, and thrilling watersports along the Arabian Sea.",
-    highlights: ["Baga & Anjuna Beach Sunset", "Dudhsagar Waterfalls Trek", "Panaji Latin Quarter Tour"],
-    audioGuide: "Welcome to Goa, India's tropical coastal paradise..."
-  },
-  {
-    id: 2,
-    name: "Taj Mahal, Agra",
-    category: "heritage",
-    lat: 27.1751,
-    lng: 78.0421,
-    price: "₹4,500",
-    numericPrice: 4500,
-    rating: 4.9,
-    reviews: 3890,
-    weather: { temp: "26°C", status: "Clear Sky", icon: "sun" },
-    bestSeason: "Oct - Mar",
-    tags: ["UNESCO World Heritage", "7 Wonders", "Architecture"],
-    image: "https://images.unsplash.com/photo-1610361418971-50cb8d1f8339?q=80&w=1036&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1610361418971-50cb8d1f8339?q=80&w=1036&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=1000&auto=format&fit=crop"
-    ],
-    description: "An ivory-white marble mausoleum on the south bank of the Yamuna River. Commissioned in 1632 by the Mughal emperor Shah Jahan.",
-    highlights: ["Sunrise Marble View", "Agra Fort Guided Tour", "Mehtab Bagh Moonlight Garden"],
-    audioGuide: "Standing before the monument of immortal love..."
-  },
-  {
-    id: 3,
-    name: "Kerala Emerald Backwaters",
-    category: "nature",
-    lat: 9.4981,
-    lng: 76.3388,
-    price: "₹12,900",
-    numericPrice: 12900,
-    rating: 4.9,
-    reviews: 2150,
-    weather: { temp: "27°C", status: "Pleasant", icon: "cloud" },
-    bestSeason: "Sep - Mar",
-    tags: ["Houseboats", "Ayurveda", "Serene"],
-    image: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?q=80&w=2069&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?q=80&w=2069&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1000&auto=format&fit=crop"
-    ],
-    description: "Tranquil network of interconnected brackish lagoons, lakes, and canals lying parallel to the Arabian Sea coast.",
-    highlights: ["Alleppey Overnight Houseboat", "Kumarakom Bird Sanctuary", "Traditional Kathakali Show"],
-    audioGuide: "Glide softly through God's Own Country..."
-  },
-  {
-    id: 4,
-    name: "Jaipur Pink City Palaces",
-    category: "heritage",
-    lat: 26.9124,
-    lng: 75.7873,
-    price: "₹9,200",
-    numericPrice: 9200,
-    rating: 4.7,
-    reviews: 1840,
-    weather: { temp: "25°C", status: "Sunny", icon: "sun" },
-    bestSeason: "Oct - Mar",
-    tags: ["Royal Palaces", "Bazaars", "Culture"],
-    image: "https://images.unsplash.com/photo-1631867675167-90a456a90863?q=80&w=2079&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1631867675167-90a456a90863?q=80&w=2079&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1477587458883-47145ed94245?q=80&w=1000&auto=format&fit=crop"
-    ],
-    description: "The capital of India's Rajasthan state, evocative of the royal family that once ruled the region and founded the Old City.",
-    highlights: ["Hawa Mahal Honeycomb Façade", "Amer Fort Elephant Ride", "City Palace Museum"],
-    audioGuide: "Step into the royal heritage of Rajasthan..."
-  },
-  {
-    id: 5,
-    name: "Manali Alpine Valley",
-    category: "mountain",
-    lat: 32.2432,
-    lng: 77.1892,
-    price: "₹10,800",
-    numericPrice: 10800,
-    rating: 4.8,
-    reviews: 2610,
-    weather: { temp: "12°C", status: "Cool Breeze", icon: "snow" },
-    bestSeason: "Year-Round",
-    tags: ["Snow Sports", "Trekking", "Himalayas"],
-    image: "https://images.unsplash.com/photo-1652501834567-937de29c4533?q=80&w=1035&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1652501834567-937de29c4533?q=80&w=1035&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=1000&auto=format&fit=crop"
-    ],
-    description: "A high-altitude Himalayan resort town nestled in Himachal Pradesh, known as a hotspot for skiing in winter and paragliding in summer.",
-    highlights: ["Solang Valley Paragliding", "Rohtang Pass Snow Tour", "Old Manali Café Crawl"],
-    audioGuide: "Breathe in the crisp Himalayan pine air..."
-  },
-  {
-    id: 6,
-    name: "Kyoto Ancient Shrines",
-    category: "city",
-    lat: 35.0116,
-    lng: 135.7681,
-    price: "₹58,000",
-    numericPrice: 58000,
-    rating: 4.9,
-    reviews: 4120,
-    weather: { temp: "18°C", status: "Clear", icon: "sun" },
-    bestSeason: "Mar - May, Oct - Nov",
-    tags: ["Cherry Blossom", "Zen Gardens", "Temples"],
-    image: "https://images.unsplash.com/photo-1492571350019-22de08371fd3?q=80&w=1453&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1492571350019-22de08371fd3?q=80&w=1453&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=1000&auto=format&fit=crop"
-    ],
-    description: "Japan's ancient capital, famous for its classical Buddhist temples, gardens, imperial palaces, Shinto shrines, and traditional wooden houses.",
-    highlights: ["Fushimi Inari Taisha Torii Gates", "Arashiyama Bamboo Grove", "Gisha District Walk"],
-    audioGuide: "Welcome to Kyoto, the cultural soul of Japan..."
-  },
-  {
-    id: 7,
-    name: "Santorini Caldera",
-    category: "luxe",
-    lat: 36.3932,
-    lng: 25.4615,
-    price: "₹68,500",
-    numericPrice: 68500,
-    rating: 5.0,
-    reviews: 5200,
-    weather: { temp: "24°C", status: "Breezy", icon: "sun" },
-    bestSeason: "May - Oct",
-    tags: ["Cliffside Villas", "Aegean Sea", "Sunset Views"],
-    image: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=1000&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=1000&auto=format&fit=crop"
-    ],
-    description: "One of the Cyclades islands in the Aegean Sea, famed for its whitewashed, cube-shaped houses clinging to volcanic cliffs above an underwater crater.",
-    highlights: ["Oia Sunset Panorama", "Catamaran Sunset Cruise", "Akrotiri Volcanic Ruins"],
-    audioGuide: "Gaze upon the sapphire waters of the Aegean..."
-  },
-  {
-    id: 8,
-    name: "Swiss Alps & Zermatt",
-    category: "mountain",
-    lat: 45.9765,
-    lng: 7.7491,
-    price: "₹82,000",
-    numericPrice: 82000,
-    rating: 4.9,
-    reviews: 3100,
-    weather: { temp: "8°C", status: "Alpine Snow", icon: "snow" },
-    bestSeason: "Dec - Apr, Jun - Sep",
-    tags: ["Matterhorn", "Luxury Skiing", "Glacier Express"],
-    image: "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=1000&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1000&auto=format&fit=crop"
-    ],
-    description: "Zermatt lies at the foot of the iconic pyramid-shaped Matterhorn peak, offering world-class skiing, hiking, and car-free mountain serenity.",
-    highlights: ["Gornergrat Cogwheel Railway", "Matterhorn Glacier Paradise", "Alpine Skiing"],
-    audioGuide: "Experience the majestic Swiss mountain peaks..."
-  },
-  {
-    id: 9,
-    name: "Dubai Skyline & Oasis",
-    category: "luxe",
-    lat: 25.2048,
-    lng: 55.2708,
-    price: "₹32,500",
-    numericPrice: 32500,
-    rating: 4.9,
-    reviews: 4800,
-    weather: { temp: "33°C", status: "Sunny", icon: "sun" },
-    bestSeason: "Nov - Mar",
-    tags: ["Burj Khalifa", "Desert Safari", "Luxury Shopping"],
-    image: "https://images.unsplash.com/flagged/photo-1559717865-a99cac1c95d8?q=80&w=2942&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/flagged/photo-1559717865-a99cac1c95d8?q=80&w=2942&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1000&auto=format&fit=crop"
-    ],
-    description: "A city and emirate in the UAE known for luxury shopping, ultramodern architecture, and a lively nightlife scene.",
-    highlights: ["Burj Khalifa At The Top (148th floor)", "Desert Dune Bashing & BBQ", "Museum of the Future"],
-    audioGuide: "Welcome to Dubai, where tomorrow comes alive today..."
-  },
-  {
-    id: 10,
-    name: "Leh Ladakh High Passes",
-    category: "mountain",
-    lat: 34.1526,
-    lng: 77.5771,
-    price: "₹24,500",
-    numericPrice: 24500,
-    rating: 4.9,
-    reviews: 1930,
-    weather: { temp: "10°C", status: "Crisp", icon: "sun" },
-    bestSeason: "May - Sep",
-    tags: ["Pangong Tso", "Magnetic Hill", "Monasteries"],
-    image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?q=80&w=1000&auto=format&fit=crop",
-    gallery: [
-      "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?q=80&w=1000&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=1000&auto=format&fit=crop"
-    ],
-    description: "High-altitude desert in the Indian Himalayas, renowned for breathtaking blue lakes, ancient Buddhist monasteries, and mountain passes.",
-    highlights: ["Pangong Tso Lake Camping", "Khardung La Pass Crossing", "Thiksey Monastery Chanting"],
-    audioGuide: "Journey across the Land of High Passes..."
-  }
-];
+// Live Dynamic Destination Dataset from Multi-API Engine
+const destinationsData = getLiveExploreDestinations();
 
 const categoryOptions = [
   { id: 'all', label: 'All Spots' },
@@ -401,12 +190,17 @@ const MapFlyTo = ({ center, zoom }) => {
 };
 
 export const Explore = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlQuery = searchParams.get('q') || searchParams.get('search') || '';
+
   const { theme } = useContext(ThemeContext);
   const isDark = theme === 'dark';
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [allDestinations, setAllDestinations] = useState(destinationsData);
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedDest, setSelectedDest] = useState(null);
+  const [isResolving, setIsResolving] = useState(false);
   
   // Automatically adapt map style to active application theme
   const [mapStyleKey, setMapStyleKey] = useState(isDark ? 'dark' : 'voyager');
@@ -428,6 +222,56 @@ export const Explore = () => {
       setMapStyleKey(isDark ? 'dark' : 'voyager');
     }
   }, [isDark, mapStyleKey]);
+
+  // Focus on selected destination & fly camera
+  const handleSelectDest = useCallback((dest) => {
+    setSelectedDest(dest);
+    setMapCenter([dest.lat, dest.lng]);
+    setMapZoom(12);
+  }, []);
+
+  // Dynamic Destination Resolver (OpenStreetMap Nominatim + Wikipedia + Weather)
+  const handleDynamicSearch = useCallback(async (queryText) => {
+    if (!queryText || !queryText.trim()) return;
+    const clean = queryText.trim();
+    
+    // Check if place already exists in our active destination pool
+    const existing = allDestinations.find(d => 
+      (d.name && d.name.toLowerCase().includes(clean.toLowerCase())) || 
+      (clean.toLowerCase().includes((d.name || '').toLowerCase())) ||
+      (d.title && d.title.toLowerCase().includes(clean.toLowerCase()))
+    );
+
+    if (existing) {
+      handleSelectDest(existing);
+      return;
+    }
+
+    // Otherwise dynamically resolve via OpenStreetMap Geocoding + Wikipedia REST API
+    setIsResolving(true);
+    try {
+      const dynamicDest = await resolveDestination(clean);
+      if (dynamicDest) {
+        setAllDestinations(prev => {
+          const exists = prev.some(d => d.id === dynamicDest.id || d.name.toLowerCase() === dynamicDest.name.toLowerCase());
+          return exists ? prev : [dynamicDest, ...prev];
+        });
+        handleSelectDest(dynamicDest);
+      }
+    } catch (err) {
+      console.warn('[Explore Dynamic Resolve Error]', err);
+    } finally {
+      setIsResolving(false);
+    }
+  }, [allDestinations, handleSelectDest]);
+
+  // Sync with incoming URL query parameter (?q=Varanasi or ?q=Taj+Mahal)
+  useEffect(() => {
+    if (urlQuery) {
+      setSearchQuery(urlQuery);
+      handleDynamicSearch(urlQuery);
+    }
+  }, [urlQuery, handleDynamicSearch]);
 
   // Toggle favorite
   const toggleFavorite = (id, e) => {
@@ -455,13 +299,18 @@ export const Explore = () => {
   };
 
   // Filtered & Sorted Destinations
-  const filteredDestinations = destinationsData
+  const filteredDestinations = allDestinations
     .filter((dest) => {
+      const destName = dest.name || dest.title || '';
+      const destDesc = dest.description || '';
+      const destTags = dest.tags || dest.highlights || [];
+
       const matchesCat = activeCategory === 'all' || dest.category === activeCategory;
       const matchesSearch = 
-        dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        dest.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        dest.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        !searchQuery.trim() ||
+        destName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        destDesc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        destTags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesPrice = dest.numericPrice <= maxPrice;
       const matchesRating = dest.rating >= minRating;
       return matchesCat && matchesSearch && matchesPrice && matchesRating;
@@ -475,15 +324,8 @@ export const Explore = () => {
         const distB = calculateDistance(userPos[0], userPos[1], b.lat, b.lng);
         return distA - distB;
       }
-      return b.reviews - a.reviews; // default popular
+      return (b.reviews || 1000) - (a.reviews || 1000); // default popular
     });
-
-  // Focus on selected destination
-  const handleSelectDest = (dest) => {
-    setSelectedDest(dest);
-    setMapCenter([dest.lat, dest.lng]);
-    setMapZoom(11);
-  };
 
   // Open Directions in Google Maps
   const handleGetDirections = (dest, e) => {
@@ -640,25 +482,48 @@ export const Explore = () => {
               </div>
 
               {/* Quick Search Input */}
-              <div className="relative mb-3">
-                <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (searchQuery.trim()) {
+                    setSearchParams({ q: searchQuery.trim() });
+                    handleDynamicSearch(searchQuery.trim());
+                  }
+                }}
+                className="relative mb-3"
+              >
+                <button type="submit" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-500 transition-colors">
+                  {isResolving ? (
+                    <span className="w-3.5 h-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin block" />
+                  ) : (
+                    <FaSearch className="w-3.5 h-3.5" />
+                  )}
+                </button>
                 <input
                   type="text"
-                  placeholder="Search spots, tags, regions..."
+                  placeholder={isResolving ? "Resolving via OpenStreetMap..." : "Search ANY spot in India & World..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-9 py-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs font-mono font-semibold text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-amber-400/80 focus:ring-2 focus:ring-amber-400/20 transition-all"
+                  className="w-full pl-10 pr-16 py-2 rounded-xl bg-slate-100/90 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs font-mono font-semibold text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-amber-400/80 focus:ring-2 focus:ring-amber-400/20 transition-all"
                 />
-                {searchQuery && (
-                  <button 
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                  {searchQuery && (
+                    <button 
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    >
+                      <FaTimes className="w-3 h-3" />
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    className="px-2 py-0.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-mono font-bold transition-all shadow-sm"
                   >
-                    <FaTimes className="w-3 h-3" />
+                    Go
                   </button>
-                )}
-              </div>
+                </div>
+              </form>
 
               {/* Mobile Category Pill Switcher (inside drawer if on mobile) */}
               <div className="md:hidden mb-3 overflow-x-auto no-scrollbar">
@@ -869,16 +734,34 @@ export const Explore = () => {
                   <h4 className="font-bold text-xs mb-1 text-slate-900 dark:text-white line-clamp-1">{dest.name}</h4>
                   <p className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2 mb-2 leading-relaxed">{dest.description}</p>
                   
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-white/10">
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-white/10 gap-2">
                     <span className="font-mono font-extrabold text-amber-600 dark:text-amber-400 text-xs">{dest.price}</span>
                     
-                    <button
-                      type="button"
-                      onClick={() => setDetailModalDest(dest)}
-                      className="px-2.5 py-1 bg-slate-900 hover:bg-black dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 text-[10px] font-mono font-bold rounded-lg flex items-center gap-1 transition-all shadow-sm active:scale-95"
-                    >
-                      EXPLORE <FaArrowRight className="w-2 h-2" />
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <a
+                        href={getHotelsRoute(dest.name)}
+                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-200 text-[10px] transition-colors"
+                        title="Verified Stays"
+                      >
+                        <FaHotel className="w-3 h-3 text-amber-500" />
+                      </a>
+                      {hasTrainNetwork(dest.name) && (
+                        <a
+                          href={getTrainsRoute(dest.name)}
+                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-slate-200 text-[10px] transition-colors"
+                          title="Tatkal Trains"
+                        >
+                          <FaTrain className="w-3 h-3 text-emerald-500" />
+                        </a>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setDetailModalDest(dest)}
+                        className="px-2.5 py-1 bg-slate-900 hover:bg-black dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 text-[10px] font-mono font-bold rounded-lg flex items-center gap-1 transition-all shadow-sm active:scale-95"
+                      >
+                        EXPLORE <FaArrowRight className="w-2 h-2" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </Popup>
@@ -980,26 +863,58 @@ export const Explore = () => {
                 </ul>
               </div>
 
-              {/* ThreeUI Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-200 dark:border-white/10">
+              {/* Dynamic Action Matrix */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-4 border-t border-slate-200 dark:border-white/10">
                 <ThreeUIButton 
                   variant="amber-glow"
                   size="md"
-                  to="/flights"
-                  icon={<FaPlane className="w-3.5 h-3.5" />}
-                  className="flex-1 min-w-[140px]"
+                  to={getItineraryRoute(detailModalDest.name)}
+                  icon={<FaRoute className="w-3.5 h-3.5" />}
+                  className="w-full text-center"
                 >
-                  Book Flights
+                  Plan AI Trip
                 </ThreeUIButton>
 
                 <ThreeUIButton 
                   variant="liquid-metal"
                   size="md"
-                  to="/hotels"
-                  icon={<FaHotel className="w-3.5 h-3.5" />}
-                  className="flex-1 min-w-[140px]"
+                  to={getDestinationsRoute(detailModalDest.name)}
+                  icon={<FaArrowRight className="w-3.5 h-3.5" />}
+                  className="w-full text-center"
                 >
-                  Find Hotels
+                  Packages
+                </ThreeUIButton>
+
+                <ThreeUIButton 
+                  variant="specular-dark"
+                  size="md"
+                  to={getHotelsRoute(detailModalDest.name)}
+                  icon={<FaHotel className="w-3.5 h-3.5 text-amber-500" />}
+                  className="w-full text-center"
+                >
+                  Verified Stays
+                </ThreeUIButton>
+
+                {hasTrainNetwork(detailModalDest.name) && (
+                  <ThreeUIButton 
+                    variant="specular-dark"
+                    size="md"
+                    to={getTrainsRoute(detailModalDest.name)}
+                    icon={<FaTrain className="w-3.5 h-3.5 text-emerald-400" />}
+                    className="w-full text-center"
+                  >
+                    Tatkal Trains
+                  </ThreeUIButton>
+                )}
+
+                <ThreeUIButton 
+                  variant="specular-dark"
+                  size="md"
+                  to={getFlightsRoute(detailModalDest.name)}
+                  icon={<FaPlane className="w-3.5 h-3.5 text-sky-400" />}
+                  className="w-full text-center"
+                >
+                  Live Flights
                 </ThreeUIButton>
 
                 <ThreeUIButton 
@@ -1007,9 +922,9 @@ export const Explore = () => {
                   size="md"
                   onClick={(e) => handleGetDirections(detailModalDest, e)}
                   icon={<FaDirections className="w-3.5 h-3.5 text-amber-500" />}
-                  className="flex-1 min-w-[140px]"
+                  className="w-full text-center"
                 >
-                  GPS Directions
+                  Directions
                 </ThreeUIButton>
               </div>
             </motion.div>

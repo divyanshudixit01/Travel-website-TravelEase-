@@ -40,7 +40,7 @@ const Home = () => {
     <div className="home-page relative bg-slate-50 dark:bg-[#06080d] min-h-screen text-slate-900 dark:text-slate-100 transition-colors duration-500 selection:bg-amber-400 selection:text-black">
       <JsonLd data={homeSchemas} />
       
-      {/* 1. THREE.JS INTERACTIVE HERO ATMOSPHERE */}
+      {/* 1. CINEMATIC MULTI-MODAL TRAVEL HERO SHOWCASE (5 CHAPTERS) */}
       <HeroSection />
 
       {/* 2. 3D BENTO GRID FOR CORE SERVICES (TRAINS TATKAL, FLIGHTS, HOTELS, AI ARCHITECT) */}

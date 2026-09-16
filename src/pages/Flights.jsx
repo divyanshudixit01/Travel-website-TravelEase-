@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useBooking } from '../context/BookingContext';
 import { FlightSkeletonList } from '../components/common/LoadingSkeleton';
@@ -16,18 +16,40 @@ import FlightFareModal from '../features/flights/components/FlightFareModal';
 
 import { searchLiveFlights, SPECIAL_FARES } from '../services/flightApi';
 import { searchRealtimeFlights } from '../services/realtimeDataEngine';
+import { ThreeCard3D } from '../components/ui/ThreeCard3D';
 import { ThreeUIButton } from '../components/ui/ThreeUIButton';
 import { SegmentedPillToggle } from '../components/ui/ThreeUIToggle';
-import { FaPlane, FaExchangeAlt, FaSpinner, FaSearch } from 'react-icons/fa';
+import { 
+  FaPlane, 
+  FaExchangeAlt, 
+  FaSpinner, 
+  FaSearch, 
+  FaHotel, 
+  FaTrain, 
+  FaRoute, 
+  FaMapMarkerAlt 
+} from 'react-icons/fa';
+import { 
+  resolveAirportCode,
+  getHotelsRoute, 
+  getTrainsRoute, 
+  getExploreRoute, 
+  getItineraryRoute, 
+  getDestinationsRoute, 
+  hasTrainNetwork 
+} from '../utils/travelBridge';
 
 const Flights = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { setActiveBooking, formatPrice, addToast, currency } = useBooking();
+
+  const destQuery = searchParams.get('destination') || searchParams.get('to') || searchParams.get('q') || location.state?.destination;
 
   // Search Parameters State
   const [fromAirport, setFromAirport] = useState(() => searchParams.get('from') || 'DEL');
-  const [toAirport, setToAirport] = useState(() => searchParams.get('to') || 'DXB');
+  const [toAirport, setToAirport] = useState(() => resolveAirportCode(destQuery) || 'DXB');
   const [departDate, setDepartDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 7);
@@ -93,6 +115,17 @@ const Flights = () => {
   useEffect(() => {
     handleSearch();
   }, [handleSearch]);
+
+  // Sync toAirport if search query param changes
+  useEffect(() => {
+    const dest = searchParams.get('destination') || searchParams.get('to') || searchParams.get('q') || location.state?.destination;
+    if (dest) {
+      const code = resolveAirportCode(dest);
+      if (code && code !== toAirport) {
+        setToAirport(code);
+      }
+    }
+  }, [searchParams, location.state, toAirport]);
 
   // Unique list of airlines available in current search
   const availableAirlines = useMemo(() => {
@@ -353,6 +386,52 @@ const Flights = () => {
 
         </div>
       </section>
+
+      {/* ─── Cross-Service Dynamic Travel Ecosystem Bar ─────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 pt-6">
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-sky-500/10 via-purple-500/10 to-amber-500/10 border border-slate-200/80 dark:border-white/10 backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping shrink-0" />
+            <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
+              Cross-Service Travel Hub for Route <span className="text-sky-500 font-extrabold">{fromAirport} ➔ {toAirport}</span>:
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to={getHotelsRoute(toAirport)}
+              className="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-600 dark:text-amber-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            >
+              <FaHotel className="w-3 h-3 text-amber-500" /> Stays in {toAirport}
+            </Link>
+            {hasTrainNetwork(toAirport) && (
+              <Link
+                to={getTrainsRoute(toAirport, fromAirport)}
+                className="px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-600 dark:text-purple-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <FaTrain className="w-3 h-3 text-purple-500" /> Compare IRCTC Trains
+              </Link>
+            )}
+            <Link
+              to={getExploreRoute(toAirport)}
+              className="px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            >
+              <FaMapMarkerAlt className="w-3 h-3 text-emerald-500" /> Live Map
+            </Link>
+            <Link
+              to={getItineraryRoute(toAirport)}
+              className="px-3 py-1.5 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/30 text-teal-600 dark:text-teal-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            >
+              <FaRoute className="w-3 h-3 text-teal-500" /> AI Itinerary
+            </Link>
+            <Link
+              to={getDestinationsRoute(toAirport)}
+              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            >
+              Packages
+            </Link>
+          </div>
+        </div>
+      </div>
 
       {/* ─── Main Results Content ────────────────────────────────────────── */}
       <main className="max-w-7xl mx-auto px-4 py-12">

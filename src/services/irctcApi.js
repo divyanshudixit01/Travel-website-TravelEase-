@@ -29,38 +29,51 @@ export const TRAIN_CLASSES = [
 
 // ─── Station Cluster & Alias Map ─────────────────────────────────
 export const STATION_ALIASES = {
-  'PRYJ': ['ALD', 'PRG', 'PYGS', 'PRRB'],
-  'ALD': ['PRYJ', 'PRG', 'PYGS', 'PRRB'],
-  'PYGS': ['PRG', 'PRYJ', 'ALD'],
-  'PRG': ['PYGS', 'PRYJ', 'ALD'],
-  'PRRB': ['ALY', 'PRYJ', 'ALD'],
-  'ALY': ['PRRB', 'PRYJ', 'ALD'],
+  'PRYJ': ['ALD'],
+  'ALD': ['PRYJ'],
   'DDU': ['MGS'],
   'MGS': ['DDU'],
-  'AYC': ['FD'],
-  'FD': ['AYC'],
+  'AYC': ['FD', 'AY'],
+  'FD': ['AYC', 'AY'],
   'AY': ['AYC', 'FD'],
-  'BSBS': ['MUV', 'BSB'],
-  'MUV': ['BSBS', 'BSB'],
-  'NDLS': ['NDLS', 'DLI', 'NZM', 'ANVT', 'DEE'],
-  'DLI': ['DLI', 'NDLS', 'NZM', 'ANVT', 'DEE'],
-  'NZM': ['NZM', 'NDLS', 'DLI', 'ANVT', 'DEE'],
-  'ANVT': ['ANVT', 'NDLS', 'DLI', 'NZM'],
-  'LKO': ['LKO', 'LJN', 'GTNR', 'BNZ'],
-  'LJN': ['LJN', 'LKO', 'GTNR', 'BNZ'],
-  'CSMT': ['CSMT', 'MMCT', 'BDTS', 'LTT', 'DR', 'PNVL'],
-  'MMCT': ['MMCT', 'CSMT', 'BDTS', 'LTT', 'DR'],
-  'SBC': ['SBC', 'YPR', 'SMVB', 'BNC'],
-  'MAS': ['MAS', 'MS', 'TBM']
+  'BSBS': ['MUV'],
+  'MUV': ['BSBS'],
+  'RKMP': ['HBJ'],
+  'HBJ': ['RKMP'],
+  'CSMT': ['CSTM'],
+  'CSTM': ['CSMT']
 };
 
-export const expandStationCodes = (code) => {
+export const METRO_CLUSTERS = {
+  'DELHI': ['NDLS', 'DLI', 'NZM', 'ANVT', 'DEE', 'DSA'],
+  'MUMBAI': ['CSMT', 'MMCT', 'BDTS', 'LTT', 'DR', 'PNVL'],
+  'KOLKATA': ['HWH', 'SDAH', 'KOAA', 'SHM'],
+  'BANGALORE': ['SBC', 'YPR', 'SMVB', 'BNC'],
+  'CHENNAI': ['MAS', 'MS', 'TBM'],
+  'HYDERABAD': ['SC', 'HYB', 'KCG'],
+  'VARANASI': ['BSB', 'BSBS', 'DDU'],
+  'PRAYAGRAJ': ['PRYJ', 'PRG', 'PYGS', 'PRRB', 'ALY'],
+  'LUCKNOW': ['LKO', 'LJN', 'GTNR', 'BNZ'],
+  'AHMEDABAD': ['ADI', 'SBT', 'GER']
+};
+
+export const expandStationCodes = (code, includeClusters = false) => {
   const clean = String(code || '').trim().toUpperCase();
   if (!clean) return [];
   const set = new Set([clean]);
+
   if (STATION_ALIASES[clean]) {
     STATION_ALIASES[clean].forEach(c => set.add(c));
   }
+
+  if (includeClusters) {
+    for (const clusterStations of Object.values(METRO_CLUSTERS)) {
+      if (clusterStations.includes(clean)) {
+        clusterStations.forEach(c => set.add(c));
+      }
+    }
+  }
+
   return Array.from(set);
 };
 
@@ -424,15 +437,22 @@ export const searchTrains = async (fromCode, toCode, date) => {
     const res = await irctcClient.get('/trains', {
       params: { from: cleanFrom, to: cleanTo, date: dateInfo.dateCompact }
     });
-    if (res?.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
-      const dedupedBackend = deduplicateTrainList(res.data.data);
+    if (res?.data && res.data.success) {
+      const rawDirect = Array.isArray(res.data.data) ? res.data.data : [];
+      const dedupedBackend = deduplicateTrainList(rawDirect);
       return {
         ...res.data,
         data: dedupedBackend,
         trains: dedupedBackend,
         total_trains: dedupedBackend.length,
+        nearby_alternatives: Array.isArray(res.data.nearby_alternatives) ? res.data.nearby_alternatives : [],
+        nearby_alternatives_count: res.data.nearby_alternatives_count || (res.data.nearby_alternatives?.length || 0),
         running_trains_count: dedupedBackend.filter(t => t.runs_on_date).length,
-        non_running_trains_count: dedupedBackend.filter(t => !t.runs_on_date).length
+        non_running_trains_count: dedupedBackend.filter(t => !t.runs_on_date).length,
+        selected_date: res.data.selected_date || dateInfo.dateIso,
+        selected_date_formatted: res.data.selected_date_formatted || dateInfo.dateFormatted,
+        selected_day: res.data.selected_day || dateInfo.dayCode,
+        route: `${cleanFrom} → ${cleanTo}`
       };
     }
   } catch (err) {
@@ -562,102 +582,23 @@ export const searchTrains = async (fromCode, toCode, date) => {
     }
   });
 
-  // If no direct trains in preset master, generate authentic synthetic corridor trains
+  // If no direct trains in preset master, return genuine zero-train response like official IRCTC
   if (matchedTrains.length === 0) {
-    const sFrom = ALL_INDIAN_STATIONS.find(s => s.code === cleanFrom) || { name: cleanFrom };
-    const sTo = ALL_INDIAN_STATIONS.find(s => s.code === cleanTo) || { name: cleanTo };
-    const dist = 360;
-    const durHours = 5;
-    const durMins = 30;
-
-    const baseNo = 12000 + ((cleanFrom.charCodeAt(0) * 31 + cleanTo.charCodeAt(0) * 17) % 7000);
-    const services = [
-      {
-        no: `${baseNo}`,
-        name: `${sFrom.name.split(' ')[0]} - ${sTo.name.split(' ')[0]} Superfast Express`,
-        type: 'SUPERFAST',
-        dep: '06:15',
-        days: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
-      },
-      {
-        no: `${baseNo + 2}`,
-        name: `${sFrom.name.split(' ')[0]} - ${sTo.name.split(' ')[0]} Vande Bharat Express`,
-        type: 'VANDE BHARAT',
-        dep: '14:20',
-        days: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] // Rest on Sun
-      },
-      {
-        no: `${baseNo + 4}`,
-        name: `${sFrom.name.split(' ')[0]} - ${sTo.name.split(' ')[0]} Mail Express`,
-        type: 'EXPRESS',
-        dep: '21:40',
-        days: ['MON', 'WED', 'FRI', 'SUN'] // Tri-weekly
-      }
-    ];
-
-    services.forEach(srv => {
-      const [dh, dm] = srv.dep.split(':').map(Number);
-      const totalArr = (dh * 60 + dm + durHours * 60 + durMins) % 1440;
-      const arrTime = `${String(Math.floor(totalArr / 60)).padStart(2, '0')}:${String(totalArr % 60).padStart(2, '0')}`;
-      const availClasses = getAvailableClassesForType(srv.type);
-      const fares = calculateAuthenticFare(dist, srv.type);
-
-      const availabilityByClass = {};
-      availClasses.forEach(cls => {
-        availabilityByClass[cls] = {
-          class_code: cls,
-          status: 'AVAILABLE',
-          status_text: 'AVL 48',
-          badge_color: 'emerald',
-          seats_available: 48,
-          fare: fares[cls] || 450,
-          tatkal_available: true,
-          confirm_probability: '100% Guaranteed'
-        };
-      });
-
-      const runsOnDate = srv.days.includes(dateInfo.dayCode);
-      const nextRun = runsOnDate ? null : getNextRunningDate(dateInfo.dateObj, srv.days);
-      const isDaily = srv.days.length === 7;
-      const displayDays = isDaily ? 'Runs Daily' : `Runs on ${srv.days.join(', ')}`;
-
-      matchedTrains.push({
-        train_number: srv.no,
-        train_no: srv.no,
-        train_name: srv.name,
-        train_type: srv.type,
-        from_station_code: cleanFrom,
-        from_station_name: sFrom.name,
-        to_station_code: cleanTo,
-        to_station_name: sTo.name,
-        origin: { code: cleanFrom, name: sFrom.name },
-        destination: { code: cleanTo, name: sTo.name },
-        departure_time: srv.dep,
-        arrival_time: arrTime,
-        from_std: srv.dep,
-        to_std: arrTime,
-        duration: `${durHours}h ${durMins}m`,
-        distance_km: dist,
-        halts_count: 4,
-        platform: 1,
-        arrival_platform: 2,
-        delay_minutes: 0,
-        status: 'Punctual Official Schedule',
-        running_days: srv.days,
-        running_days_display: displayDays,
-        runs_on_date: runsOnDate,
-        selected_date: dateInfo.dateIso,
-        selected_date_formatted: dateInfo.dateFormatted,
-        selected_day: dateInfo.dayCode,
-        next_running_date: nextRun,
-        available_classes: availClasses,
-        fare: fares,
-        availability_by_class: availabilityByClass,
-        rating: 4.8,
-        cleanliness: '4.8/5',
-        punctuality: '97%'
-      });
-    });
+    return {
+      success: true,
+      data: [],
+      trains: [],
+      total_trains: 0,
+      running_trains_count: 0,
+      non_running_trains_count: 0,
+      nearby_alternatives: [],
+      nearby_alternatives_count: 0,
+      selected_date: dateInfo.dateIso,
+      selected_date_formatted: dateInfo.dateFormatted,
+      selected_day: dateInfo.dayCode,
+      route: `${cleanFrom} → ${cleanTo}`,
+      message: `No direct trains found between ${cleanFrom} and ${cleanTo} on Indian Railways.`
+    };
   }
 
   const cleanMatched = deduplicateTrainList(matchedTrains);
@@ -676,6 +617,8 @@ export const searchTrains = async (fromCode, toCode, date) => {
     total_trains: cleanMatched.length,
     running_trains_count: cleanMatched.filter(t => t.runs_on_date).length,
     non_running_trains_count: cleanMatched.filter(t => !t.runs_on_date).length,
+    nearby_alternatives: [],
+    nearby_alternatives_count: 0,
     selected_date: dateInfo.dateIso,
     selected_date_formatted: dateInfo.dateFormatted,
     selected_day: dateInfo.dayCode,
@@ -800,20 +743,52 @@ export const getLiveStatus = async (trainNumber, date) => {
 };
 
 // ─── 4. 6-Day Seat Availability Matrix Generator ─────────────────
-export const getMultiDayAvailability = async (trainNumber, _fromCode, _toCode, startDate, classType = '3A', days = 6) => {
+export const getMultiDayAvailability = async (trainNumber, fromCode = 'NDLS', toCode = 'BSB', startDate, classType = '3A', days = 6, quota = 'GN') => {
   const cleanTrainNo = String(trainNumber || '').trim().replace(/\D/g, '');
   const cleanClass = (classType || '3A').trim().toUpperCase();
+  const cleanFrom = (fromCode || 'NDLS').trim().toUpperCase();
+  const cleanTo = (toCode || 'BSB').trim().toUpperCase();
+  const cleanQuota = (quota || 'GN').trim().toUpperCase();
 
   const startD = startDate ? new Date(startDate) : new Date();
   const matrix = [];
+
+  // Try fetching Day 0 live availability from backend
+  let liveDay0 = null;
+  try {
+    const liveRes = await checkSeatAvailability(cleanTrainNo, cleanFrom, cleanTo, startD.toISOString().split('T')[0], cleanClass, cleanQuota);
+    if (liveRes?.success && liveRes.data) {
+      liveDay0 = liveRes.data;
+    }
+  } catch {}
 
   for (let i = 0; i < days; i++) {
     const curDate = new Date(startD.getTime() + i * 24 * 60 * 60 * 1000);
     const dateIso = curDate.toISOString().split('T')[0];
     const dayName = curDate.toLocaleDateString('en-IN', { weekday: 'short' });
 
-    // Seeded authentic variation
-    const numSeed = (parseInt(cleanTrainNo, 10) || 12000) * 19 + curDate.getDate() * 23 + cleanClass.charCodeAt(0) * 11;
+    if (i === 0 && liveDay0) {
+      matrix.push({
+        dateStr: dateIso,
+        dateFormatted: curDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+        dayName,
+        status: liveDay0.status,
+        status_text: liveDay0.status_text,
+        badge_color: liveDay0.badge_color,
+        seats_available: liveDay0.available_seats,
+        fare: liveDay0.fare,
+        base_fare: liveDay0.base_fare,
+        tatkal_surcharge: liveDay0.tatkal_surcharge,
+        confirm_probability: liveDay0.confirm_probability,
+        tatkal_available: liveDay0.tatkal_available,
+        quota: cleanQuota,
+        irctc_direct_url: liveDay0.irctc_direct_url
+      });
+      continue;
+    }
+
+    // Seeded authentic variation for subsequent days
+    const numSeed = (parseInt(cleanTrainNo, 10) || 12000) * 19 + curDate.getDate() * 23 + cleanClass.charCodeAt(0) * 11 + cleanQuota.charCodeAt(0) * 7;
     const seed = Math.abs(numSeed) % 100;
 
     let status = 'AVAILABLE';
@@ -822,7 +797,19 @@ export const getMultiDayAvailability = async (trainNumber, _fromCode, _toCode, s
     let badgeColor = 'emerald';
     let confirmProb = '100% Guaranteed';
 
-    if (i === 0 && seed > 60) {
+    if (cleanQuota === 'TQ') {
+      if (seed > 50) {
+        status = 'AVAILABLE';
+        statusText = `TQ AVL ${Math.max(2, (seed % 14) + 1)}`;
+        badgeColor = 'emerald';
+        confirmProb = 'Instant Tatkal CNF';
+      } else {
+        status = 'WL';
+        statusText = `TQWL ${(seed % 8) + 1}`;
+        badgeColor = 'rose';
+        confirmProb = '50% Tatkal WL';
+      }
+    } else if (i === 0 && seed > 60) {
       const wl = (seed % 18) + 1;
       status = 'WL';
       statusText = `WL ${wl}`;
@@ -838,6 +825,10 @@ export const getMultiDayAvailability = async (trainNumber, _fromCode, _toCode, s
 
     const dist = 490;
     const fares = calculateAuthenticFare(dist, 'SUPERFAST');
+    let dayFare = fares[cleanClass] || 480;
+    if (cleanQuota === 'TQ') {
+      dayFare += cleanClass === '2S' ? 15 : cleanClass === 'SL' ? 100 : 300;
+    }
 
     matrix.push({
       dateStr: dateIso,
@@ -847,9 +838,11 @@ export const getMultiDayAvailability = async (trainNumber, _fromCode, _toCode, s
       status_text: statusText,
       badge_color: badgeColor,
       seats_available: status === 'AVAILABLE' ? seats : 0,
-      fare: fares[cleanClass] || 480,
+      fare: dayFare,
       confirm_probability: confirmProb,
-      tatkal_available: i <= 1
+      tatkal_available: i <= 1,
+      quota: cleanQuota,
+      irctc_direct_url: generateIrctcBookingUrl(cleanFrom, cleanTo, dateIso, cleanQuota, cleanTrainNo)
     });
   }
 
@@ -857,16 +850,29 @@ export const getMultiDayAvailability = async (trainNumber, _fromCode, _toCode, s
     success: true,
     train_number: cleanTrainNo,
     class: cleanClass,
+    quota: cleanQuota,
     matrix
   };
 };
 
+// ─── Official IRCTC Deep-Link Generator ──────────────────────────
+export const generateIrctcBookingUrl = (fromCode, toCode, date, quota = 'GN', trainNo = '') => {
+  const cleanFrom = (fromCode || '').toUpperCase();
+  const cleanTo = (toCode || '').toUpperCase();
+  const cleanDate = formatDateForAPI(date);
+  let url = `https://www.irctc.co.in/nget/booking/train-list?fromStation=${encodeURIComponent(cleanFrom)}&toStation=${encodeURIComponent(cleanTo)}&journeyDate=${encodeURIComponent(cleanDate)}&quota=${encodeURIComponent(quota)}`;
+  if (trainNo) {
+    url += `&train=${encodeURIComponent(trainNo)}`;
+  }
+  return url;
+};
+
 // ─── 5. Seat Availability Single Check ───────────────────────────
-export const checkSeatAvailability = async (trainNumber, fromCode, toCode, date, classType = '3A') => {
+export const checkSeatAvailability = async (trainNumber, fromCode, toCode, date, classType = '3A', quota = 'GN') => {
   try {
     const dateFormatted = formatDateForAPI(date);
     const res = await irctcClient.get('/seat-availability', {
-      params: { train: trainNumber, from: fromCode, to: toCode, date: dateFormatted, class: classType }
+      params: { train: trainNumber, from: fromCode, to: toCode, date: dateFormatted, class: classType, quota }
     });
     if (res?.data?.success && res.data.data) {
       return res.data;
@@ -884,13 +890,15 @@ export const checkSeatAvailability = async (trainNumber, fromCode, toCode, date,
       from_station: fromCode,
       to_station: toCode,
       class: classType,
+      quota,
       status: first.status,
       status_text: first.status_text,
       badge_color: first.badge_color,
       fare: first.fare,
       available_seats: first.seats_available,
       confirm_probability: first.confirm_probability,
-      tatkal_available: first.tatkal_available
+      tatkal_available: first.tatkal_available,
+      irctc_direct_url: generateIrctcBookingUrl(fromCode, toCode, date, quota, trainNumber)
     }
   };
 };

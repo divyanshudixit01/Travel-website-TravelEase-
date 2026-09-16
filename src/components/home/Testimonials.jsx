@@ -1,9 +1,11 @@
 import React from 'react';
-import { FaStar, FaCheckCircle, FaMapMarkerAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaStar, FaCheckCircle, FaMapMarkerAlt, FaArrowRight } from 'react-icons/fa';
 import { HiOutlineSparkles } from 'react-icons/hi';
 import { ThreeCard3D } from '../ui/ThreeCard3D';
 
 export const Testimonials = () => {
+  const navigate = useNavigate();
 
   const reviews = [
     {
@@ -12,6 +14,7 @@ export const Testimonials = () => {
       role: 'Creative Director',
       location: 'New York, USA',
       route: 'JFK ➔ DPS (Bali)',
+      routePath: '/flights?from=JFK&to=DPS&destination=Bali',
       content: 'TravelEase transformed our Bali vacation into pure architectural magic. From private cliffside villas to seamless Tatkal rail transfers in India on our return leg, every step was flawless.',
       rating: 5,
       trip: 'Bali Sanctuary & Ubud Villa',
@@ -24,6 +27,7 @@ export const Testimonials = () => {
       role: 'Software Architect',
       location: 'Toronto, Canada',
       route: 'YYZ ➔ CDG (Europe)',
+      routePath: '/flights?from=YYZ&to=CDG&destination=Paris',
       content: 'The AI Trip Architect suggested a tucked-away family-run vineyard in Tuscany that was not on any travel blog. The real-time flight radar saved us $420 on return tickets.',
       rating: 5,
       trip: 'European Grand Rail Tour',
@@ -35,7 +39,8 @@ export const Testimonials = () => {
       name: 'Priya & Rahul Patel',
       role: 'Travel Enthusiasts',
       location: 'Mumbai, India',
-      route: 'BOM ➔ NDLS ➔ VNS',
+      route: 'NDLS ➔ BSB (Varanasi)',
+      routePath: '/trains?from=NDLS&to=BSB&destination=Varanasi',
       content: 'Booked Vande Bharat Executive Class tickets with Tatkal prediction. Got confirmed berths within 30 seconds when IRCTC servers were crashing everywhere else. Pure lifesaver!',
       rating: 5,
       trip: 'Vande Bharat Spiritual Odyssey',
@@ -48,6 +53,7 @@ export const Testimonials = () => {
       role: 'Photographers',
       location: 'London, UK',
       route: 'LHR ➔ MLE (Maldives)',
+      routePath: '/flights?from=LHR&to=MLE&destination=Maldives',
       content: 'Our honeymoon in the Maldives exceeded all dreams. The private sunset seaplane transfer arranged through TravelEase Concierge was an awe-inspiring experience.',
       rating: 5,
       trip: 'Maldives Overwater Paradise',
@@ -58,20 +64,24 @@ export const Testimonials = () => {
 
   return (
     <section className="relative py-28 px-4 max-w-7xl mx-auto z-20" id="community-stories">
-      {/* Header */}
-      <div className="text-center mb-16">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-200/80 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-semibold uppercase tracking-widest mb-3">
-          <HiOutlineSparkles className="w-3.5 h-3.5" />
-          <span>Global Community Proof</span>
+      {/* Section Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-200/80 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-semibold uppercase tracking-widest mb-3">
+            <HiOutlineSparkles className="w-3.5 h-3.5" />
+            <span>Real Traveler Community</span>
+          </div>
+          <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Trusted by <span className="text-gradient-primary">discerning travelers</span>
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base mt-2 max-w-xl">
+            Over 5 million expeditions planned, confirmed, and remembered. Verified community feedback from real bookings.
+          </p>
         </div>
 
-        <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Trusted by <span className="text-gradient-primary">5,000,000+ travelers</span>
-        </h2>
-
-        <p className="text-slate-600 dark:text-slate-400 text-base max-w-xl mx-auto mt-3">
-          Verified journeys, real confirmation rates, and unforgettable memories from every corner of the world.
-        </p>
+        <div className="mt-4 md:mt-0 font-mono text-xs text-slate-500">
+          GLOBAL SATISFACTION: <span className="text-amber-500 font-bold">99.4%</span>
+        </div>
       </div>
 
       {/* Reviews Grid */}
@@ -120,9 +130,16 @@ export const Testimonials = () => {
             {/* Bottom Meta */}
             <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-xs font-mono">
               <span className="text-amber-600 dark:text-amber-400 font-bold">{rev.trip}</span>
-              <span className="text-slate-500 flex items-center gap-1">
-                <FaMapMarkerAlt className="text-slate-400" /> {rev.route}
-              </span>
+              <button
+                type="button"
+                onClick={() => navigate(rev.routePath)}
+                className="text-slate-500 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 flex items-center gap-1.5 transition-colors group cursor-pointer"
+                title="Search this live travel route"
+              >
+                <FaMapMarkerAlt className="text-amber-500" />
+                <span className="underline decoration-dotted underline-offset-2">{rev.route}</span>
+                <FaArrowRight className="w-2 h-2 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
           </ThreeCard3D>
         ))}

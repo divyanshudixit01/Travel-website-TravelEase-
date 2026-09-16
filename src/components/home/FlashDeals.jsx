@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaFire, FaClock, FaStar, FaArrowRight } from 'react-icons/fa';
 import { ThreeCard3D } from '../ui/ThreeCard3D';
+import { getLiveFlashDeals } from '../../services/dynamicTravelEngine';
 
 export const FlashDeals = () => {
   const navigate = useNavigate();
@@ -25,60 +26,7 @@ export const FlashDeals = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const deals = [
-    {
-      id: 'deal-1',
-      title: 'Grand Palace Heritage Suite',
-      location: 'New Delhi, India',
-      rating: '4.9',
-      discount: '-68% FLASH',
-      price: '₹4,800',
-      origPrice: '₹15,000',
-      remaining: 'Only 2 rooms left',
-      progress: 85,
-      image: '/hero_day_dolomites.jpg',
-      path: '/hotels',
-    },
-    {
-      id: 'deal-2',
-      title: 'Vande Bharat Executive Class',
-      location: 'New Delhi ➔ Varanasi',
-      rating: '4.95',
-      discount: 'TATKAL LIVE',
-      price: '₹2,150',
-      origPrice: '₹3,200',
-      remaining: '4 seats in window quota',
-      progress: 92,
-      image: '/images/trains/ir_vande_bharat.jpg',
-      path: '/trains',
-    },
-    {
-      id: 'deal-3',
-      title: 'Beachfront Sunset Villa',
-      location: 'Goa Coastline, India',
-      rating: '4.85',
-      discount: '-45% WEEKEND',
-      price: '₹3,900',
-      origPrice: '₹7,200',
-      remaining: '3 villas remaining',
-      progress: 78,
-      image: '/stories-greece-cove.jpg',
-      path: '/homestays',
-    },
-    {
-      id: 'deal-4',
-      title: 'Direct Non-stop Flights',
-      location: 'Mumbai ➔ Dubai Return',
-      rating: '4.8',
-      discount: '-32% AIRFARE',
-      price: '₹15,400',
-      origPrice: '₹22,800',
-      remaining: 'Last 5 economy fares',
-      progress: 64,
-      image: '/hero_flying_plane.jpg',
-      path: '/flights',
-    },
-  ];
+  const deals = useMemo(() => getLiveFlashDeals(), []);
 
   return (
     <section className="relative py-20 px-4 max-w-7xl mx-auto z-20" id="flash-deals-countdown">

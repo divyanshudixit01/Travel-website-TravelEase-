@@ -15,101 +15,13 @@ import { ThreeCard3D } from '../components/ui/ThreeCard3D';
 import ThreeBusRouteCanvas from '../components/buses/ThreeBusRouteCanvas';
 import JsonLd from '../components/seo/JsonLd';
 import { getWebPageSchema, getBreadcrumbSchema, getServiceSchema } from '../utils/schemas';
+import { generateDynamicBuses } from '../services/realtimeDataEngine';
 
 // ─── Popular Bus Routes Knowledge Base ────────────────────────────────────────
 const POPULAR_CITIES = [
   'Delhi', 'Manali', 'Shimla', 'Jaipur', 'Agra', 'Chandigarh',
   'Mumbai', 'Pune', 'Goa', 'Bengaluru', 'Chennai', 'Hyderabad',
-  'Dubai', 'Abu Dhabi', 'London', 'Edinburgh'
-];
-
-// Expanded Bus Operators & Schedules
-const LUXURY_BUS_OPERATORS = [
-  {
-    id: 'bus-zingbus-01',
-    operator: 'Zingbus Maxx Diamond Sleeper',
-    busType: 'Volvo AC 9600 Multi-Axle Sleeper (2+1)',
-    rating: 4.9,
-    reviewsCount: 3420,
-    departureTime: '08:30 PM',
-    arrivalTime: '06:15 AM (+1 day)',
-    duration: '9h 45m',
-    distanceKm: 540,
-    priceUSD: 28,
-    availableSeats: 9,
-    liveStatus: '🟢 Live GPS · En Route on NH-44',
-    pickupPoints: ['Kashmiri Gate Metro Gate 1', 'Majnu Ka Tilla Petrol Pump', 'Dhaula Kuan ISBT'],
-    dropPoints: ['Private Bus Stand Manali', 'Mall Road Terminal', 'Green Tax Barrier'],
-    amenities: ['wifi', 'charging', 'blanket', 'water', 'restroom', 'live_tracking']
-  },
-  {
-    id: 'bus-intrcity-02',
-    operator: 'IntrCity SmartBus Executive Lounge',
-    busType: 'Scania Metrolink AC Luxury Sleeper',
-    rating: 4.85,
-    reviewsCount: 2890,
-    departureTime: '09:15 PM',
-    arrivalTime: '07:00 AM (+1 day)',
-    duration: '9h 45m',
-    distanceKm: 540,
-    priceUSD: 25,
-    availableSeats: 14,
-    liveStatus: '🟢 Live GPS · On Time Departure',
-    pickupPoints: ['Anand Vihar Hub Lounge', 'Kashmiri Gate Metro Gate 2'],
-    dropPoints: ['Private Bus Stand Manali', 'Vashisht Chowk'],
-    amenities: ['wifi', 'charging', 'blanket', 'water', 'live_tracking']
-  },
-  {
-    id: 'bus-nuego-03',
-    operator: 'NueGo Green Electric Luxury Express',
-    busType: 'Zero-Emission 100% Electric Ultra-Silent',
-    rating: 4.92,
-    reviewsCount: 1740,
-    departureTime: '07:00 PM',
-    arrivalTime: '04:30 AM (+1 day)',
-    duration: '9h 30m',
-    distanceKm: 540,
-    priceUSD: 26,
-    availableSeats: 7,
-    liveStatus: '🟢 Fast Charging Complete · Ready',
-    pickupPoints: ['Majnu Ka Tilla', 'Kashmiri Gate', 'Karnal Bypass'],
-    dropPoints: ['Manali Mall Road', 'Aleo Bridge'],
-    amenities: ['wifi', 'charging', 'water', 'live_tracking']
-  },
-  {
-    id: 'bus-vrl-04',
-    operator: 'VRL Travels I-Shift Royal Suite',
-    busType: 'Volvo Multi-Axle Semi-Sleeper AC (2+2)',
-    rating: 4.78,
-    reviewsCount: 4210,
-    departureTime: '10:00 PM',
-    arrivalTime: '08:15 AM (+1 day)',
-    duration: '10h 15m',
-    distanceKm: 540,
-    priceUSD: 22,
-    availableSeats: 16,
-    liveStatus: '🟡 Scheduled · Boarding Gates Open',
-    pickupPoints: ['RK Ashram Metro', 'Kashmiri Gate Gate 5'],
-    dropPoints: ['Manali Private Stand', 'Prini Roundabout'],
-    amenities: ['charging', 'blanket', 'water', 'live_tracking']
-  },
-  {
-    id: 'bus-greenline-05',
-    operator: 'Greenline Travels Club Class',
-    busType: 'Mercedes-Benz Super High Deck Sleeper',
-    rating: 4.88,
-    reviewsCount: 1980,
-    departureTime: '06:30 PM',
-    arrivalTime: '04:00 AM (+1 day)',
-    duration: '9h 30m',
-    distanceKm: 540,
-    priceUSD: 31,
-    availableSeats: 5,
-    liveStatus: '🟢 Live GPS · Highway Express Speed',
-    pickupPoints: ['Dhaula Kuan', 'Kashmiri Gate', 'Rohini Sector 18'],
-    dropPoints: ['Manali Bus Terminal', 'Solang Valley Link'],
-    amenities: ['wifi', 'charging', 'blanket', 'water', 'restroom', 'live_tracking']
-  }
+  'Varanasi', 'Lucknow', 'Ayodhya', 'Dubai', 'London'
 ];
 
 export const Buses = () => {
@@ -156,7 +68,7 @@ export const Buses = () => {
 
   // Filter Pipeline
   const filteredBuses = useMemo(() => {
-    let list = [...LUXURY_BUS_OPERATORS];
+    let list = generateDynamicBuses(fromCity, toCity, travelDate);
 
     // Bus class filter
     if (selectedBusType === 'sleeper') {
@@ -189,7 +101,7 @@ export const Buses = () => {
     else if (sortBy === 'earliest') list.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
 
     return list;
-  }, [selectedBusType, timeFilter, hasRestroomOnly, hasWifiOnly, sortBy]);
+  }, [fromCity, toCity, travelDate, selectedBusType, timeFilter, hasRestroomOnly, hasWifiOnly, sortBy]);
 
   // Open Seat Modal
   const handleOpenSeatModal = (bus) => {

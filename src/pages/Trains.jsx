@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useBooking } from '../context/BookingContext';
 import {
@@ -13,8 +13,15 @@ import {
   FaSearch, FaMapMarkerAlt, FaTicketAlt, FaSatelliteDish, FaChair,
   FaTimesCircle, FaSpinner, FaCheck, FaRedo, FaTachometerAlt, FaBolt,
   FaRoute, FaFilter, FaSortAmountDown, FaUserPlus, FaTrash,
-  FaChevronDown, FaChevronUp
+  FaChevronDown, FaChevronUp, FaExternalLinkAlt, FaHotel, FaPlane
 } from 'react-icons/fa';
+import { 
+  getHotelsRoute, 
+  getFlightsRoute, 
+  getExploreRoute, 
+  getItineraryRoute, 
+  normalizeCityName 
+} from '../utils/travelBridge';
 import JsonLd from '../components/seo/JsonLd';
 import { getWebPageSchema, getBreadcrumbSchema, getServiceSchema } from '../utils/schemas';
 import AdaptivePersonaBar from '../components/trains/AdaptivePersonaBar';
@@ -424,12 +431,42 @@ const TrainAutocompleteInput = ({ label, value, onChange, placeholder }) => {
   );
 };
 
+const resolveStationCode = (input) => {
+  if (!input) return null;
+  const clean = input.toUpperCase().trim();
+  if (clean.length >= 2 && clean.length <= 5 && !clean.includes(' ')) return clean;
+  const map = {
+    'VARANASI': 'BSB', 'KASHI': 'BSB', 'BANARAS': 'BSB',
+    'NEW DELHI': 'NDLS', 'DELHI': 'NDLS',
+    'AGRA': 'AGC', 'TAJ MAHAL': 'AGC',
+    'LUCKNOW': 'LKO',
+    'MUMBAI': 'CSMT', 'BOMBAY': 'CSMT',
+    'GOA': 'MAO', 'MADGAON': 'MAO',
+    'JAIPUR': 'JP',
+    'KERALA': 'ERS', 'KOCHI': 'ERS',
+    'KEDARNATH': 'RKSH', 'RISHIKESH': 'RKSH', 'HARIDWAR': 'HW',
+    'AMRITSAR': 'ASR',
+    'AYODHYA': 'AY',
+    'PRAYAGRAJ': 'PRYJ', 'ALLAHABAD': 'PRYJ',
+    'UNA': 'UHL', 'CHANDIGARH': 'CDG'
+  };
+  for (const [k, v] of Object.entries(map)) {
+    if (clean.includes(k)) return v;
+  }
+  return null;
+};
+
 // ═══════════════════════════════════════════════════════════════════
 // MAIN TRAINS COMPONENT — PRODUCTION REAL-TIME RE-ENGINEERING
 // ═══════════════════════════════════════════════════════════════════
 const Trains = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { setActiveBooking, addToast } = useBooking();
+
+  const paramFrom = searchParams.get('from') || location.state?.from;
+  const paramTo = searchParams.get('to') || searchParams.get('destination') || searchParams.get('q') || location.state?.to || location.state?.destination;
 
   // ── Cinematic Flyby State ──
   const [isFlybyPlaying, setIsFlybyPlaying] = useState(true);
@@ -439,8 +476,8 @@ const Trains = () => {
   const [activeTab, setActiveTab] = useState('search');
 
   // ── Search State ──
-  const [fromCode, setFromCode] = useState('LKO');
-  const [toCode, setToCode] = useState('NDLS');
+  const [fromCode, setFromCode] = useState(() => resolveStationCode(paramFrom) || paramFrom || 'NDLS');
+  const [toCode, setToCode] = useState(() => resolveStationCode(paramTo) || paramTo || 'BSB');
   const [journeyDate, setJourneyDate] = useState(() => {
     const d = new Date(); d.setDate(d.getDate() + 3);
     return d.toISOString().split('T')[0];
@@ -452,6 +489,8 @@ const Trains = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [searchSummary, setSearchSummary] = useState(null);
   const [coachModalTrain, setCoachModalTrain] = useState(null);
+  const [showNearbyAlternatives, setShowNearbyAlternatives] = useState(false);
+  const [nearbyAlternatives, setNearbyAlternatives] = useState([]);
 
   // ── Advanced Sorting & Multi-Dimensional Filtering ──
   const [trainFilter, setTrainFilter] = useState('all'); // 'all' | 'running' | 'non-running'
@@ -583,6 +622,11 @@ const Trains = () => {
       const res = await searchTrains(fromCode, toCode, targetDate);
       const rawTrains = Array.isArray(res?.data) ? res.data : (res?.data?.data || res?.data?.trains || []);
       const trains = deduplicateTrainList(rawTrains);
+      const rawNearby = Array.isArray(res?.nearby_alternatives) ? res.nearby_alternatives : [];
+      const nearbyList = deduplicateTrainList(rawNearby);
+      setNearbyAlternatives(nearbyList);
+      setShowNearbyAlternatives(false);
+
       if (Array.isArray(trains) && trains.length > 0) {
         setTrainResults(trains);
         const runningCount = trains.filter(t => t.runs_on_date !== false).length;
@@ -592,19 +636,53 @@ const Trains = () => {
           total: trains.length,
           running: runningCount,
           nonRunning: nonRunningCount,
+          nearbyCount: nearbyList.length,
           day: res.selected_day || '',
           dateFormatted: res.selected_date_formatted || targetDate,
           route: res.route || `${fromCode} → ${toCode}`
         });
-        addToast(`Found ${trains.length} trains (${runningCount} operating on selected date)`, 'success');
+        addToast(`Found ${trains.length} direct trains (${runningCount} operating on selected date)`, 'success');
+      } else if (nearbyList.length > 0) {
+        setTrainResults([]);
+        setShowNearbyAlternatives(true);
+        setSearchSummary({
+          total: 0,
+          running: 0,
+          nonRunning: 0,
+          nearbyCount: nearbyList.length,
+          day: res.selected_day || '',
+          dateFormatted: res.selected_date_formatted || targetDate,
+          route: res.route || `${fromCode} → ${toCode}`
+        });
+        addToast(`No direct train between ${fromCode} and ${toCode}. Showing ${nearbyList.length} sister station trains.`, 'info');
       } else {
-        setSearchError('No trains found for this route and date. Try a different date or corridor.');
+        setTrainResults([]);
+        setSearchSummary(null);
+        setSearchError('No direct trains found for this corridor and date on Indian Railways.');
       }
     } catch {
       setSearchError('Unable to fetch train data. Please try again.');
     }
     setIsSearching(false);
   }, [fromCode, toCode, journeyDate, addToast]);
+
+  // Auto-search if parameters were passed in URL or state
+  useEffect(() => {
+    const qFrom = searchParams.get('from') || location.state?.from;
+    const qTo = searchParams.get('to') || searchParams.get('destination') || searchParams.get('q') || location.state?.to || location.state?.destination;
+    if (qFrom) {
+      const code = resolveStationCode(qFrom) || qFrom;
+      setFromCode(code);
+    }
+    if (qTo) {
+      const code = resolveStationCode(qTo) || qTo;
+      setToCode(code);
+    }
+    if (qFrom || qTo) {
+      setTimeout(() => handleSearchTrains(), 150);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, location.state]);
 
   const handleSwapStations = () => {
     const temp = fromCode;
@@ -724,7 +802,7 @@ const Trains = () => {
     setIsMatrixLoading(true);
     setMatrixData([]);
     try {
-      const res = await getMultiDayAvailability(train.train_number, fromCode, toCode, journeyDate, targetClass, 6);
+      const res = await getMultiDayAvailability(train.train_number, fromCode, toCode, journeyDate, targetClass, 6, selectedQuota);
       if (res?.matrix) {
         setMatrixData(res.matrix);
       }
@@ -841,9 +919,31 @@ const Trains = () => {
     navigate('/checkout');
   };
 
+  // Direct 1-Click Handoff to Official IRCTC with pre-filled parameters
+  const handleBookDirectIrctc = () => {
+    if (!activeTrainModal) return;
+    const dateCompact = (journeyDate || '').replace(/\D/g, '');
+    const trainNum = activeTrainModal.train_number || activeTrainModal.train_no || '';
+    const cleanFrom = fromCode || activeTrainModal.from_station_code || 'NDLS';
+    const cleanTo = toCode || activeTrainModal.to_station_code || 'BSB';
+    const url = `https://www.irctc.co.in/nget/booking/train-list?fromStation=${encodeURIComponent(cleanFrom)}&toStation=${encodeURIComponent(cleanTo)}&journeyDate=${encodeURIComponent(dateCompact)}&quota=${encodeURIComponent(selectedQuota)}&train=${encodeURIComponent(trainNum)}`;
+
+    const passengerSummary = passengerList
+      .filter(p => p.name && p.name.trim())
+      .map((p, i) => `${i + 1}. ${p.name} (${p.age}y, ${p.gender}, Berth: ${p.berth})`)
+      .join('\n');
+
+    if (passengerSummary && navigator.clipboard) {
+      navigator.clipboard.writeText(passengerSummary).catch(() => {});
+    }
+
+    addToast(`Official IRCTC portal opened for Train #${trainNum}! Passenger list copied to clipboard.`, 'success');
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   // ── Filtered & Sorted Search Results ──
   const filteredAndSortedTrains = useMemo(() => {
-    let result = [...trainResults];
+    let result = showNearbyAlternatives ? [...nearbyAlternatives] : [...trainResults];
 
     // 1. Running Filter
     if (trainFilter === 'running') {
@@ -917,7 +1017,7 @@ const Trains = () => {
     });
 
     return result;
-  }, [trainResults, trainFilter, selectedTrainTypes, selectedClasses, selectedTimeSlots, sortBy]);
+  }, [trainResults, nearbyAlternatives, showNearbyAlternatives, trainFilter, selectedTrainTypes, selectedClasses, selectedTimeSlots, sortBy]);
 
   // ── Filtered Station Board Trains ──
   const displayedBoardTrains = useMemo(() => {
@@ -1179,6 +1279,22 @@ const Trains = () => {
                     setRequireWheelchair={setRequireWheelchair}
                   />
                 )}
+
+                {/* Real-Time Tatkal Radar Strip */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-500/30 flex flex-wrap items-center justify-between gap-3 text-xs shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping shrink-0" />
+                    <span className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                      <FaBolt className="text-amber-500" />
+                      <span>Live IRCTC Tatkal Radar:</span>
+                    </span>
+                    <span className="font-mono font-semibold text-amber-600 dark:text-amber-400">{tatkalCountdown}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] font-mono text-slate-600 dark:text-slate-400">
+                    <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-300 font-bold border border-amber-500/20">AC Tatkal: 10:00 AM IST</span>
+                    <span className="px-2.5 py-0.5 rounded-lg bg-orange-500/15 text-orange-600 dark:text-orange-300 font-bold border border-orange-500/20">Non-AC: 11:00 AM IST</span>
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                   <div className="md:col-span-4">
@@ -1494,12 +1610,16 @@ const Trains = () => {
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No Trains Found</h3>
                   <p className="text-sm text-slate-400 max-w-sm mx-auto">{searchError}</p>
                 </div>
-              ) : trainResults.length > 0 ? (
+              ) : (trainResults.length > 0 || nearbyAlternatives.length > 0) ? (
                 (() => {
                   const fromStationObj = ALL_INDIAN_STATIONS.find(s => s.code.toUpperCase() === fromCode?.toUpperCase());
                   const toStationObj = ALL_INDIAN_STATIONS.find(s => s.code.toUpperCase() === toCode?.toUpperCase());
                   const fromLabel = fromStationObj ? `${fromStationObj.name} (${fromStationObj.code})` : (fromCode || 'Origin');
                   const toLabel = toStationObj ? `${toStationObj.name} (${toStationObj.code})` : (toCode || 'Destination');
+                  const currentPool = showNearbyAlternatives ? nearbyAlternatives : trainResults;
+                  const currentTotal = currentPool.length;
+                  const currentRunning = currentPool.filter(t => t.runs_on_date !== false).length;
+                  const currentNonRunning = currentPool.filter(t => t.runs_on_date === false).length;
 
                   return (
                     <div className="space-y-6">
@@ -1512,8 +1632,37 @@ const Trains = () => {
                               {fromLabel} <span className="text-amber-500">→</span> {toLabel}
                             </h2>
                             <p className="text-xs text-slate-400 mt-0.5">
-                              {searchSummary?.dateFormatted || journeyDate} · Showing {filteredAndSortedTrains.length} of {trainResults.length} trains
+                              {searchSummary?.dateFormatted || journeyDate} · Showing {filteredAndSortedTrains.length} of {currentTotal} {showNearbyAlternatives ? 'nearby alternative trains' : 'direct trains'}
                             </p>
+
+                            {/* Cross-Service Travel Ecosystem Quick Bar */}
+                            <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                              <span className="text-[11px] font-mono text-slate-500 font-bold">Connect Destination:</span>
+                              <Link
+                                to={getHotelsRoute(normalizeCityName(toStationObj?.name || toCode))}
+                                className="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
+                              >
+                                <FaHotel className="w-3 h-3" /> Stays in {normalizeCityName(toStationObj?.name || toCode)}
+                              </Link>
+                              <Link
+                                to={getFlightsRoute(normalizeCityName(toStationObj?.name || toCode), fromCode)}
+                                className="px-2.5 py-1 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 text-sky-600 dark:text-sky-400 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
+                              >
+                                <FaPlane className="w-3 h-3" /> Compare Flights
+                              </Link>
+                              <Link
+                                to={getExploreRoute(normalizeCityName(toStationObj?.name || toCode))}
+                                className="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
+                              >
+                                <FaMapMarkerAlt className="w-3 h-3" /> Live Map
+                              </Link>
+                              <Link
+                                to={getItineraryRoute(normalizeCityName(toStationObj?.name || toCode))}
+                                className="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
+                              >
+                                <FaRoute className="w-3 h-3" /> AI Plan
+                              </Link>
+                            </div>
                           </div>
 
                           <div className="flex items-center gap-2 flex-wrap">
@@ -1564,7 +1713,7 @@ const Trains = () => {
                                 : 'text-slate-500 dark:text-slate-400'
                             }`}
                           >
-                            All ({trainResults.length})
+                            All ({currentTotal})
                           </button>
                           <button
                             onClick={() => setTrainFilter('running')}
@@ -1575,7 +1724,7 @@ const Trains = () => {
                             }`}
                           >
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                            Running ({searchSummary?.running ?? trainResults.filter(t => t.runs_on_date !== false).length})
+                            Running ({currentRunning})
                           </button>
                           <button
                             onClick={() => setTrainFilter('non-running')}
@@ -1585,9 +1734,36 @@ const Trains = () => {
                                 : 'text-slate-500 dark:text-slate-400'
                             }`}
                           >
-                            Not Running ({searchSummary?.nonRunning ?? trainResults.filter(t => t.runs_on_date === false).length})
+                            Not Running ({currentNonRunning})
                           </button>
                         </div>
+
+                        {/* Sister Station Alternatives Banner */}
+                        {searchSummary?.nearbyCount > 0 && (
+                          <div className="mt-3 p-3 bg-gradient-to-r from-amber-500/10 via-slate-800/40 to-slate-900/60 border border-amber-500/20 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                            <div className="flex items-center gap-2 text-slate-300">
+                              <span className="p-1 rounded-md bg-amber-500/20 text-amber-400 font-bold text-[10px]">CORRIDOR SCOPE</span>
+                              <span>
+                                {showNearbyAlternatives ? (
+                                  <>Showing <strong>{nearbyAlternatives.length} trains</strong> operating from nearby sister stations in this metro region.</>
+                                ) : (
+                                  <>Strictly showing <strong>{trainResults.length} direct trains</strong> between {fromCode} and {toCode}. <strong>{searchSummary.nearbyCount}</strong> more trains run via nearby stations.</>
+                                )}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setShowNearbyAlternatives(prev => !prev)}
+                              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition-all shadow-sm shrink-0 flex items-center gap-1.5"
+                            >
+                              {showNearbyAlternatives ? (
+                                <>← Back to Direct Trains ({trainResults.length})</>
+                              ) : (
+                                <>View {searchSummary.nearbyCount} Sister Station Trains →</>
+                              )}
+                            </button>
+                          </div>
+                        )}
 
                         {/* Advanced Filters Drawer */}
                         <AnimatePresence>
@@ -1718,6 +1894,11 @@ const Trains = () => {
                                     ) : (
                                       <span className="text-[10px] font-semibold text-rose-500">
                                         Not running on date
+                                      </span>
+                                    )}
+                                    {train.is_nearby_alternative && (
+                                      <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold rounded-md">
+                                        Alternative: {train.actual_from || train.from_station_code} → {train.actual_to || train.to_station_code}
                                       </span>
                                     )}
                                   </div>
@@ -1861,7 +2042,7 @@ const Trains = () => {
                         toCode={toCode}
                         journeyDate={searchSummary?.dateFormatted || journeyDate}
                         trainCount={filteredAndSortedTrains.length}
-                        runningCount={searchSummary?.running ?? trainResults.filter(t => t.runs_on_date !== false).length}
+                        runningCount={currentRunning}
                         activeFilter={trainFilter}
                         onFilterChange={setTrainFilter}
                         onModifySearch={() => window.scrollTo({ top: 380, behavior: 'smooth' })}
@@ -2358,11 +2539,16 @@ const Trains = () => {
             >
               <div className="flex justify-between items-start pb-4 border-b border-slate-100 dark:border-slate-800">
                 <div>
-                  <span className="text-[10px] font-bold uppercase text-amber-500 tracking-wider">6-Day Real-Time Availability Calendar</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase text-amber-500 tracking-wider">6-Day Real-Time Availability Calendar</span>
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/20 text-[10px]">
+                      Quota: {selectedQuota === 'TQ' ? '⚡ Tatkal (TQ)' : selectedQuota === 'SS' ? '👴 Senior (SS)' : selectedQuota === 'LD' ? '👩 Ladies (LD)' : 'General (GN)'}
+                    </span>
+                  </div>
                   <h3 className="text-lg font-black text-slate-900 dark:text-white mt-0.5">
                     {activeMatrixTrain.train?.train_name} (#{activeMatrixTrain.train?.train_number}) · {activeMatrixTrain.classCode}
                   </h3>
-                  <p className="text-xs text-slate-400">Click any date to instantly book with guaranteed seat status</p>
+                  <p className="text-xs text-slate-400">Click any date to instantly book on TravelEase or click link for official IRCTC gateway</p>
                 </div>
                 <button
                   onClick={() => setActiveMatrixTrain(null)}
@@ -2409,9 +2595,23 @@ const Trains = () => {
                         }`}>
                           {cell.status_text}
                         </div>
-                        <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-200/50 dark:border-slate-800">
-                          <span>₹{cell.fare}</span>
-                          <span className="text-emerald-500 font-semibold">{cell.confirm_probability}</span>
+                        <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-200/50 dark:border-slate-800">
+                          <span className="font-bold text-slate-700 dark:text-slate-300">₹{cell.fare}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-emerald-500 font-semibold">{cell.confirm_probability}</span>
+                            {cell.irctc_direct_url && (
+                              <a
+                                href={cell.irctc_direct_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                title="Open official IRCTC booking for this date & train"
+                                className="text-amber-500 hover:text-amber-400 p-0.5 ml-0.5 inline-flex items-center"
+                              >
+                                <FaExternalLinkAlt className="text-[8px]" />
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
@@ -2615,7 +2815,17 @@ const Trains = () => {
                 );
               })()}
 
-              <div className="flex items-center justify-end gap-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={handleBookDirectIrctc}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 dark:hover:bg-white/[0.12] border border-slate-200 dark:border-white/10 text-xs font-mono font-bold text-slate-800 dark:text-white transition-all flex items-center gap-2 shadow-sm"
+                  title="Opens official IRCTC portal with this exact train and stations pre-selected"
+                >
+                  <FaTrain className="text-amber-500 text-xs" />
+                  <span>Book on Official IRCTC</span>
+                </button>
+
                 <ThreeUIButton
                   type="button"
                   variant="amber-glow"
@@ -2623,7 +2833,7 @@ const Trains = () => {
                   onClick={handleConfirmTrain}
                   icon={<FaArrowRight className="text-xs" />}
                 >
-                  Proceed to Payment
+                  Reserve on TravelEase
                 </ThreeUIButton>
               </div>
             </motion.div>

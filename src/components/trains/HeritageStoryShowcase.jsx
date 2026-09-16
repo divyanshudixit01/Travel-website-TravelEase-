@@ -19,7 +19,7 @@ const HERITAGE_MILESTONES = [
     title: 'The First Whistle · Bori Bunder to Thane',
     badge: 'Birth of Indian Railways',
     description: 'On 16 April 1853 at 3:35 PM, 3 steam locomotives—Sindh, Sultan, and Sahib—hauled 14 carriages and 400 passengers across 34 km, starting Asia’s largest rail network.',
-    image: '/images/trains/ir_fairy_queen.jpg',
+    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
     stat: '34 km First Journey'
   },
   {
@@ -27,7 +27,7 @@ const HERITAGE_MILESTONES = [
     title: 'The Fairy Queen (EIR-22)',
     badge: 'Guinness World Record',
     description: 'Constructed in Leeds, UK, the legendary Fairy Queen is the world’s oldest operating steam locomotive still running on mainlines for heritage journeys.',
-    image: '/images/trains/ir_fairy_queen.jpg',
+    image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1200&auto=format&fit=crop',
     stat: 'World’s Oldest Active Steam'
   },
   {
@@ -35,7 +35,7 @@ const HERITAGE_MILESTONES = [
     title: 'Mountain Railways of India',
     badge: 'UNESCO World Heritage',
     description: 'Engineering masterpieces: Darjeeling Himalayan Railway (1881), Kalka–Shimla (1903), and Nilgiri Mountain Railway (1908, rack & pinion) conquering precipitous peaks.',
-    image: '/images/trains/ir_darjeeling_toy_train.jpg',
+    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop',
     stat: '2,076m Altitude Climbed'
   },
   {
@@ -70,7 +70,7 @@ const MODERN_MARVELS = [
     title: 'Vande Bharat Express (Train 18)',
     speed: '160–180 km/h',
     badge: 'Indigenous Semi-High Speed',
-    image: '/images/trains/ir_vande_bharat.jpg',
+    image: 'https://images.unsplash.com/photo-1532105956626-9569c03602f6?q=80&w=1200&auto=format&fit=crop',
     description: 'Engineered at ICF Chennai under Make in India, featuring distributed electric traction, 180° rotating executive seats, bio-vacuum toilets, and airplane-standard sound damping.',
     points: [
       'Accelerates 0 to 100 km/h in just 52 seconds',
@@ -83,7 +83,7 @@ const MODERN_MARVELS = [
     title: 'KAVACH SIL-4 Collision Protection Shield',
     speed: 'Microsecond Reaction',
     badge: 'Zero Collision Safety Shield',
-    image: '/images/trains/ir_vande_bharat.jpg',
+    image: 'https://images.unsplash.com/photo-1515165562839-978bbcf18277?q=80&w=1200&auto=format&fit=crop',
     description: 'India’s indigenous Automatic Train Protection (ATP) certified at Safety Integrity Level 4. Constantly calculates track distance via ultra-high radio frequencies to prevent head-on or rear-end collisions.',
     points: [
       'Automatic brake application if red signal passed (anti-SPAD)',
@@ -96,7 +96,7 @@ const MODERN_MARVELS = [
     title: 'Namo Bharat & RapidX Regional Rail',
     speed: '160 km/h Regional Transit',
     badge: 'Next-Gen Commuter Speed',
-    image: '/images/trains/ir_bullet_train_future.jpg',
+    image: 'https://images.unsplash.com/photo-1509749837427-ac94a2553d0e?q=80&w=1200&auto=format&fit=crop',
     description: 'Transforming intercity regional connectivity across Delhi–NCR (Meerut corridor), linking suburban towns to city centers with European-style high-frequency transit.',
     points: [
       'Dedicated high-speed tracks with 15-minute intervals',
@@ -113,7 +113,7 @@ const FUTURE_HORIZONS = [
     title: 'Mumbai–Ahmedabad Bullet Train (MAHSR)',
     speed: '320 km/h',
     badge: 'High-Speed Rail (Shinkansen E5)',
-    image: '/images/trains/ir_bullet_train_future.jpg',
+    image: 'https://images.unsplash.com/photo-1509749837427-ac94a2553d0e?q=80&w=1200&auto=format&fit=crop',
     description: 'India’s flagship high-speed rail corridor linking Mumbai to Ahmedabad in 1 hour 58 minutes, powered by Japan’s zero-fatality Shinkansen technology.',
     points: [
       'India’s 1st Undersea Rail Tunnel (21 km across Thane Creek)',
@@ -126,7 +126,7 @@ const FUTURE_HORIZONS = [
     title: 'Chenab Rail Arch Bridge (USBRL)',
     speed: '359m River Deck Height',
     badge: 'World’s Highest Railway Bridge',
-    image: '/images/trains/ir_chenab_bridge.jpg',
+    image: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=1200&auto=format&fit=crop',
     description: 'Soaring 359 meters above the Chenab gorge in Jammu & Kashmir (35 meters taller than the Eiffel Tower), providing all-weather broad-gauge rail connectivity to Kashmir Valley.',
     points: [
       'Withstands high-velocity winds up to 266 km/h',
@@ -139,7 +139,7 @@ const FUTURE_HORIZONS = [
     title: 'Amrit Bharat 1,300+ Station Redevelopment',
     speed: '1,300+ Cities',
     badge: 'Airport-Standard Terminals',
-    image: '/images/trains/ir_bullet_train_future.jpg',
+    image: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?q=80&w=1200&auto=format&fit=crop',
     description: 'Masterplan reconstructing 1,300+ heritage railway stations into modern city transit hubs with expansive roof plazas, segregated concourses, and shopping arcades.',
     points: [
       'Segregated arrival and departure concourses',

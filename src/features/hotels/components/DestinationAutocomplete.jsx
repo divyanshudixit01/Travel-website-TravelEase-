@@ -8,7 +8,7 @@ export const DestinationAutocomplete = ({
   onSelectDest,
   placeholder = 'City, destination or property name...'
 }) => {
-  const [query, setQuery] = useState(value || 'Dubai');
+  const [query, setQuery] = useState(value || 'Varanasi');
   const [isOpen, setIsOpen] = useState(false);
   const [suggestions, setSuggestions] = useState(POPULAR_DESTINATIONS);
   const [highlightIndex, setHighlightIndex] = useState(0);
@@ -134,7 +134,7 @@ export const DestinationAutocomplete = ({
                         {dest.city}
                       </span>
                       <span className="text-xs text-slate-400">
-                        {dest.country}
+                        {dest.label || (dest.state ? `${dest.state}, ${dest.country}` : dest.country)}
                       </span>
                     </div>
                   </div>

@@ -1,14 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FaStar, FaHeart, FaRegHeart, FaArrowRight, FaMapMarkerAlt } from 'react-icons/fa';
+import { 
+  FaStar, FaHeart, FaRegHeart, FaArrowRight, FaMapMarkerAlt,
+  FaTrain, FaPlane, FaHotel, FaCompass
+} from 'react-icons/fa';
 import { HiOutlineSparkles } from 'react-icons/hi';
 import { ThreeCard3D } from '../ui/ThreeCard3D';
 import { SegmentedPillToggle } from '../ui/ThreeUIToggle';
 import { ThreeUIButton } from '../ui/ThreeUIButton';
+import { getLiveLandingDestinations } from '../../services/dynamicTravelEngine';
+import { useBooking } from '../../context/BookingContext';
+import { 
+  getHotelsRoute, 
+  getTrainsRoute, 
+  getFlightsRoute, 
+  getExploreRoute, 
+  getItineraryRoute, 
+  hasTrainNetwork 
+} from '../../utils/travelBridge';
 
 export const TrendingDestinations = () => {
   const navigate = useNavigate();
+  const { setActiveBooking, addToast } = useBooking();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [favorites, setFavorites] = useState({});
 
@@ -17,88 +31,35 @@ export const TrendingDestinations = () => {
     setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const handleBookDest = (dest) => {
+    const rawPrice = parseInt(String(dest.price || '18000').replace(/[^0-9]/g, ''), 10) || 18000;
+    setActiveBooking({
+      serviceType: 'package',
+      itemTitle: `${dest.name} — ${dest.tag || 'Curated Escape'} (${dest.days || '5D/4N'})`,
+      details: {
+        destination: dest.name,
+        country: dest.country,
+        duration: dest.days,
+        transit: 'Express Rail & Flight Network Available',
+        hotel: 'Handpicked 5-Star Luxury Resort Stay',
+        vibe: dest.category,
+      },
+      priceINR: rawPrice,
+      priceUSD: Math.round(rawPrice / 86.5),
+      image: dest.image,
+    });
+    addToast(`Reserved ${dest.name}! Proceeding to secure checkout.`, 'success');
+    navigate('/checkout');
+  };
+
   const categories = [
     { id: 'all', label: 'All Destinations' },
-    { id: 'tropical', label: '🌴 Tropical' },
-    { id: 'alpine', label: '🏔️ Alpine & Treks' },
-    { id: 'culture', label: '⛩️ Heritage & Culture' },
-    { id: 'luxury', label: '✨ Luxury Escapes' },
+    { id: 'tropical', label: '🌴 Tropical & Coastal' },
+    { id: 'alpine', label: '🏔️ Alpine & Snow' },
+    { id: 'culture', label: '🏛️ Heritage & Spiritual' },
   ];
 
-  const destinationItems = [
-    {
-      id: 'bali',
-      category: 'tropical',
-      name: 'Bali & Nusa Penida',
-      country: 'Indonesia',
-      price: '₹45,000',
-      rating: '4.95',
-      reviews: '1,240',
-      tag: 'Tropical Sanctuary',
-      image: '/images/destinations/hero_bali_sunsets.jpg',
-      days: '6 Days / 5 Nights',
-    },
-    {
-      id: 'paris',
-      category: 'culture',
-      name: 'Paris & Versailles',
-      country: 'France',
-      price: '₹85,000',
-      rating: '4.88',
-      reviews: '890',
-      tag: 'City of Lights',
-      image: '/images/destinations/hero_amalfi_coast.jpg',
-      days: '7 Days / 6 Nights',
-    },
-    {
-      id: 'tokyo',
-      category: 'culture',
-      name: 'Tokyo & Kyoto Rail',
-      country: 'Japan',
-      price: '₹72,000',
-      rating: '4.96',
-      reviews: '2,150',
-      tag: 'Shinkansen Expedition',
-      image: '/images/destinations/hero_kyoto_bamboo.jpg',
-      days: '8 Days / 7 Nights',
-    },
-    {
-      id: 'swiss',
-      category: 'alpine',
-      name: 'Swiss Alps & Zermatt',
-      country: 'Switzerland',
-      price: '₹1,12,000',
-      rating: '4.98',
-      reviews: '740',
-      tag: 'Glacier Express',
-      image: '/images/destinations/hero_swiss_alps.jpg',
-      days: '6 Days / 5 Nights',
-    },
-    {
-      id: 'maldives',
-      category: 'luxury',
-      name: 'Overwater Private Atoll',
-      country: 'Maldives',
-      price: '₹95,000',
-      rating: '4.97',
-      reviews: '960',
-      tag: 'Ocean Villa',
-      image: '/stories-greece-cove.jpg',
-      days: '5 Days / 4 Nights',
-    },
-    {
-      id: 'dubai',
-      category: 'luxury',
-      name: 'Dubai & Desert Oasis',
-      country: 'UAE',
-      price: '₹55,000',
-      rating: '4.78',
-      reviews: '1,530',
-      tag: 'Futuristic Luxury',
-      image: '/images/destinations/wonders_petra.jpg',
-      days: '5 Days / 4 Nights',
-    },
-  ];
+  const destinationItems = useMemo(() => getLiveLandingDestinations(), []);
 
   const filteredItems = destinationItems.filter(
     (item) => selectedCategory === 'all' || item.category === selectedCategory
@@ -145,7 +106,7 @@ export const TrendingDestinations = () => {
             >
               <ThreeCard3D
                 depth={28}
-                onClick={() => navigate('/destinations')}
+                onClick={() => navigate(`/destinations?q=${encodeURIComponent(dest.name)}`)}
                 className="group cursor-pointer flex flex-col h-full"
               >
                 {/* Media Image */}
@@ -215,14 +176,87 @@ export const TrendingDestinations = () => {
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
-                    <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Free Cancellation
-                    </span>
+                  {/* Multi-Modal Action Toolbar */}
+                  <div className="pt-3 border-t border-slate-200 dark:border-white/10 space-y-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(getHotelsRoute(dest.name));
+                        }}
+                        className="px-2 py-1 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10.5px] font-mono font-bold flex items-center gap-1 transition-colors"
+                        title={`View real hotels in ${dest.name}`}
+                      >
+                        <FaHotel className="w-2.5 h-2.5" /> Stays
+                      </button>
 
-                    <span className="text-xs font-mono text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                      View Itinerary <FaArrowRight className="w-2.5 h-2.5" />
-                    </span>
+                      {hasTrainNetwork(dest.name) && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(getTrainsRoute(dest.name));
+                          }}
+                          className="px-2 py-1 rounded-md bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-400 text-[10.5px] font-mono font-bold flex items-center gap-1 transition-colors"
+                          title={`Search IRCTC trains to ${dest.name}`}
+                        >
+                          <FaTrain className="w-2.5 h-2.5" /> Trains
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(getFlightsRoute(dest.name));
+                        }}
+                        className="px-2 py-1 rounded-md bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-400 text-[10.5px] font-mono font-bold flex items-center gap-1 transition-colors"
+                        title={`Search flights to ${dest.name}`}
+                      >
+                        <FaPlane className="w-2.5 h-2.5" /> Flights
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(getExploreRoute(dest.name));
+                        }}
+                        className="px-2 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10.5px] font-mono font-bold flex items-center gap-1 transition-colors"
+                        title={`View ${dest.name} on interactive map`}
+                      >
+                        <FaCompass className="w-2.5 h-2.5" /> Map
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const prompt = `Plan an unforgettable ${dest.days} journey to ${dest.name}, ${dest.country}`;
+                          navigate(getItineraryRoute(dest.name, prompt), { state: { prompt } });
+                        }}
+                        className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-mono text-[11px] font-bold flex items-center gap-1 transition-colors"
+                        title="Generate customized AI trip"
+                      >
+                        <HiOutlineSparkles className="w-3 h-3 text-amber-500" />
+                        AI Plan
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBookDest(dest);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-mono text-[11px] font-black flex items-center gap-1 transition-all shadow-sm active:scale-95 ml-auto"
+                        title="Reserve this trip package"
+                      >
+                        Book Now <FaArrowRight className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </ThreeCard3D>

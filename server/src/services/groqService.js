@@ -11,6 +11,7 @@ dotenv.config();
 const GROQ_BASE_URL = 'https://api.groq.com/openai/v1';
 const PRIMARY_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
 const FALLBACK_MODEL = 'qwen/qwen3.8-27b';
+const TERTIARY_MODEL = 'openai/gpt-oss-20b';
 
 function getApiKey() {
   return process.env.GROQ_API_KEY || '';
@@ -124,7 +125,7 @@ const usageTracker = {
 };
 
 // ─── Core Groq API Caller ───────────────────────────────────────────────────
-async function callGroq({ messages, model = PRIMARY_MODEL, jsonMode = false, temperature = 0.7, maxTokens = 4096, timeoutMs = 30000 }) {
+async function callGroq({ messages, model = PRIMARY_MODEL, jsonMode = false, temperature = 0.7, maxTokens = 4096, timeoutMs = 40000 }) {
   const apiKey = getApiKey();
   if (!apiKey) {
     throw new Error('GROQ_API_KEY is not configured in server environment');
@@ -168,10 +169,14 @@ async function callGroq({ messages, model = PRIMARY_MODEL, jsonMode = false, tem
       const errBody = await res.text();
       console.error(`[Groq API Error] ${res.status}: ${errBody}`);
 
-      // Auto-fallback to secondary model on primary failure
+      // Auto-fallback: Primary -> Secondary -> Tertiary
       if (model === PRIMARY_MODEL) {
-        console.warn(`[Groq] Falling back to ${FALLBACK_MODEL}...`);
-        return callGroq({ messages, model: FALLBACK_MODEL, jsonMode, temperature, maxTokens, timeoutMs });
+        console.warn(`[Groq] Falling back to speed model ${FALLBACK_MODEL}...`);
+        return callGroq({ messages, model: FALLBACK_MODEL, jsonMode, temperature, maxTokens, timeoutMs: 25000 });
+      }
+      if (model === FALLBACK_MODEL) {
+        console.warn(`[Groq] Falling back to low-latency model ${TERTIARY_MODEL}...`);
+        return callGroq({ messages, model: TERTIARY_MODEL, jsonMode, temperature, maxTokens, timeoutMs: 20000 });
       }
       throw new Error(`Groq API error: ${res.status}`);
     }
@@ -192,7 +197,16 @@ async function callGroq({ messages, model = PRIMARY_MODEL, jsonMode = false, tem
     };
   } catch (err) {
     clearTimeout(timer);
-    if (err.name === 'AbortError') {
+    // On timeout or abort, try fast fallback model instead of hard crash
+    if (err.name === 'AbortError' || err.message?.includes('timeout')) {
+      if (model === PRIMARY_MODEL) {
+        console.warn(`[Groq Timeout] Primary model exceeded ${timeoutMs}ms. Falling back to ${FALLBACK_MODEL}...`);
+        return callGroq({ messages, model: FALLBACK_MODEL, jsonMode, temperature, maxTokens, timeoutMs: 25000 });
+      }
+      if (model === FALLBACK_MODEL) {
+        console.warn(`[Groq Timeout] Secondary model exceeded. Falling back to ${TERTIARY_MODEL}...`);
+        return callGroq({ messages, model: TERTIARY_MODEL, jsonMode, temperature, maxTokens, timeoutMs: 20000 });
+      }
       throw new Error('Groq API request timed out');
     }
     throw err;

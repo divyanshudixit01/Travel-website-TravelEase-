@@ -5,16 +5,13 @@
 
 export const LOCAL_OFFLINE_IMAGES = {
   destinations: [
-    '/images/destinations/hero_bali_sunsets.jpg',
-    '/images/destinations/hero_amalfi_coast.jpg',
-    '/images/destinations/hero_kyoto_bamboo.jpg',
-    '/images/destinations/hero_swiss_alps.jpg',
-    '/images/destinations/hero_varanasi_ghats.jpg',
-    '/images/destinations/wonders_taj_mahal.jpg',
-    '/images/destinations/wonders_colosseum.jpg',
-    '/images/destinations/wonders_machu_picchu.jpg',
-    '/images/destinations/wonders_petra.jpg',
-    '/images/destinations/wonders_great_wall.jpg'
+    '/hero_day_dolomites.jpg',
+    '/hero_day_alpine_valley.jpg',
+    '/stories-greece-cove.jpg',
+    '/stories-tokyo-culinary.jpg',
+    '/stories-wakhan-pamir.jpg',
+    '/hero_mountain_day.jpg',
+    '/hero_mountain_night.jpg'
   ],
   hotels: [
     '/hero_day_dolomites.jpg',
@@ -23,14 +20,10 @@ export const LOCAL_OFFLINE_IMAGES = {
     '/stories-tokyo-culinary.jpg'
   ],
   trains: [
-    '/images/trains/ir_vande_bharat.jpg',
-    '/images/trains/ir_chenab_bridge.jpg',
-    '/images/trains/ir_darjeeling_toy_train.jpg',
-    '/images/trains/ir_fairy_queen.jpg',
-    '/images/trains/ir_bullet_train_future.jpg',
     '/train-hero.jpg',
     '/train-hero-alpine.jpg',
-    '/train-hero-sunset.jpg'
+    '/train-hero-sunset.jpg',
+    '/hero_mountain_day.jpg'
   ],
   flights: [
     '/hero_flying_plane.jpg'

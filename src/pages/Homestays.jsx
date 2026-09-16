@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { searchRealtimeHomestays } from '../services/realtimeDataEngine';
 import { useBooking } from '../context/BookingContext';
@@ -11,9 +11,11 @@ import { getWebPageSchema, getBreadcrumbSchema } from '../utils/schemas';
 
 const Homestays = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { formatPrice, setActiveBooking, addToast } = useBooking();
 
-  const [location, setLocation] = useState('Goa');
+  const urlLoc = searchParams.get('destination') || searchParams.get('city') || searchParams.get('location') || searchParams.get('q') || 'Goa';
+  const [location, setLocation] = useState(urlLoc);
   const [homestayResults, setHomestayResults] = useState([]);
   const [activeModal, setActiveModal] = useState(null);
 
@@ -32,6 +34,8 @@ const Homestays = () => {
 
   const handleConfirm = () => {
     if (!activeModal) return;
+    const pricePerNight = activeModal.pricePerNightUSD || 200;
+    const pricePerNightINR = activeModal.pricePerNightINR || Math.round(pricePerNight * 86.5);
     const homestayDraft = {
       serviceType: 'homestay',
       itemTitle: activeModal.title,
@@ -40,9 +44,11 @@ const Homestays = () => {
         type: activeModal.type,
         bedrooms: activeModal.bedrooms,
         guests: activeModal.guests,
-        host: activeModal.host
+        host: activeModal.host,
+        amenities: (activeModal.amenities || []).join(', ')
       },
-      priceUSD: activeModal.pricePerNightUSD * 3,
+      priceUSD: pricePerNight * 3,
+      priceINR: pricePerNightINR * 3,
       image: activeModal.image
     };
     setActiveBooking(homestayDraft);

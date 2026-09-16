@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { searchRealtimeTours } from '../services/realtimeDataEngine';
 import { useBooking } from '../context/BookingContext';
@@ -11,9 +11,11 @@ import { getWebPageSchema, getBreadcrumbSchema } from '../utils/schemas';
 
 const Tours = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { formatPrice, setActiveBooking, addToast } = useBooking();
 
-  const [location, setLocation] = useState('Dubai');
+  const urlLoc = searchParams.get('destination') || searchParams.get('city') || searchParams.get('location') || searchParams.get('q') || 'Varanasi';
+  const [location, setLocation] = useState(urlLoc);
   const [tourResults, setTourResults] = useState([]);
   const [activeModal, setActiveModal] = useState(null);
 
@@ -32,6 +34,8 @@ const Tours = () => {
 
   const handleConfirm = () => {
     if (!activeModal) return;
+    const priceUSD = activeModal.priceUSD || 45;
+    const priceINR = activeModal.priceINR || Math.round(priceUSD * 86.5);
     const tourDraft = {
       serviceType: 'tour',
       itemTitle: activeModal.title,
@@ -41,7 +45,8 @@ const Tours = () => {
         groupSize: activeModal.groupSize,
         inclusions: (activeModal.inclusions || activeModal.highlights || []).join(', ')
       },
-      priceUSD: activeModal.priceUSD,
+      priceUSD,
+      priceINR,
       image: activeModal.image
     };
     setActiveBooking(tourDraft);

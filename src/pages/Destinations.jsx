@@ -1,14 +1,21 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
+import { useBooking } from '../context/BookingContext';
+import { 
+  resolveCityPackages,
+  getLiveHeroSlides,
+  getLiveSevenWonders,
+  getLiveDestinationsCatalog
+} from '../services/dynamicTravelEngine';
 import { 
   FaArrowRight, FaMapMarkerAlt, FaStar, FaHeart, FaRegHeart, 
   FaSearch, FaChevronLeft, FaChevronRight, FaPlay, FaPause,
   FaCalendarAlt, FaSun, FaCheckCircle, FaCompass, FaShieldAlt,
   FaPlane, FaHotel, FaCoffee, FaTag, FaSlidersH, FaUndo,
   FaLandmark, FaGlobeAmericas, FaGlobeAsia, FaGlobeEurope,
-  FaRoute, FaThLarge, FaEye, FaLightbulb
+  FaRoute, FaThLarge, FaEye, FaLightbulb, FaTrain
 } from 'react-icons/fa';
 import { HiOutlineSparkles, HiOutlineLightningBolt } from 'react-icons/hi';
 import { FiActivity, FiCompass, FiShield, FiPercent } from 'react-icons/fi';
@@ -17,706 +24,23 @@ import { getWebPageSchema, getBreadcrumbSchema, getItemListSchema } from '../uti
 import { ThreeUIButton } from '../components/ui/ThreeUIButton';
 import { SegmentedPillToggle } from '../components/ui/ThreeUIToggle';
 import { ThreeCard3D } from '../components/ui/ThreeCard3D';
+import { 
+  getHotelsRoute, 
+  getTrainsRoute, 
+  getFlightsRoute, 
+  getExploreRoute, 
+  getItineraryRoute, 
+  hasTrainNetwork 
+} from '../utils/travelBridge';
 
-// Kinetic Slideshow Destination Inventory
-const heroSlides = [
-  {
-    id: 'hero-swiss-alps',
-    title: "Swiss Alps, Zermatt",
-    country: "Switzerland",
-    tagline: "Iconic Matterhorn Sunrise & Crystal Glacial Valleys",
-    vibe: "Alpine Luxury",
-    weather: "14°C Crisp Alpine",
-    season: "Peak: Dec–Apr & Jul–Sep",
-    startingPrice: "₹84,500",
-    image: "/images/destinations/hero_swiss_alps.jpg",
-    destName: "Swiss Alps",
-    itineraryPrompt: "Plan a luxury 7-day scenic rail and alpine wellness trip to Zermatt, Interlaken, and the Swiss Alps"
-  },
-  {
-    id: 'hero-varanasi-ghats',
-    title: "Varanasi Ganges Ghats",
-    country: "India",
-    tagline: "Spiritual Twilight Ganga Aarti & Ancient Sandstone Steppes",
-    vibe: "Sacred Heritage",
-    weather: "24°C Evening Breeze",
-    season: "Peak: Oct–Mar",
-    startingPrice: "₹9,800",
-    image: "/images/destinations/hero_varanasi_ghats.jpg",
-    destName: "Varanasi Ghats",
-    itineraryPrompt: "Plan a 4-day spiritual and cultural photography tour of Varanasi ghats, sunrise boat rides, and Sarnath"
-  },
-  {
-    id: 'hero-bali-sunsets',
-    title: "Bali Uluwatu & Ubud",
-    country: "Indonesia",
-    tagline: "Dramatic Ocean Cliffside Sanctuary & Royal Bamboo Villas",
-    vibe: "Tropical Luxe",
-    weather: "28°C Golden Sunset",
-    season: "Peak: Apr–Oct",
-    startingPrice: "₹34,500",
-    image: "/images/destinations/hero_bali_sunsets.jpg",
-    destName: "Bali",
-    itineraryPrompt: "Plan a 6-day honeymoon retreat to Bali featuring cliffside villas in Uluwatu and jungle retreats in Ubud"
-  },
-  {
-    id: 'hero-kyoto-bamboo',
-    title: "Kyoto Arashiyama Groves",
-    country: "Japan",
-    tagline: "Zen Bamboo Sanctuaries, Morning Mist & Historic Torii Shrines",
-    vibe: "Zen Heritage",
-    weather: "19°C Serene Mist",
-    season: "Peak: Mar–May & Oct–Nov",
-    startingPrice: "₹62,800",
-    image: "/images/destinations/hero_kyoto_bamboo.jpg",
-    destName: "Kyoto",
-    itineraryPrompt: "Plan a 6-day cultural and culinary odyssey through Kyoto, Arashiyama, Gion geisha district, and Fushimi Inari"
-  },
-  {
-    id: 'hero-amalfi-coast',
-    title: "Amalfi Coast, Positano",
-    country: "Italy",
-    tagline: "Pastel Cliffside Cascades, Private Yachts & Tyrrhenian Azure",
-    vibe: "Riviera Elegance",
-    weather: "26°C Sunset Glow",
-    season: "Peak: May–Sep",
-    startingPrice: "₹78,900",
-    image: "/images/destinations/hero_amalfi_coast.jpg",
-    destName: "Amalfi Coast",
-    itineraryPrompt: "Plan a 5-day coastal luxury holiday along the Amalfi Coast, Positano, Capri boat cruise, and Ravello villas"
-  }
-];
+// Kinetic Slideshow Destination Inventory (Live Dynamic Feed)
+const heroSlides = getLiveHeroSlides();
 
-// 7 Wonders of the World Masterpiece Inventory
-const sevenWonders = [
-  { 
-    id: 'w-1', 
-    title: "Great Wall of China", 
-    location: "Huairou, Beijing, China", 
-    country: "China",
-    flag: "🇨🇳",
-    region: "asia",
-    unescoYear: "1987",
-    builtEra: "7th C. BC – 1644 AD",
-    marvelSpec: "21,196 km continuous stone fortifications across mountain ridges",
-    nearestTransit: "Beijing Capital (PEK) · High-Speed Rail to Badaling",
-    bestSeason: "Sep – Nov (Golden Autumn)",
-    estFare: "₹58,000",
-    flightDest: "PEK",
-    tag: "Ancient Wonder",
-    description: "Spanning over 21,000 km across dramatic mountain ridges, an epic feat of human defense and architectural endurance across multiple imperial dynasties.",
-    insiderTip: "Head to Mutianyu or Jinshanling at sunrise for ethereal morning mist above the watchtowers with almost zero crowd traffic.",
-    image: "/images/destinations/wonders_great_wall.jpg", 
-    itineraryPrompt: "Plan an architectural 6-day expedition to Beijing, the Mutianyu Great Wall, and the Forbidden City with luxury boutique stays."
-  },
-  { 
-    id: 'w-2', 
-    title: "Taj Mahal", 
-    location: "Agra, Uttar Pradesh, India", 
-    country: "India",
-    flag: "🇮🇳",
-    region: "asia",
-    unescoYear: "1983",
-    builtEra: "1632 – 1648 AD",
-    marvelSpec: "Pure Makrana white marble inlaid with 28 semi-precious gem types",
-    nearestTransit: "Delhi (DEL) · 1h 40m via Gatimaan / Vande Bharat Express",
-    bestSeason: "Oct – Mar (Crisp Mornings)",
-    estFare: "₹12,500",
-    flightDest: "DEL",
-    tag: "Marble Symphony",
-    description: "Ivory-white marble mausoleum on the Yamuna river bank, acclaimed worldwide as the supreme crown jewel of Mughal architectural symmetry.",
-    insiderTip: "Arrive at the East Gate by 5:30 AM for the glowing amber sunrise reflection in the Yamuna river without water ripples.",
-    image: "/images/destinations/wonders_taj_mahal.jpg", 
-    itineraryPrompt: "Plan a luxury Golden Triangle 5-day journey covering the Taj Mahal at sunrise, Agra Fort, and royal heritage palaces."
-  },
-  { 
-    id: 'w-3', 
-    title: "Petra", 
-    location: "Wadi Musa, Jordan", 
-    country: "Jordan",
-    flag: "🇯🇴",
-    region: "middle-east",
-    unescoYear: "1985",
-    builtEra: "4th C. BC – 1st C. AD",
-    marvelSpec: "Monolithic Treasury (Al-Khazneh) carved 40m into rose sandstone cliffs",
-    nearestTransit: "Amman (AMM) · 3h Desert Highway VIP transfer",
-    bestSeason: "Mar – May & Sep – Nov",
-    estFare: "₹72,000",
-    flightDest: "AMM",
-    tag: "Rose City",
-    description: "Ancient Nabataean capital carved directly into red-rose sandstone slot canyons, hidden from the Western world for over 500 years.",
-    insiderTip: "Attend 'Petra by Night' when 1,500 flickering candles illuminate the narrow Siq canyon leading to the Treasury facade.",
-    image: "/images/destinations/wonders_petra.jpg", 
-    itineraryPrompt: "Plan a 6-day heritage expedition to Jordan featuring Petra by candlelight, Wadi Rum desert glamping, and Dead Sea wellness."
-  },
-  { 
-    id: 'w-4', 
-    title: "The Colosseum", 
-    location: "Rome, Lazio, Italy", 
-    country: "Italy",
-    flag: "🇮🇹",
-    region: "europe",
-    unescoYear: "1980",
-    builtEra: "72 – 80 AD",
-    marvelSpec: "Largest Roman amphitheater holding 65,000 spectators with hypogeum",
-    nearestTransit: "Rome Fiumicino (FCO) · Leonardo Express to Termini",
-    bestSeason: "Apr – May & Sep – Oct",
-    estFare: "₹84,000",
-    flightDest: "FCO",
-    tag: "Imperial Arena",
-    description: "A colossal travertine limestone amphitheater that hosted gladiatorial spectacles, engineering marvels, and theatrical reenactments.",
-    insiderTip: "Book the underground Hypogeum and arena floor access for intimate access to gladiatorial tunnels hidden beneath the main floor.",
-    image: "/images/destinations/wonders_colosseum.jpg", 
-    itineraryPrompt: "Plan a 7-day culinary and classical history tour of Rome, the Colosseum underground, the Vatican, and the Amalfi Coast."
-  },
-  { 
-    id: 'w-5', 
-    title: "Machu Picchu", 
-    location: "Cusco Region, Peru", 
-    country: "Peru",
-    flag: "🇵🇪",
-    region: "americas",
-    unescoYear: "1983",
-    builtEra: "~1450 AD",
-    marvelSpec: "Mortarless dry-ashlar seismic fit at 2,430m cloud forest ridge",
-    nearestTransit: "Cusco (CUZ) · Vistadome Panoramic Scenic Andean Rail",
-    bestSeason: "May – Sep (Dry Andean Season)",
-    estFare: "₹1,25,000",
-    flightDest: "CUZ",
-    tag: "Citadel in Clouds",
-    description: "Royal 15th-century Inca sanctuary perched between two mist-shrouded Andean peaks, untouched by Spanish conquerors.",
-    insiderTip: "Ascend Huayna Picchu or Sun Gate for the iconic elevated panoramic shot of the entire citadel shrouded in morning cloud sea.",
-    image: "/images/destinations/wonders_machu_picchu.jpg", 
-    itineraryPrompt: "Plan a high-altitude luxury Andean 8-day trip to Cusco, the Sacred Valley, and Machu Picchu with Hiram Bingham train transit."
-  },
-  { 
-    id: 'w-6', 
-    title: "Christ the Redeemer", 
-    location: "Rio de Janeiro, Brazil", 
-    country: "Brazil",
-    flag: "🇧🇷",
-    region: "americas",
-    unescoYear: "2012",
-    builtEra: "1922 – 1931 AD",
-    marvelSpec: "38m Art Deco sculpture crafted with 6M soapstone tiles on 710m peak",
-    nearestTransit: "Rio Galeão (GIG) · Historic Corcovado Cogwheel Railway",
-    bestSeason: "May – Oct (Clear Blue Skies)",
-    estFare: "₹1,10,000",
-    flightDest: "GIG",
-    tag: "Art Deco Icon",
-    description: "Arms outstretched over Rio de Janeiro from the summit of Mount Corcovado, standing as an enduring symbol of peace and welcoming grace.",
-    insiderTip: "Take the earliest morning Corcovado cogwheel train through Tijuca Rainforest to stand at Christ's base with clear Guanabara Bay vistas.",
-    image: "/images/destinations/wonders_christ_redeemer.jpg", 
-    itineraryPrompt: "Plan a 7-day Brazilian coastal expedition to Rio de Janeiro, Christ the Redeemer, Sugarloaf Mountain, and Copacabana luxury suites."
-  },
-  { 
-    id: 'w-7', 
-    title: "Chichen Itza", 
-    location: "Yucatan, Mexico", 
-    country: "Mexico",
-    flag: "🇲🇽",
-    region: "americas",
-    unescoYear: "1988",
-    builtEra: "600 – 1200 AD",
-    marvelSpec: "365-step Temple of Kukulcán aligning equinox serpent shadows",
-    nearestTransit: "Cancun (CUN) · Maya Rail / Executive Highway Transfer",
-    bestSeason: "Nov – Apr (Pleasant Dry Weather)",
-    estFare: "₹68,000",
-    flightDest: "CUN",
-    tag: "Mayan Astronomy",
-    description: "Sacred Maya-Toltec ceremonial city centered around El Castillo, engineered with extraordinary acoustic echoes and solar alignment.",
-    insiderTip: "Clap your hands directly in front of El Castillo's stairway to hear the acoustic reverberation perfectly emulate the sacred quetzal bird.",
-    image: "/images/destinations/wonders_chichen_itza.jpg", 
-    itineraryPrompt: "Plan a 6-day Yucatan archaeological luxury tour to Chichen Itza, cenote private swims, and beachfront Tulum boutique resorts."
-  }
-];
+// 7 Wonders of the World Masterpiece Inventory (Live Dynamic Feed)
+const sevenWonders = getLiveSevenWonders();
 
-// Comprehensive 24+ Curated Destination Inventory with High-Density MMT Metadata
-const globalEscapes = [
-  {
-    id: 'intl-bali',
-    title: "Bali & Nusa Penida",
-    country: "Indonesia",
-    region: "Southeast Asia",
-    dealPrice: "₹34,500",
-    originalPrice: "₹48,000",
-    emiPrice: "₹3,150/mo",
-    discountBadge: "Save 28%",
-    duration: "6N / 7D",
-    rating: "4.9",
-    reviewsCount: "2.4k",
-    tag: "Tropical Sanctuary",
-    vibe: "beaches",
-    inclusions: ["Flights Included", "5★ Private Pool Villa", "Breakfast Included", "Speedboat Transfers"],
-    image: "/images/destinations/hero_bali_sunsets.jpg",
-    tagsList: ["trending", "honeymoon", "visafree"],
-    companionFit: ["couple", "solo", "group"],
-    budgetCategory: "comfort"
-  },
-  {
-    id: 'intl-paris',
-    title: "Paris & French Riviera",
-    country: "France",
-    region: "Western Europe",
-    dealPrice: "₹71,900",
-    originalPrice: "₹92,000",
-    emiPrice: "₹6,400/mo",
-    discountBadge: "Save 22%",
-    duration: "5N / 6D",
-    rating: "4.8",
-    reviewsCount: "3.1k",
-    tag: "Haute Couture & Art",
-    vibe: "heritage",
-    inclusions: ["Flights Included", "Boutique Hotel", "Eiffel Summit Pass", "Seine Dinner Cruise"],
-    image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["trending", "honeymoon"],
-    companionFit: ["couple", "solo"],
-    budgetCategory: "luxe"
-  },
-  {
-    id: 'intl-tokyo',
-    title: "Tokyo & Mt. Fuji",
-    country: "Japan",
-    region: "East Asia",
-    dealPrice: "₹76,400",
-    originalPrice: "₹98,000",
-    emiPrice: "₹6,900/mo",
-    discountBadge: "Save 22%",
-    duration: "6N / 7D",
-    rating: "4.9",
-    reviewsCount: "1.9k",
-    tag: "Futuristic Metropolis",
-    vibe: "luxe",
-    inclusions: ["Flights Included", "4★ Shinjuku Tower", "JR Bullet Pass", "Mt. Fuji Onsen Tour"],
-    image: "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["trending", "solo"],
-    companionFit: ["solo", "group", "family"],
-    budgetCategory: "luxe"
-  },
-  {
-    id: 'intl-dubai',
-    title: "Dubai Skyline & Desert",
-    country: "UAE",
-    region: "Middle East",
-    dealPrice: "₹28,900",
-    originalPrice: "₹42,000",
-    emiPrice: "₹2,650/mo",
-    discountBadge: "Save 31%",
-    duration: "4N / 5D",
-    rating: "4.9",
-    reviewsCount: "4.6k",
-    tag: "Ultra-Luxury Oasis",
-    vibe: "luxe",
-    inclusions: ["Flights Included", "5★ Marina Hotel", "Red Dunes Safari", "Burj Khalifa 124th Pass"],
-    image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["trending", "honeymoon", "visafree"],
-    companionFit: ["family", "couple", "group"],
-    budgetCategory: "comfort"
-  },
-  {
-    id: 'intl-maldives',
-    title: "Maldives Private Atolls",
-    country: "Maldives",
-    region: "Indian Ocean",
-    dealPrice: "₹52,900",
-    originalPrice: "₹75,000",
-    emiPrice: "₹4,800/mo",
-    discountBadge: "Save 29%",
-    duration: "4N / 5D",
-    rating: "4.95",
-    reviewsCount: "2.8k",
-    tag: "Overwater Seclusion",
-    vibe: "beaches",
-    inclusions: ["Overwater Lagoon Villa", "All Meals & Cocktails", "Speedboat Transfer", "Snorkeling Tour"],
-    image: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["trending", "honeymoon", "visafree"],
-    companionFit: ["couple"],
-    budgetCategory: "luxe"
-  },
-  {
-    id: 'intl-singapore',
-    title: "Singapore Marina & Gardens",
-    country: "Singapore",
-    region: "Southeast Asia",
-    dealPrice: "₹42,500",
-    originalPrice: "₹58,000",
-    emiPrice: "₹3,850/mo",
-    discountBadge: "Save 27%",
-    duration: "4N / 5D",
-    rating: "4.8",
-    reviewsCount: "2.2k",
-    tag: "Garden Metropolis",
-    vibe: "luxe",
-    inclusions: ["Flights Included", "4★ Downtown Hotel", "Universal Studios Pass", "Night Safari Entry"],
-    image: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["family"],
-    companionFit: ["family", "group"],
-    budgetCategory: "comfort"
-  },
-  {
-    id: 'intl-swiss',
-    title: "Swiss Alps & Zermatt",
-    country: "Switzerland",
-    region: "Central Europe",
-    dealPrice: "₹84,500",
-    originalPrice: "₹1,15,000",
-    emiPrice: "₹7,600/mo",
-    discountBadge: "Save 26%",
-    duration: "6N / 7D",
-    rating: "4.95",
-    reviewsCount: "1.7k",
-    tag: "Alpine Panoramic",
-    vibe: "mountains",
-    inclusions: ["Flights Included", "Swiss First Class Pass", "Alpine Chalet", "Jungfraujoch Summit"],
-    image: "/images/destinations/hero_swiss_alps.jpg",
-    tagsList: ["trending", "honeymoon"],
-    companionFit: ["couple", "family"],
-    budgetCategory: "luxe"
-  },
-  {
-    id: 'intl-santorini',
-    title: "Santorini Oia Caldera",
-    country: "Greece",
-    region: "Aegean Sea",
-    dealPrice: "₹66,000",
-    originalPrice: "₹89,000",
-    emiPrice: "₹5,900/mo",
-    discountBadge: "Save 26%",
-    duration: "5N / 6D",
-    rating: "4.9",
-    reviewsCount: "2.5k",
-    tag: "Caldera Cliff Villa",
-    vibe: "beaches",
-    inclusions: ["Traditional Cave Suite", "Sunset Catamaran Cruise", "Wine Tasting Tour", "Airport Transfers"],
-    image: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["trending", "honeymoon"],
-    companionFit: ["couple"],
-    budgetCategory: "luxe"
-  },
-  {
-    id: 'intl-amalfi',
-    title: "Amalfi Coast & Positano",
-    country: "Italy",
-    region: "Southern Europe",
-    dealPrice: "₹78,900",
-    originalPrice: "₹1,05,000",
-    emiPrice: "₹7,100/mo",
-    discountBadge: "Save 25%",
-    duration: "5N / 6D",
-    rating: "4.9",
-    reviewsCount: "1.5k",
-    tag: "Riviera Elegance",
-    vibe: "luxe",
-    inclusions: ["Sea View Boutique Stay", "Capri Private Speedboat", "Limoncello Tour", "Chauffeur Transfer"],
-    image: "/images/destinations/hero_amalfi_coast.jpg",
-    tagsList: ["trending", "honeymoon"],
-    companionFit: ["couple", "solo"],
-    budgetCategory: "luxe"
-  },
-  {
-    id: 'intl-iceland',
-    title: "Iceland Northern Lights",
-    country: "Iceland",
-    region: "Nordic Atlantic",
-    dealPrice: "₹89,500",
-    originalPrice: "₹1,20,000",
-    emiPrice: "₹8,100/mo",
-    discountBadge: "Save 25%",
-    duration: "6N / 7D",
-    rating: "4.85",
-    reviewsCount: "1.3k",
-    tag: "Aurora & Glaciers",
-    vibe: "nature",
-    inclusions: ["Flights Included", "Superjeep Aurora Hunt", "Blue Lagoon Premium", "Golden Circle Tour"],
-    image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["trending", "solo"],
-    companionFit: ["solo", "group"],
-    budgetCategory: "luxe"
-  },
-  {
-    id: 'intl-kyoto',
-    title: "Kyoto Ancient Sanctuaries",
-    country: "Japan",
-    region: "Kansai",
-    dealPrice: "₹62,800",
-    originalPrice: "₹85,000",
-    emiPrice: "₹5,650/mo",
-    discountBadge: "Save 26%",
-    duration: "5N / 6D",
-    rating: "4.9",
-    reviewsCount: "2.1k",
-    tag: "Imperial Gardens",
-    vibe: "heritage",
-    inclusions: ["Traditional Ryokan Stay", "Kaiseki Dinner Included", "Private Tea Ceremony", "Shinkansen Transit"],
-    image: "/images/destinations/hero_kyoto_bamboo.jpg",
-    tagsList: ["solo", "honeymoon"],
-    companionFit: ["solo", "couple"],
-    budgetCategory: "comfort"
-  },
-  {
-    id: 'intl-london',
-    title: "London Royal Heritage",
-    country: "United Kingdom",
-    region: "Western Europe",
-    dealPrice: "₹67,500",
-    originalPrice: "₹88,000",
-    emiPrice: "₹6,100/mo",
-    discountBadge: "Save 23%",
-    duration: "5N / 6D",
-    rating: "4.8",
-    reviewsCount: "3.4k",
-    tag: "Historic Capital",
-    vibe: "heritage",
-    inclusions: ["Flights Included", "4★ Central London Hotel", "Thames Cruise Pass", "London Eye VIP Pass"],
-    image: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["family"],
-    companionFit: ["family", "solo"],
-    budgetCategory: "comfort"
-  }
-];
-
-const incredibleIndia = [
-  {
-    id: 'dom-goa',
-    title: "Goa Palolem & Baga",
-    country: "India",
-    region: "Konkan Coast",
-    dealPrice: "₹12,900",
-    originalPrice: "₹18,500",
-    emiPrice: "₹1,150/mo",
-    discountBadge: "Save 30%",
-    duration: "4N / 5D",
-    rating: "4.8",
-    reviewsCount: "5.8k",
-    tag: "Sun, Sand & Shacks",
-    vibe: "beaches",
-    inclusions: ["Flights Included", "4★ Beachside Resort", "Breakfast Included", "North & South Goa Cab"],
-    image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["trending", "budget", "honeymoon"],
-    companionFit: ["group", "couple", "solo"],
-    budgetCategory: "budget"
-  },
-  {
-    id: 'dom-kerala',
-    title: "Kerala Backwaters & Munnar",
-    country: "India",
-    region: "South India",
-    dealPrice: "₹15,800",
-    originalPrice: "₹22,000",
-    emiPrice: "₹1,400/mo",
-    discountBadge: "Save 28%",
-    duration: "5N / 6D",
-    rating: "4.9",
-    reviewsCount: "4.2k",
-    tag: "God's Own Country",
-    vibe: "nature",
-    inclusions: ["Luxury AC Houseboat", "Munnar Tea Estate Stay", "All Meals on Board", "Spice Plantation Walk"],
-    image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["trending", "budget", "honeymoon"],
-    companionFit: ["couple", "family"],
-    budgetCategory: "budget"
-  },
-  {
-    id: 'dom-jaipur',
-    title: "Jaipur Forts & Palaces",
-    country: "India",
-    region: "Rajasthan",
-    dealPrice: "₹11,400",
-    originalPrice: "₹16,500",
-    emiPrice: "₹1,050/mo",
-    discountBadge: "Save 31%",
-    duration: "3N / 4D",
-    rating: "4.8",
-    reviewsCount: "3.7k",
-    tag: "Royal Heritage",
-    vibe: "heritage",
-    inclusions: ["Heritage Haveli Stay", "Chokhi Dhani Dinner", "Amer Fort Guided Pass", "Private AC Chauffeur"],
-    image: "https://images.unsplash.com/photo-1609949279531-cf48d64bed89?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["budget", "trending"],
-    companionFit: ["family", "solo", "couple"],
-    budgetCategory: "budget"
-  },
-  {
-    id: 'dom-spiti',
-    title: "Himachal Spiti Valley",
-    country: "India",
-    region: "Himachal Pradesh",
-    dealPrice: "₹18,900",
-    originalPrice: "₹26,000",
-    emiPrice: "₹1,700/mo",
-    discountBadge: "Save 27%",
-    duration: "6N / 7D",
-    rating: "4.9",
-    reviewsCount: "1.6k",
-    tag: "Middle Land Expedition",
-    vibe: "mountains",
-    inclusions: ["4x4 Mountain Vehicle", "Key Monastery Homestays", "All Meals", "Oxygen Support Kit"],
-    image: "https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["budget", "solo", "trending"],
-    companionFit: ["solo", "group"],
-    budgetCategory: "budget"
-  },
-  {
-    id: 'dom-andaman',
-    title: "Andaman Havelock Island",
-    country: "India",
-    region: "Bay of Bengal",
-    dealPrice: "₹24,800",
-    originalPrice: "₹36,000",
-    emiPrice: "₹2,250/mo",
-    discountBadge: "Save 31%",
-    duration: "5N / 6D",
-    rating: "4.9",
-    reviewsCount: "2.9k",
-    tag: "Turquoise Haven",
-    vibe: "beaches",
-    inclusions: ["Beachfront Resort", "Makruzz Catamaran Tickets", "Scuba Diving Discovery", "Harbour Transfers"],
-    image: "https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["trending", "honeymoon"],
-    companionFit: ["couple", "family"],
-    budgetCategory: "comfort"
-  },
-  {
-    id: 'dom-kashmir',
-    title: "Kashmir Gulmarg & Srinagar",
-    country: "India",
-    region: "Kashmir Valley",
-    dealPrice: "₹19,900",
-    originalPrice: "₹28,000",
-    emiPrice: "₹1,800/mo",
-    discountBadge: "Save 29%",
-    duration: "5N / 6D",
-    rating: "4.95",
-    reviewsCount: "3.9k",
-    tag: "Paradise on Earth",
-    vibe: "mountains",
-    inclusions: ["Dal Lake Luxury Houseboat", "Gulmarg Gondola Ride", "Pahalgam Valley Cab", "Maple Kahwa Welcome"],
-    image: "https://images.unsplash.com/photo-1595815771614-ade9d652a65d?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["budget", "trending", "honeymoon"],
-    companionFit: ["couple", "family"],
-    budgetCategory: "budget"
-  },
-  {
-    id: 'dom-varanasi',
-    title: "Varanasi Ganges Aarti",
-    country: "India",
-    region: "Uttar Pradesh",
-    dealPrice: "₹9,800",
-    originalPrice: "₹14,500",
-    emiPrice: "₹890/mo",
-    discountBadge: "Save 32%",
-    duration: "3N / 4D",
-    rating: "4.9",
-    reviewsCount: "2.6k",
-    tag: "Sacred Ghats & Aarti",
-    vibe: "heritage",
-    inclusions: ["Heritage Riverside Hotel", "Private Sunrise Boat Tour", "Evening Aarti VIP Deck", "Kashi Vishwanath Pass"],
-    image: "/images/destinations/hero_varanasi_ghats.jpg",
-    tagsList: ["budget", "solo"],
-    companionFit: ["solo", "family"],
-    budgetCategory: "budget"
-  },
-  {
-    id: 'dom-ladakh',
-    title: "Ladakh Pangong & Nubra",
-    country: "India",
-    region: "Himalayas",
-    dealPrice: "₹23,500",
-    originalPrice: "₹34,000",
-    emiPrice: "₹2,100/mo",
-    discountBadge: "Save 31%",
-    duration: "6N / 7D",
-    rating: "4.9",
-    reviewsCount: "2.8k",
-    tag: "High Altitude Desert",
-    vibe: "mountains",
-    inclusions: ["Luxury Lakeview Camp", "Double Hump Camel Safari", "Inner Line Protected Permits", "Dedicated SUV"],
-    image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["trending", "solo"],
-    companionFit: ["solo", "group"],
-    budgetCategory: "comfort"
-  },
-  {
-    id: 'dom-rishikesh',
-    title: "Rishikesh Himalayan Ganga",
-    country: "India",
-    region: "Uttarakhand",
-    dealPrice: "₹7,900",
-    originalPrice: "₹12,500",
-    emiPrice: "₹720/mo",
-    discountBadge: "Save 37%",
-    duration: "3N / 4D",
-    rating: "4.8",
-    reviewsCount: "3.3k",
-    tag: "Yoga & White Water",
-    vibe: "nature",
-    inclusions: ["Luxury Riverside Glamping", "16km River Rafting Pass", "Bonfire & BBQ Dinner", "Morning Yoga Sessions"],
-    image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["budget", "solo"],
-    companionFit: ["solo", "group"],
-    budgetCategory: "budget"
-  },
-  {
-    id: 'dom-coorg',
-    title: "Coorg Misty Coffee Hills",
-    country: "India",
-    region: "Western Ghats",
-    dealPrice: "₹12,500",
-    originalPrice: "₹18,000",
-    emiPrice: "₹1,120/mo",
-    discountBadge: "Save 31%",
-    duration: "3N / 4D",
-    rating: "4.8",
-    reviewsCount: "1.9k",
-    tag: "Scotland of India",
-    vibe: "nature",
-    inclusions: ["Private Estate Bungalow", "Guided Coffee Cupping Tour", "Abbey Falls Sightseeing", "Coorg Special Cuisine"],
-    image: "https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["budget", "honeymoon"],
-    companionFit: ["couple", "family"],
-    budgetCategory: "budget"
-  },
-  {
-    id: 'dom-ooty',
-    title: "Ooty & Nilgiri Toy Train",
-    country: "India",
-    region: "Tamil Nadu",
-    dealPrice: "₹11,900",
-    originalPrice: "₹17,000",
-    emiPrice: "₹1,080/mo",
-    discountBadge: "Save 30%",
-    duration: "3N / 4D",
-    rating: "4.75",
-    reviewsCount: "2.1k",
-    tag: "Blue Mountain Haven",
-    vibe: "mountains",
-    inclusions: ["Heritage Colonial Suite", "Nilgiri Mountain Rail Tickets", "Tea Factory Experience", "Lake Boating Pass"],
-    image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["budget"],
-    companionFit: ["family", "couple"],
-    budgetCategory: "budget"
-  },
-  {
-    id: 'dom-udaipur',
-    title: "Udaipur Royal City of Lakes",
-    country: "India",
-    region: "Rajasthan",
-    dealPrice: "₹16,800",
-    originalPrice: "₹24,000",
-    emiPrice: "₹1,500/mo",
-    discountBadge: "Save 30%",
-    duration: "3N / 4D",
-    rating: "4.9",
-    reviewsCount: "3.5k",
-    tag: "Venice of the East",
-    vibe: "luxe",
-    inclusions: ["Pichola Lakeview Heritage", "Sunset Solar Boat Cruise", "City Palace Royal Entry", "Candlelight Rooftop Dinner"],
-    image: "https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?q=80&w=1200&auto=format&fit=crop",
-    tagsList: ["budget", "honeymoon", "trending"],
-    companionFit: ["couple"],
-    budgetCategory: "budget"
-  }
-];
+// Comprehensive Curated Destination Inventory (Live Dynamic Feed)
+const { incredibleIndia, globalEscapes } = getLiveDestinationsCatalog();
 
 const vibeOptions = [
   { id: 'all', label: 'All Vibes', icon: '✨' },
@@ -739,6 +63,7 @@ const fastFilterChips = [
 export const Destinations = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { setActiveBooking, addToast } = useBooking();
   const urlQuery = searchParams.get('q') || '';
 
   // State Management
@@ -750,6 +75,57 @@ export const Destinations = () => {
   const [activeWonderId, setActiveWonderId] = useState('w-1');
   const [wonderRegionFilter, setWonderRegionFilter] = useState('all');
   const [wonderViewMode, setWonderViewMode] = useState('spotlight'); // 'spotlight' | 'grid'
+
+  // Dynamic OpenStreetMap + Wikipedia Multi-Package Resolver State
+  const [dynamicCityData, setDynamicCityData] = useState(null);
+  const [isResolvingDynamic, setIsResolvingDynamic] = useState(false);
+
+  const fetchDynamicMatch = useCallback(async (query) => {
+    if (!query || query.trim().length < 2) {
+      setDynamicCityData(null);
+      return;
+    }
+    setIsResolvingDynamic(true);
+    try {
+      const res = await resolveCityPackages(query.trim());
+      if (res && res.packages && res.packages.length > 0) {
+        setDynamicCityData(res);
+      } else {
+        setDynamicCityData(null);
+      }
+    } catch (e) {
+      console.warn('[Dynamic Destination Resolve]', e);
+    } finally {
+      setIsResolvingDynamic(false);
+    }
+  }, []);
+
+  const handleBookPackage = (pkg) => {
+    const rawPrice = typeof pkg.numericPrice === 'number' 
+      ? pkg.numericPrice 
+      : parseInt(String(pkg.dealPrice || pkg.price || '15000').replace(/[^0-9]/g, ''), 10) || 15000;
+    const destTitle = pkg.city || pkg.title || 'Selected Destination';
+    const subTitle = pkg.title || pkg.subtitle || 'Curated Expedition';
+    setActiveBooking({
+      serviceType: 'package',
+      itemTitle: `${destTitle} — ${subTitle} (${pkg.duration || '5D/4N'})`,
+      details: {
+        destination: destTitle,
+        country: pkg.country || 'Global',
+        duration: pkg.duration || '5D/4N',
+        transit: pkg.trainOption || pkg.transit || (pkg.tag ? `${pkg.tag} Included` : 'Express Rail/Transit Option Available'),
+        flight: pkg.flightOption || pkg.flight || 'Direct & Connecting Flight Matrix Included',
+        hotel: pkg.hotel || 'Handpicked Boutique 4-Star Resort Stay',
+        vibe: pkg.vibe || pkg.region || 'Curated Experience',
+        inclusions: pkg.inclusions || pkg.highlights || ['Hotel Stay', 'Guided Tour', 'Daily Breakfast']
+      },
+      priceINR: rawPrice,
+      priceUSD: Math.round(rawPrice / 86.5),
+      image: pkg.image
+    });
+    addToast(`Trip package reserved: ${destTitle}! Proceeding to secure checkout.`, 'success');
+    navigate('/checkout');
+  };
 
   const filteredWonders = useMemo(() => {
     if (wonderRegionFilter === 'all') return sevenWonders;
@@ -791,12 +167,18 @@ export const Destinations = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // Sync search input with URL params
+  // Sync search input with URL params and auto-resolve
   useEffect(() => {
-    if (urlQuery && urlQuery !== searchInput) {
+    if (urlQuery) {
       setSearchInput(urlQuery);
+      const qLower = urlQuery.toLowerCase();
+      const isIndiaLoc = ['india', 'varanasi', 'taj', 'agra', 'kedarnath', 'ayodhya', 'goa', 'kerala', 'jaipur', 'manali', 'hampi', 'ladakh', 'amritsar', 'pondicherry', 'udaipur', 'rishikesh', 'ooty', 'coorg'].some(k => qLower.includes(k));
+      if (isIndiaLoc) {
+        setActiveTab('india');
+      }
+      fetchDynamicMatch(urlQuery);
     }
-  }, [urlQuery, searchInput]);
+  }, [urlQuery, fetchDynamicMatch]);
 
   // Slideshow Automated Ken Burns Interval
   useEffect(() => {
@@ -821,7 +203,9 @@ export const Destinations = () => {
 
   // Filtered Cards Inventory Computation
   const currentCatalog = useMemo(() => {
-    let list = activeTab === 'global' ? globalEscapes : incredibleIndia;
+    let list = searchInput.trim() 
+      ? [...incredibleIndia, ...globalEscapes] 
+      : (activeTab === 'global' ? globalEscapes : incredibleIndia);
 
     // Gracefully merge backend items if available
     if (liveBackendDests.length > 0) {
@@ -847,7 +231,7 @@ export const Destinations = () => {
           tag: d.category || 'Live Certified Package',
           vibe: d.category === 'beach' ? 'beaches' : d.category === 'mountain' ? 'mountains' : d.category === 'heritage' ? 'heritage' : d.category === 'luxe' ? 'luxe' : 'nature',
           inclusions: ["Verified Stays", "Curated Sightseeing", "Airport / Station Transit", "24/7 Concierge"],
-          image: d.image || (activeTab === 'india' ? '/images/destinations/hero_varanasi_ghats.jpg' : '/images/destinations/hero_bali_sunsets.jpg'),
+          image: d.image || (activeTab === 'india' ? 'https://images.unsplash.com/photo-1561359313-0639aad49ca6?q=80&w=1200&auto=format&fit=crop' : 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=1200&auto=format&fit=crop'),
           tagsList: ["trending", "budget"],
           companionFit: ["couple", "solo", "family"],
           budgetCategory: "comfort"
@@ -938,16 +322,26 @@ export const Destinations = () => {
     <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-slate-100 transition-colors duration-500 font-sans relative overflow-x-hidden selection:bg-amber-500/30 selection:text-amber-400" id="destinations-discovery-engine">
       <JsonLd data={destinationsSchemas} />
 
-      {/* Top Ambient Specular Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[450px] bg-[radial-gradient(ellipse_at_top,rgba(245,158,11,0.09)_0%,transparent_70%)] pointer-events-none z-0" />
+      {/* ── AMBIENT ATMOSPHERIC LIGHTING MESH (Full Light/Dark Mode Unification) ── */}
+      {/* 1. Radiant Daylight Sun/Sky Overhead Aura */}
+      <div className="absolute top-0 inset-x-0 h-[650px] bg-[radial-gradient(ellipse_85%_65%_at_50%_-15%,rgba(245,158,11,0.22),rgba(56,189,248,0.14),transparent_75%)] dark:bg-[radial-gradient(ellipse_80%_60%_at_50%_-15%,rgba(245,158,11,0.12),rgba(56,189,248,0.06),transparent_70%)] pointer-events-none z-0" />
+      
+      {/* 2. Concentrated Ambient Color Bloom directly behind the hero stage */}
+      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-full max-w-6xl h-[520px] bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.15)_0%,rgba(14,165,233,0.09)_45%,transparent_75%)] blur-3xl pointer-events-none z-0" />
+
+      {/* 3. High-Precision Architectural Dot Lattice (Anchors empty margins to page structure) */}
+      <div className="absolute inset-0 bg-[radial-gradient(#94a3b8_1.1px,transparent_1.1px)] dark:bg-[radial-gradient(#334155_1.2px,transparent_1.2px)] [background-size:28px_28px] opacity-40 dark:opacity-20 pointer-events-none z-0" />
 
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 md:pt-32 pb-24 relative z-10 space-y-16 lg:space-y-24">
         
         {/* ==================================================================== */}
         {/* SECTION 1: HERO SECTION — KINETIC TRAVEL SLIDESHOW & TELEMETRY HUD  */}
         {/* ==================================================================== */}
-        <div className="relative w-full h-[65vh] sm:h-[70vh] min-h-[520px] sm:min-h-[580px] max-h-[750px] rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3.2rem] overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.15)] border border-slate-200/90 dark:border-white/10 group">
+        <div className="relative w-full h-[65vh] sm:h-[70vh] min-h-[520px] sm:min-h-[580px] max-h-[750px] rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3.2rem] overflow-hidden ring-1 ring-slate-900/10 dark:ring-white/10 border border-white/80 dark:border-white/10 shadow-[0_30px_80px_-20px_rgba(15,23,42,0.16),0_12px_36px_-10px_rgba(245,158,11,0.15)] dark:shadow-[0_30px_90px_-20px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.15)] group">
           
+          {/* Subtle Top Glass Rim Reflection for Physical Depth */}
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/50 dark:via-white/25 to-transparent pointer-events-none z-30" />
+
           {/* Ken Burns Crossfade Image Layer */}
           <div className="absolute inset-0 bg-slate-950 overflow-hidden">
             <AnimatePresence mode="wait">
@@ -962,34 +356,34 @@ export const Destinations = () => {
                   opacity: { duration: 0.8, ease: "easeInOut" },
                   scale: { duration: 6.5, ease: "easeOut" }
                 }}
-                className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+                className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none will-change-transform"
                 loading="eager"
               />
             </AnimatePresence>
 
-            {/* Specular Vignette & Editorial Multi-Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent" />
-            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
+            {/* Balanced Editorial Cinema Multi-Gradients & Vignette */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/15 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/40 to-transparent pointer-events-none" />
+            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-slate-950/60 to-transparent pointer-events-none" />
           </div>
 
           {/* Overlaid Top Status Bar */}
           <div className="absolute top-6 left-6 right-6 lg:top-8 lg:left-10 lg:right-10 flex flex-wrap items-center justify-between gap-3 z-20 pointer-events-auto">
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-black/40 backdrop-blur-xl border border-white/20 text-xs font-mono text-white shadow-lg">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-slate-950/65 dark:bg-black/55 backdrop-blur-xl border border-white/25 text-xs font-mono text-white shadow-xl">
               <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse" />
               <span className="font-bold tracking-wider uppercase text-[11px] text-amber-300">CURATED DISCOVERY</span>
               <span className="text-white/40">·</span>
-              <span className="text-white/80 hidden sm:inline font-mono">120+ VERIFIED PACKAGES</span>
+              <span className="text-white/85 hidden sm:inline font-mono">120+ VERIFIED PACKAGES</span>
             </div>
 
             {/* Weather & Live Telemetry Pill */}
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-black/40 backdrop-blur-xl border border-white/20 text-xs font-mono text-white shadow-lg">
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-950/65 dark:bg-black/55 backdrop-blur-xl border border-white/25 text-xs font-mono text-white shadow-xl">
               <div className="flex items-center gap-1.5 text-amber-300">
                 <FaSun className="w-3.5 h-3.5 animate-[spin_12s_linear_infinite]" />
                 <span className="font-bold">{currentSlide.weather}</span>
               </div>
               <span className="text-white/40">·</span>
-              <span className="text-white/80 text-[11px] hidden md:inline">{currentSlide.season}</span>
+              <span className="text-white/85 text-[11px] hidden md:inline">{currentSlide.season}</span>
             </div>
           </div>
 
@@ -1025,38 +419,60 @@ export const Destinations = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.6 }}
-                className="text-sm sm:text-base lg:text-lg text-white/85 font-medium max-w-xl leading-relaxed"
+                className="text-sm sm:text-base lg:text-lg text-white/90 font-medium max-w-xl leading-relaxed [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]"
               >
                 {currentSlide.tagline}
               </motion.p>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex flex-wrap items-center gap-3">
+              <div className="pt-2 flex flex-wrap items-center gap-2.5">
                 <ThreeUIButton
-                  onClick={() => navigate('/itinerary', { state: { prompt: currentSlide.itineraryPrompt } })}
+                  onClick={() => navigate(getItineraryRoute(currentSlide.destName, currentSlide.itineraryPrompt), { state: { prompt: currentSlide.itineraryPrompt } })}
                   variant="amber-glow"
                   size="md"
                   icon={FaArrowRight}
                   iconPosition="right"
                   id="hero-plan-trip-btn"
                 >
-                  Plan This Trip
+                  Plan AI Trip
                 </ThreeUIButton>
 
                 <ThreeUIButton
-                  onClick={() => navigate('/flights', { state: { destination: currentSlide.destName } })}
+                  onClick={() => navigate(getHotelsRoute(currentSlide.destName))}
+                  variant="glass-frost"
+                  size="md"
+                  icon={FaHotel}
+                  id="hero-stays-btn"
+                >
+                  Verified Stays
+                </ThreeUIButton>
+
+                {hasTrainNetwork(currentSlide.destName) && (
+                  <ThreeUIButton
+                    onClick={() => navigate(getTrainsRoute(currentSlide.destName))}
+                    variant="glass-frost"
+                    size="md"
+                    icon={FaTrain}
+                    id="hero-trains-btn"
+                  >
+                    Trains
+                  </ThreeUIButton>
+                )}
+
+                <ThreeUIButton
+                  onClick={() => navigate(getFlightsRoute(currentSlide.destName))}
                   variant="glass-frost"
                   size="md"
                   icon={FaPlane}
                   id="hero-flights-btn"
                 >
-                  Flight Deals
+                  Flights
                 </ThreeUIButton>
               </div>
             </div>
 
             {/* Slideshow Progress Bar, Nav Controls & Thumbnails */}
-            <div className="w-full lg:w-auto flex flex-col items-start lg:items-end gap-3 bg-black/40 backdrop-blur-xl p-3.5 sm:p-4 rounded-3xl border border-white/15 shadow-2xl">
+            <div className="w-full lg:w-auto flex flex-col items-start lg:items-end gap-3 bg-slate-950/65 dark:bg-black/55 backdrop-blur-xl p-3.5 sm:p-4 rounded-3xl border border-white/20 shadow-2xl">
               
               <div className="flex items-center justify-between w-full gap-4">
                 <div className="text-[11px] font-mono text-white/70">
@@ -1066,7 +482,7 @@ export const Destinations = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handlePrevSlide}
-                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center border border-white/20 transition-all active:scale-95"
+                    className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center border border-white/25 transition-all active:scale-95"
                     aria-label="Previous destination"
                   >
                     <FaChevronLeft className="w-3 h-3" />
@@ -1074,7 +490,7 @@ export const Destinations = () => {
 
                   <button
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="w-8 h-8 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center justify-center font-bold transition-all active:scale-95 shadow-lg shadow-amber-400/20"
+                    className="w-8 h-8 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center justify-center font-bold transition-all active:scale-95 shadow-lg shadow-amber-400/30"
                     aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
                   >
                     {isPlaying ? <FaPause className="w-2.5 h-2.5" /> : <FaPlay className="w-2.5 h-2.5 translate-x-[1px]" />}
@@ -1082,7 +498,7 @@ export const Destinations = () => {
 
                   <button
                     onClick={handleNextSlide}
-                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center border border-white/20 transition-all active:scale-95"
+                    className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center border border-white/25 transition-all active:scale-95"
                     aria-label="Next destination"
                   >
                     <FaChevronRight className="w-3 h-3" />
@@ -1134,14 +550,25 @@ export const Destinations = () => {
                 <input
                   type="text"
                   value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder="Search destinations, tags, regions (e.g. Bali, Spiti, Villa)..."
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSearchInput(val);
+                    if (val.trim().length >= 2) {
+                      fetchDynamicMatch(val.trim());
+                    } else {
+                      setDynamicCityData(null);
+                    }
+                  }}
+                  placeholder={isResolvingDynamic ? "Resolving via OpenStreetMap..." : "Search ANY destination in India & World (e.g. Varanasi, Taj Mahal, Kedarnath)..."}
                   className="w-full pl-11 pr-10 py-2.5 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-xs font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-colors"
                   id="destinations-search-input"
                 />
                 {searchInput && (
                   <button
-                    onClick={() => setSearchInput('')}
+                    onClick={() => {
+                      setSearchInput('');
+                      setDynamicCityData(null);
+                    }}
                     className="absolute right-3.5 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-white"
                     aria-label="Clear search"
                   >
@@ -1256,11 +683,296 @@ export const Destinations = () => {
           </div>
         </div>
 
+        {/* DYNAMIC MULTI-API REAL-TIME DESTINATION & PACKAGES ENGINE */}
+        {dynamicCityData && (
+          <div className="mb-14 space-y-8">
+            {/* Live City Telemetry HUD & Weather Header */}
+            <motion.div
+              initial={{ opacity: 0, y: -18 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-[2.5rem] p-6 sm:p-8 bg-gradient-to-br from-amber-500/10 via-white/95 to-slate-50 dark:from-amber-500/15 dark:via-[#121422] dark:to-[#0c0e17] border-2 border-amber-400/50 shadow-2xl backdrop-blur-2xl relative overflow-hidden group"
+            >
+              <div className="absolute top-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col lg:flex-row gap-7 items-start">
+                <div className="relative w-full lg:w-80 h-56 rounded-3xl overflow-hidden shrink-0 shadow-lg">
+                  <img 
+                    src={dynamicCityData.cityProfile.image} 
+                    alt={dynamicCityData.cityProfile.name} 
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" 
+                  />
+                  <div className="absolute top-3.5 left-3.5 px-3 py-1 rounded-full bg-amber-400 text-slate-950 font-mono font-bold text-[11px] shadow-md flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-950 animate-ping" />
+                    <span>Real-time Live Engine</span>
+                  </div>
+                  <div className="absolute bottom-3.5 left-3.5 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md text-white font-mono text-xs flex items-center gap-2 border border-white/15 shadow">
+                    <FaSun className="text-amber-400 text-xs animate-[spin_10s_linear_infinite]" />
+                    <span className="font-bold">{dynamicCityData.cityProfile.weather.temp}</span>
+                    <span className="text-white/40">·</span>
+                    <span>{dynamicCityData.cityProfile.weather.status}</span>
+                  </div>
+                </div>
+
+                <div className="flex-1 space-y-3.5 w-full">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="text-amber-600 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2 flex-wrap">
+                        <FaMapMarkerAlt className="text-amber-500" />
+                        <span>{dynamicCityData.cityProfile.region}, {dynamicCityData.cityProfile.country}</span>
+                        <span className="text-slate-300 dark:text-slate-700">·</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{dynamicCityData.cityProfile.bestSeason}</span>
+                      </div>
+                      <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mt-1">
+                        {dynamicCityData.cityProfile.name}
+                      </h2>
+                    </div>
+
+                    {/* Live Telemetry Pills: AQI & Sunrise/Sunset */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {dynamicCityData.cityProfile.aqi && (
+                        <div className="px-3 py-1.5 rounded-xl bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-xs font-mono">
+                          <span className="text-slate-400 text-[10px] block">AIR QUALITY</span>
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                            AQI {dynamicCityData.cityProfile.aqi.aqi} · {dynamicCityData.cityProfile.aqi.aqiLabel}
+                          </span>
+                        </div>
+                      )}
+                      {dynamicCityData.cityProfile.aqi?.sunrise && (
+                        <div className="px-3 py-1.5 rounded-xl bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-xs font-mono">
+                          <span className="text-slate-400 text-[10px] block">SOLAR CYCLE</span>
+                          <span className="font-bold text-amber-500">
+                            🌅 {dynamicCityData.cityProfile.aqi.sunrise} · 🌇 {dynamicCityData.cityProfile.aqi.sunset}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed font-medium">
+                    {dynamicCityData.cityProfile.description}
+                  </p>
+
+                  {/* Master Action Strip */}
+                  <div className="pt-2 flex flex-wrap items-center gap-3">
+                    <ThreeUIButton
+                      variant="amber-glow"
+                      size="sm"
+                      to={`/itinerary?prompt=${encodeURIComponent(`Plan a 4-day trip to ${dynamicCityData.cityProfile.name}`)}`}
+                      icon={<HiOutlineSparkles className="text-amber-950 dark:text-white" />}
+                    >
+                      AI Trip Architect
+                    </ThreeUIButton>
+
+                    <ThreeUIButton
+                      variant="liquid-metal"
+                      size="sm"
+                      to={`/explore?q=${encodeURIComponent(dynamicCityData.cityProfile.name)}`}
+                      icon={<FaMapMarkerAlt />}
+                    >
+                      View on Live Map
+                    </ThreeUIButton>
+
+                    <ThreeUIButton
+                      variant="specular-dark"
+                      size="sm"
+                      to={`/hotels?destination=${encodeURIComponent(dynamicCityData.cityProfile.name)}`}
+                      icon={<FaHotel />}
+                    >
+                      Browse City Hotels
+                    </ThreeUIButton>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Grid of ALL 3-4 Real-Time Dynamic Trip Packages */}
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                    Verified Bookable Packages for <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">{dynamicCityData.cityProfile.name}</span>
+                  </h3>
+                  <p className="text-xs sm:text-sm font-mono text-slate-500 dark:text-slate-400 mt-1">
+                    Complete all-in-one travel packages with high-speed rail (Vande Bharat / IRCTC), flights, handpicked stays, and local tours.
+                  </p>
+                </div>
+                <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-amber-400/20 text-amber-600 dark:text-amber-400 border border-amber-400/30 shrink-0 hidden sm:inline">
+                  {dynamicCityData.packages.length} Real-Time Packages
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+                {dynamicCityData.packages.map((pkg, pIdx) => (
+                  <motion.div
+                    key={pkg.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: pIdx * 0.08 }}
+                  >
+                    <ThreeCard3D
+                      depth={24}
+                      className="rounded-[2rem] overflow-hidden bg-white dark:bg-[#121420]/95 backdrop-blur-2xl border border-slate-200/90 dark:border-white/10 shadow-xl hover:border-amber-400/50 transition-all flex flex-col h-full"
+                    >
+                      {/* Package Photo with Badges */}
+                      <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                        <img 
+                          src={pkg.image} 
+                          alt={pkg.title} 
+                          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-black/35 pointer-events-none" />
+
+                        <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                          <span className="px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-[10.5px] font-mono font-bold tracking-wider shadow">
+                            {pkg.badge}
+                          </span>
+                          <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white font-mono text-[11px] font-bold">
+                            {pkg.duration}
+                          </span>
+                        </div>
+
+                        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-amber-400 text-xs font-mono font-bold">
+                            <FaStar className="w-3.5 h-3.5" />
+                            <span className="text-white">{pkg.rating}</span>
+                            <span className="text-white/40 text-[10px]">({pkg.reviewsCount})</span>
+                          </div>
+                          <span className="text-emerald-400 text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-emerald-950/70 border border-emerald-500/30">
+                            {pkg.discountBadge}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Package Body */}
+                      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                        <div>
+                          <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">
+                            {pkg.vibe}
+                          </div>
+                          <h4 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight leading-snug">
+                            {pkg.title}
+                          </h4>
+
+                          {/* Dual Transit Matrix */}
+                          <div className="space-y-1.5 pt-3">
+                            <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-purple-500/20 text-[11px] font-mono text-slate-800 dark:text-slate-200">
+                              <FaTrain className="text-purple-500 text-xs shrink-0" />
+                              <span className="truncate">{pkg.trainOption}</span>
+                            </div>
+                            <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-sky-500/20 text-[11px] font-mono text-slate-800 dark:text-slate-200">
+                              <FaPlane className="text-sky-500 text-xs shrink-0" />
+                              <span className="truncate">{pkg.flightOption}</span>
+                            </div>
+                          </div>
+
+                          {/* Highlights Preview */}
+                          <div className="space-y-1 pt-3">
+                            {pkg.highlights.map((h, hIdx) => (
+                              <div key={hIdx} className="text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-1.5 truncate">
+                                <FaCheckCircle className="w-2.5 h-2.5 text-emerald-500 shrink-0" />
+                                <span className="truncate">{h}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Price & Action Strip */}
+                        <div className="pt-3 border-t border-slate-200 dark:border-white/10">
+                          <div className="flex items-baseline justify-between mb-3">
+                            <div>
+                              <span className="text-[10px] font-mono text-slate-400 line-through mr-2">{pkg.originalPrice}</span>
+                              <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">{pkg.dealPrice}</span>
+                              <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 ml-1">/ person</span>
+                            </div>
+                            <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">{pkg.emiPrice}</span>
+                          </div>
+
+                          {/* Multi-Modal Ecosystem Quick Shortcuts */}
+                          <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(getHotelsRoute(pkg.city || dynamicCityData.cityProfile.name));
+                              }}
+                              className="px-2 py-1 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-mono font-bold flex items-center gap-1 transition-colors border border-amber-500/20"
+                              title={`View verified hotels in ${pkg.city || dynamicCityData.cityProfile.name}`}
+                            >
+                              <FaHotel className="w-2.5 h-2.5" /> Stays
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(getTrainsRoute(pkg.city || dynamicCityData.cityProfile.name));
+                              }}
+                              className="px-2 py-1 rounded-md bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-400 text-[10px] font-mono font-bold flex items-center gap-1 transition-colors border border-purple-500/20"
+                              title={`Search trains to ${pkg.city || dynamicCityData.cityProfile.name}`}
+                            >
+                              <FaTrain className="w-2.5 h-2.5" /> Trains
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(getFlightsRoute(pkg.city || dynamicCityData.cityProfile.name));
+                              }}
+                              className="px-2 py-1 rounded-md bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-400 text-[10px] font-mono font-bold flex items-center gap-1 transition-colors border border-sky-500/20"
+                              title={`Search flights to ${pkg.city || dynamicCityData.cityProfile.name}`}
+                            >
+                              <FaPlane className="w-2.5 h-2.5" /> Flights
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(getExploreRoute(pkg.city || dynamicCityData.cityProfile.name));
+                              }}
+                              className="px-2 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-mono font-bold flex items-center gap-1 transition-colors border border-emerald-500/20"
+                              title={`View ${pkg.city || dynamicCityData.cityProfile.name} on interactive map`}
+                            >
+                              <FaCompass className="w-2.5 h-2.5" /> Map
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <ThreeUIButton
+                              variant="amber-glow"
+                              size="sm"
+                              onClick={() => handleBookPackage(pkg)}
+                              icon={<FaArrowRight />}
+                              iconPosition="right"
+                            >
+                              Book Package
+                            </ThreeUIButton>
+
+                            <ThreeUIButton
+                              variant="specular-dark"
+                              size="sm"
+                              to={getItineraryRoute(pkg.city || dynamicCityData.cityProfile.name, pkg.itineraryPrompt)}
+                              icon={<HiOutlineSparkles className="text-amber-500" />}
+                            >
+                              AI Customizer
+                            </ThreeUIButton>
+                          </div>
+                        </div>
+                      </div>
+                    </ThreeCard3D>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ==================================================================== */}
         {/* SECTION 3: COMPREHENSIVE CARD INVENTORY — HIGH-DENSITY MMT TILES      */}
         {/* ==================================================================== */}
-        {currentCatalog.length === 0 ? (
+        {currentCatalog.length === 0 && !dynamicCityData ? (
           <div className="py-20 text-center rounded-3xl bg-white/50 dark:bg-white/[0.02] border border-dashed border-slate-300 dark:border-white/10">
             <FiCompass className="w-12 h-12 text-slate-400 mx-auto mb-3 stroke-[1.5]" />
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-1">No destinations found</h3>
@@ -1270,6 +982,7 @@ export const Destinations = () => {
                 setActiveVibe('all');
                 setActiveFastFilter('all');
                 setSearchInput('');
+                setDynamicCityData(null);
               }}
               variant="specular-dark"
               size="sm"
@@ -1277,7 +990,7 @@ export const Destinations = () => {
               Reset All Filters
             </ThreeUIButton>
           </div>
-        ) : (
+        ) : currentCatalog.length === 0 && dynamicCityData ? null : (
           <motion.div 
             layout
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-9"
@@ -1292,7 +1005,12 @@ export const Destinations = () => {
                   exit={{ opacity: 0, scale: 0.96, y: 20 }}
                   transition={{ delay: Math.min(index * 0.04, 0.4), duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                   className="group relative rounded-[2rem] overflow-hidden bg-white/90 dark:bg-[#121420]/90 backdrop-blur-2xl border border-slate-200/90 dark:border-white/10 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.06)] dark:shadow-[0_18px_45px_-12px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.12)] hover:border-amber-400/50 dark:hover:border-amber-400/40 transition-all duration-300 flex flex-col cursor-pointer"
-                  onClick={() => navigate('/flights', { state: { destination: dest.title } })}
+                  onClick={() => {
+                    setSearchInput(dest.title);
+                    fetchDynamicMatch(dest.title);
+                    const el = document.getElementById('dest-search-bar');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
                 >
                   
                   {/* Aspect Ratio Image Container */}
@@ -1375,45 +1093,116 @@ export const Destinations = () => {
                       </div>
                     </div>
 
-                    {/* Pricing Architecture (MMT-Style) & Action CTA */}
-                    <div className="pt-3 border-t border-slate-100 dark:border-white/10 flex items-end justify-between gap-4">
-                      
-                      {/* Price Strip */}
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-slate-400 line-through font-mono">
-                            {dest.originalPrice}
-                          </span>
-                          <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                            {dest.discountBadge}
-                          </span>
-                        </div>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                            {dest.dealPrice}
-                          </span>
-                          <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">/ person</span>
-                        </div>
-                        <div className="text-[10px] font-mono text-amber-600 dark:text-amber-400 font-semibold">
-                          or {dest.emiPrice} No-Cost EMI
-                        </div>
+                    {/* Multi-Modal Ecosystem Action Strip */}
+                    <div className="pt-3 border-t border-slate-100 dark:border-white/10 space-y-2.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(getHotelsRoute(dest.title));
+                          }}
+                          className="px-2 py-1 rounded-md bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10.5px] font-mono font-bold flex items-center gap-1 transition-colors border border-amber-500/20"
+                          title={`View verified stays in ${dest.title}`}
+                        >
+                          <FaHotel className="w-2.5 h-2.5" /> Stays
+                        </button>
+
+                        {hasTrainNetwork(dest.title) && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(getTrainsRoute(dest.title));
+                            }}
+                            className="px-2 py-1 rounded-md bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-400 text-[10.5px] font-mono font-bold flex items-center gap-1 transition-colors border border-purple-500/20"
+                            title={`Search trains to ${dest.title}`}
+                          >
+                            <FaTrain className="w-2.5 h-2.5" /> Trains
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(getFlightsRoute(dest.title));
+                          }}
+                          className="px-2 py-1 rounded-md bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-400 text-[10.5px] font-mono font-bold flex items-center gap-1 transition-colors border border-sky-500/20"
+                          title={`Search flights to ${dest.title}`}
+                        >
+                          <FaPlane className="w-2.5 h-2.5" /> Flights
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(getExploreRoute(dest.title));
+                          }}
+                          className="px-2 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10.5px] font-mono font-bold flex items-center gap-1 transition-colors border border-emerald-500/20"
+                          title={`View ${dest.title} on map`}
+                        >
+                          <FaCompass className="w-2.5 h-2.5" /> Map
+                        </button>
                       </div>
 
-                      {/* Primary ThreeUI Button */}
-                      <ThreeUIButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate('/flights', { state: { destination: dest.title } });
-                        }}
-                        variant="amber-glow"
-                        size="sm"
-                        icon={FaArrowRight}
-                        iconPosition="right"
-                        className="shrink-0"
-                      >
-                        Book
-                      </ThreeUIButton>
+                      {/* Pricing Architecture (MMT-Style) & Action CTA */}
+                      <div className="flex items-end justify-between gap-4 pt-1">
+                        {/* Price Strip */}
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-slate-400 line-through font-mono">
+                              {dest.originalPrice}
+                            </span>
+                            <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                              {dest.discountBadge}
+                            </span>
+                          </div>
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                              {dest.dealPrice}
+                            </span>
+                            <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">/ person</span>
+                          </div>
+                          <div className="text-[10px] font-mono text-amber-600 dark:text-amber-400 font-semibold">
+                            or {dest.emiPrice} No-Cost EMI
+                          </div>
+                        </div>
 
+                        {/* Action CTA Buttons */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          <ThreeUIButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const prompt = `Plan a comprehensive ${dest.duration} journey to ${dest.title}, ${dest.country} highlighting ${dest.inclusions.join(', ')}`;
+                              navigate(getItineraryRoute(dest.title, prompt), { state: { prompt } });
+                            }}
+                            variant="glass-frost"
+                            size="sm"
+                            icon={HiOutlineSparkles}
+                            className="shrink-0"
+                            title="Plan AI Itinerary"
+                          >
+                            AI Plan
+                          </ThreeUIButton>
+
+                          <ThreeUIButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleBookPackage(dest);
+                            }}
+                            variant="amber-glow"
+                            size="sm"
+                            icon={FaArrowRight}
+                            iconPosition="right"
+                            className="shrink-0"
+                            title="Book this Package"
+                          >
+                            Book
+                          </ThreeUIButton>
+                        </div>
+                      </div>
                     </div>
 
                   </div>
@@ -1617,7 +1406,7 @@ export const Destinations = () => {
                         size="md"
                         icon={FaArrowRight}
                         iconPosition="right"
-                        onClick={() => navigate('/itinerary', { state: { prompt: activeWonder.itineraryPrompt } })}
+                        onClick={() => navigate(`/itinerary?prompt=${encodeURIComponent(activeWonder.itineraryPrompt)}`, { state: { prompt: activeWonder.itineraryPrompt } })}
                       >
                         Plan AI Expedition with Groq™
                       </ThreeUIButton>
@@ -1626,15 +1415,15 @@ export const Destinations = () => {
                         variant="specular-dark"
                         size="md"
                         icon={FaPlane}
-                        onClick={() => navigate(`/flights?destination=${activeWonder.flightDest || 'DEL'}`)}
+                        onClick={() => navigate(`/flights?to=${encodeURIComponent(activeWonder.flightDest || 'DEL')}&destination=${encodeURIComponent(activeWonder.name)}`, { state: { destination: activeWonder.name } })}
                       >
                         Search Flights
                       </ThreeUIButton>
 
                       <button
                         type="button"
-                        onClick={() => navigate('/hotels')}
-                        className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-mono text-xs font-bold border border-white/15 transition-all flex items-center gap-2"
+                        onClick={() => navigate(`/hotels?city=${encodeURIComponent(activeWonder.location.split(',')[0].trim())}`)}
+                        className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-mono text-xs font-bold border border-white/15 transition-all flex items-center gap-2 hover:border-amber-400/40"
                       >
                         <FaHotel className="w-3.5 h-3.5 text-amber-400" />
                         <span>Find Boutique Stays</span>
@@ -1855,7 +1644,7 @@ export const Destinations = () => {
 
                         <button
                           type="button"
-                          onClick={() => navigate('/itinerary', { state: { prompt: wonder.itineraryPrompt } })}
+                          onClick={() => navigate(`/itinerary?prompt=${encodeURIComponent(wonder.itineraryPrompt)}`, { state: { prompt: wonder.itineraryPrompt } })}
                           className="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-mono text-xs font-black transition-all flex items-center gap-1.5 shadow-sm"
                         >
                           <span>Plan AI Trip</span>
@@ -1995,7 +1784,10 @@ export const Destinations = () => {
 
                 <div className="pt-2 flex items-center gap-3">
                   <ThreeUIButton
-                    onClick={() => navigate('/itinerary', { state: { prompt: `Plan a ${quizRecommendation.duration} trip to ${quizRecommendation.title} in ${quizRecommendation.country} with focus on ${quizRecommendation.tag}` } })}
+                    onClick={() => {
+                      const prompt = `Plan a ${quizRecommendation.duration} trip to ${quizRecommendation.title} in ${quizRecommendation.country} with focus on ${quizRecommendation.tag}`;
+                      navigate(`/itinerary?prompt=${encodeURIComponent(prompt)}`, { state: { prompt } });
+                    }}
                     variant="amber-glow"
                     size="md"
                     icon={FaArrowRight}

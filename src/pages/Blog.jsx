@@ -136,7 +136,7 @@ const authenticDispatches = [
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=256&auto=format&fit=crop',
       credentials: 'Nordic Polar Expeditions'
     },
-    image: '/auth-forgot-hero.jpg',
+    image: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?q=80&w=1200&auto=format&fit=crop',
     category: 'Polar Expeditions',
     location: 'Senja Archipelago, Troms, Norway',
     coordinates: '69°24′N 17°31′E',
@@ -172,7 +172,7 @@ const authenticDispatches = [
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=256&auto=format&fit=crop',
       credentials: 'Wanderlust UK Contributor'
     },
-    image: '/train-hero-alpine.jpg',
+    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop',
     category: 'Slow Rail & Journeys',
     location: 'Highland Main Line, Scotland',
     coordinates: '57°28′N 04°13′W',
@@ -208,7 +208,7 @@ const authenticDispatches = [
       avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=256&auto=format&fit=crop',
       credentials: 'UNESCO Heritage Fellow'
     },
-    image: '/hero_day_alpine_valley.jpg',
+    image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1200&auto=format&fit=crop',
     category: 'Cultural Pilgrimage',
     location: 'Kii Peninsula, Wakayama, Japan',
     coordinates: '33°50′N 135°46′E',
@@ -244,7 +244,7 @@ const authenticDispatches = [
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=256&auto=format&fit=crop',
       credentials: 'Coral Restoration Foundation'
     },
-    image: '/auth-travel-hero.jpg',
+    image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=1200&auto=format&fit=crop',
     category: 'Coastal Escapes',
     location: 'Raa & Baa Atolls, Maldives',
     coordinates: '05°38′N 72°55′E',
