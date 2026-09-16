@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock, 
   FaPaperPlane, FaHeadset, FaComments,
-  FaChevronDown, FaCheckCircle, FaRobot, FaBuilding
+  FaChevronDown, FaCheckCircle, FaCompass, FaBuilding
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import JsonLd from '../components/seo/JsonLd';
@@ -77,9 +77,9 @@ const faqItems = [
     answer: 'Yes! TravelEase uses bank-grade 256-bit SSL encryption and PCI DSS Level 1 compliance. We accept major Credit/Debit Cards, UPI, Net Banking, Apple Pay, Google Pay, and PayPal across 30+ currencies.'
   },
   {
-    category: 'AI Concierge',
-    question: 'How does the 24/7 AI Concierge assistance work?',
-    answer: 'Our global AI Concierge is accessible directly via the floating widget on the bottom right of your screen. It can check flight delays, recommend local dining spots, update hotel reservations, and assist in emergencies 24/7.'
+    category: 'Concierge',
+    question: 'How does the 24/7 Travel Concierge assistance work?',
+    answer: 'Our global Travel Concierge Desk is accessible directly via the interactive widget on your screen. It can check flight delays, recommend local dining spots, update hotel reservations, and assist in travel logistics 24/7.'
   },
   {
     category: 'Refunds',
@@ -200,7 +200,7 @@ const Contact = () => {
   ];
 
   return (
-    <div className="bg-slate-50 dark:bg-[#0a0e1a] text-slate-900 dark:text-slate-100 transition-colors duration-500" id="contact-page">
+    <div className="bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-slate-100 transition-colors duration-500" id="contact-page">
       <JsonLd data={contactSchemas} />
 
       {/* Cinematic Hero Section with Global Timezone Clocks */}
@@ -208,10 +208,10 @@ const Contact = () => {
         <div className="absolute inset-0 z-0">
           <img 
             src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
-            alt="Global Office Skyline" 
-            className="w-full h-full object-cover" 
+            alt="TravelEase Global Headquarters" 
+            className="w-full h-full object-cover brightness-75 scale-105" 
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-slate-50 dark:to-[#0a0e1a]"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-slate-50 dark:to-[#06080d]"></div>
         </div>
 
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto mt-10">
@@ -241,7 +241,7 @@ const Contact = () => {
             transition={{ duration: 1, delay: 0.4 }}
             className="text-lg md:text-xl text-white/90 font-medium max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            Connect with our global offices in New York, London, Tokyo, and New Delhi, or chat with our live AI Concierge.
+            Connect with our global offices in New York, London, Tokyo, and New Delhi, or connect with our live Concierge Desk.
           </motion.p>
 
           {/* Live Global Clocks Bar */}
@@ -393,27 +393,26 @@ const Contact = () => {
           {/* Right Sidebar: AI Concierge & Quick Contacts */}
           <div className="lg:col-span-5 space-y-6">
             
-            {/* AI Concierge Box */}
+            {/* Travel Concierge Box */}
             <div className="card-elevated p-8 rounded-3xl bg-slate-900 text-white relative overflow-hidden border border-white/10 shadow-2xl">
               <div className="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-6 text-2xl border border-amber-500/30">
-                <FaRobot />
+                <FaHeadset />
               </div>
               <h3 className="text-2xl font-black mb-2">Need Instant Help?</h3>
               <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                Skip the line! Our global AI Concierge agent can update hotel reservations, answer visa questions, or build a custom itinerary right now.
+                Skip the line! Our global Travel Concierge desk can verify live flight timings, update hotel reservations, and organize your trip itinerary right now.
               </p>
               
               <ThreeUIButton 
                 onClick={() => {
-                  const triggerBtn = document.getElementById('ai-concierge-trigger');
-                  if (triggerBtn) triggerBtn.click();
+                  window.dispatchEvent(new CustomEvent('open-travelease-concierge'));
                 }}
                 variant="amber-glow"
                 size="md"
                 icon={FaComments}
                 className="w-full"
               >
-                Launch Live AI Chat
+                Launch Concierge Desk
               </ThreeUIButton>
             </div>
 
@@ -539,7 +538,7 @@ const Contact = () => {
           {/* FAQ Search & Category Filter */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
             <SegmentedPillToggle
-              options={['All', 'Booking', 'Payment', 'Safety', 'AI Concierge', 'Refunds'].map((cat) => ({ id: cat, label: cat }))}
+              options={['All', 'Booking', 'Payment', 'Safety', 'Concierge', 'Refunds'].map((cat) => ({ id: cat, label: cat }))}
               activeId={activeFaqCategory}
               onChange={setActiveFaqCategory}
               layoutId="contactFaqToggle"

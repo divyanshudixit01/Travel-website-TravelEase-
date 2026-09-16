@@ -27,7 +27,7 @@ export const getOrganizationSchema = () => ({
   foundingDate: '2026',
   founder: {
     '@type': 'Person',
-    name: 'Alex Johnson',
+    name: 'Divyanshu Dixit',
     jobTitle: 'Founder & CEO',
   },
   numberOfEmployees: {
@@ -308,10 +308,10 @@ export const getItemListSchema = ({ name, description, url, items }) => ({
 export const getSoftwareApplicationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'TravelEase AI Trip Planner',
+  name: 'TravelEase Custom Itinerary Planner',
   applicationCategory: 'TravelApplication',
   operatingSystem: 'Web',
-  description: 'AI-powered trip planning tool that instantly generates personalized itineraries combining flights, hotels, and experiences across 190+ countries.',
+  description: 'Custom travel planning tool that instantly compiles verified multi-modal itineraries combining trains, flights, stays, and experiences in Indian Rupees (₹).',
   url: `${SITE_URL}/itinerary`,
   offers: {
     '@type': 'Offer',

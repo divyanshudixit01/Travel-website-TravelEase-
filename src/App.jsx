@@ -41,20 +41,27 @@ import Footer from './components/common/Footer';
 import ScrollToTop from './components/common/ScrollToTop';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import AIConcierge from './components/common/AIConcierge';
+import RouteProgressBar from './components/common/RouteProgressBar';
+import LiquidGlassMobileDock from './components/common/LiquidGlassMobileDock';
 import { TravelProvider } from './context/TravelContext';
 import { BookingProvider } from './context/BookingProvider';
 import { AuthProvider } from './context/AuthContext';
 
-// Sleek fallback loader for smooth route transition
+// Branded TravelEase fallback loader for smooth route transition
 const PageFallback = () => (
-  <div className="min-h-[70vh] flex flex-col items-center justify-center p-6">
-    <div className="relative w-12 h-12">
-      <div className="absolute inset-0 rounded-full border-2 border-amber-400/20 animate-ping"></div>
-      <div className="w-12 h-12 rounded-full border-2 border-t-amber-500 border-r-transparent border-b-amber-500 border-l-transparent animate-spin"></div>
+  <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 select-none">
+    <div className="relative w-16 h-16 flex items-center justify-center">
+      <div className="absolute inset-0 rounded-2xl bg-amber-500/20 animate-ping"></div>
+      <div className="relative w-14 h-14 rounded-2xl bg-slate-950 border border-amber-500/40 p-2.5 shadow-2xl flex items-center justify-center">
+        <img src="/brand/logo-mark.svg" alt="TravelEase Loading" className="w-full h-full object-contain animate-pulse" />
+      </div>
     </div>
-    <span className="mt-4 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 animate-pulse">
-      Loading Experience...
-    </span>
+    <div className="mt-4 flex items-center gap-2">
+      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" />
+      <span className="text-xs font-mono font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">
+        Loading TravelEase Experience...
+      </span>
+    </div>
   </div>
 );
 
@@ -79,6 +86,7 @@ function App() {
       <AuthProvider>
         <BookingProvider>
           <ScrollToTop />
+          <RouteProgressBar />
           <Header />
           <main className="min-h-screen">
             <Suspense fallback={<PageFallback />}>
@@ -128,7 +136,7 @@ function App() {
                     } 
                   />
                   <Route 
-                    path="/booking-confirmation/:id" 
+                    path="/booking-confirmation" 
                     element={
                       <ProtectedRoute>
                         <PageTransition><BookingConfirmation /></PageTransition>
@@ -158,6 +166,8 @@ function App() {
             </Suspense>
           </main>
           {!['/login', '/register', '/forgot-password'].includes(location.pathname) && <Footer />}
+          {/* Mobile Liquid Glass Dock — Quick thumb navigation on mobile screens */}
+          {!['/login', '/register', '/forgot-password'].includes(location.pathname) && <LiquidGlassMobileDock />}
           {/* AI Concierge — Global Floating Widget */}
           {!['/login', '/register', '/forgot-password'].includes(location.pathname) && <AIConcierge />}
         </BookingProvider>

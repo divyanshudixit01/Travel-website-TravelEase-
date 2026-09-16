@@ -19,12 +19,11 @@ import {
   FaUsers, FaCalendarAlt, FaWallet, FaChevronRight,
   FaLightbulb, FaHeart, FaMountain,
   FaCamera, FaUmbrellaBeach, FaSpa, FaChild,
-  FaTrain, FaBolt, FaExchangeAlt
+  FaTrain, FaBolt, FaExchangeAlt, FaPlay, FaPause, FaCompass
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
 import {
   FiLoader, FiTerminal, FiZap, FiCpu, FiGlobe, FiSearch,
-  FiCompass, FiTrendingUp
+  FiCompass, FiTrendingUp, FiNavigation, FiCheckCircle
 } from 'react-icons/fi';
 import JsonLd from '../components/seo/JsonLd';
 import { getWebPageSchema, getBreadcrumbSchema, getSoftwareApplicationSchema } from '../utils/schemas';
@@ -38,21 +37,103 @@ const formatINR = (amount) => {
   return `₹${Math.round(Number(amount)).toLocaleString('en-IN')}`;
 };
 
-// ─── Previous Authentic Images Restored ───────────────────────────────────────
+// Strips stray markdown syntax like **bold** or ## headings from raw AI text
+const stripMarkdown = (str) => {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/^#{1,6}\s*/gm, '').replace(/[\*#_]/g, '').trim();
+};
 
-const HERO_IMAGES = [
-  'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1200&auto=format&fit=crop',
+// ─── Dynamic AI Expedition Modes (Full-Bleed Dynamic Atmosphere Matrix) ─────
+const AI_EXPEDITION_MODES = [
+  {
+    id: 'alpine',
+    title: 'Alpine Snow',
+    icon: FaMountain,
+    tag: 'HIMALAYAN & HIGH PASSES',
+    headline: 'Sculpt High-Altitude Snow Trails,',
+    highlight: 'Scenic Rail & Glacial Escapes',
+    description: 'Custom route planning linking Vande Bharat mountain corridors, all-terrain transfers, and alpine timber chalets under verifiable budgets.',
+    image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=2400&q=85',
+    defaultPrompt: '5-day Himalayan snow adventure to Manali and Rohtang Pass with Vande Bharat to Una and 4x4 cab under ₹18,000',
+    telemetry: 'Vande Bharat #22447 · 4x4 Snow Rover · Pine Chalet Stays',
+    budgetHint: '₹14,000 - ₹22,000',
+    transitTag: 'High-Speed Rail + 4x4',
+    suggestedDays: 5,
+    chips: ['Solang Paragliding', 'Atal Tunnel Pass', 'Old Manali Cafes', 'Sissu Waterfalls']
+  },
+  {
+    id: 'coastal',
+    title: 'Coastal Azure',
+    icon: FaUmbrellaBeach,
+    tag: 'COASTAL HAVEN & ISLANDS',
+    headline: 'Chart Sun-Drenched Horizons,',
+    highlight: 'Cliff Villas & Emerald Reefs',
+    description: 'Curate coastal journeys combining scenic western railway lines, sunset catamaran charters, and boutique oceanfront sanctuaries.',
+    image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=2400&q=85',
+    defaultPrompt: '3-day coastal retreat to South Goa with Tejas Express and beachfront villa under ₹14,000',
+    telemetry: 'Tejas Express #22119 · Direct Flights · Oceanfront Villas',
+    budgetHint: '₹12,000 - ₹20,000',
+    transitTag: 'Coastal Rail & Air',
+    suggestedDays: 3,
+    chips: ['Palolem Kayaking', 'Cabo de Rama Sunset', 'Spice Plantation', 'Anjuna Flea Market']
+  },
+  {
+    id: 'heritage',
+    title: 'Sacred Soul',
+    icon: FaSpa,
+    tag: 'SPIRITUAL & ANCIENT CORRIDORS',
+    headline: 'Awaken Timeless Living Sanctums,',
+    highlight: 'Ganga Aarti & Royal Forts',
+    description: 'Craft culturally resonant pilgrimages and heritage explorations unified with bullet train precision, curated local guides, and river aartis.',
+    image: 'https://images.unsplash.com/photo-1561361058-c24cecae35ca?auto=format&fit=crop&w=2400&q=85',
+    defaultPrompt: '4-day spiritual journey to Varanasi and Ayodhya with Vande Bharat #22436 and Ganga Aarti under ₹15,000',
+    telemetry: 'Vande Bharat #22436 (8h flat) · Heritage Haveli · Twilight Aarti Cruise',
+    budgetHint: '₹11,000 - ₹17,000',
+    transitTag: 'Express Bullet Rail',
+    suggestedDays: 4,
+    chips: ['Dashashwamedh Aarti', 'Sarnath Stupa', 'Sunrise Boat Ride', 'Kashi Vishwanath']
+  },
+  {
+    id: 'royal',
+    title: 'Royal Heritage',
+    icon: FaCompass,
+    tag: 'PALACE FORTS & ROYAL RAIL',
+    headline: 'Traverse Majestic Fortresses,',
+    highlight: 'Vande Bharat Rail & Haveli Suites',
+    description: 'Royal Rajasthan corridors linking Ajmer/Jaipur Vande Bharat high-speed routes, heritage haveli stays, and sunset boat cruises on Lake Pichola.',
+    image: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=2400&q=85',
+    defaultPrompt: '5-day royal heritage & palace tour to Udaipur and Jaipur with Vande Bharat Express under ₹28,000',
+    telemetry: 'Vande Bharat #20978 · Heritage Haveli Stays · Lake Pichola Cruise',
+    budgetHint: '₹22,000 - ₹35,000',
+    transitTag: 'High-Speed Rail & Chauffeur',
+    suggestedDays: 5,
+    chips: ['City Palace Udaipur', 'Lake Pichola Boat', 'Amer Fort Jaipur', 'Chokhi Dhani']
+  },
+  {
+    id: 'nature',
+    title: 'Emerald Mist',
+    icon: FiCompass,
+    tag: 'SERENE BACKWATERS & CANOPY',
+    headline: 'Immerse in Living Green Labyrinths,',
+    highlight: 'Solar Houseboats & Tea Ridges',
+    description: 'Regenerative eco-itineraries distributing travelers across tranquil Kerala lagoons, Munnar mist peaks, and biodiversity preserves.',
+    image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=2400&q=85',
+    defaultPrompt: '4-day Kerala backwaters houseboat and Munnar tea estate retreat under ₹22,000',
+    telemetry: 'Vande Bharat #20633 · Solar Houseboat · Cloud Mist Cottages',
+    budgetHint: '₹16,000 - ₹25,000',
+    transitTag: 'Eco-Rail & Private Cruiser',
+    suggestedDays: 4,
+    chips: ['Alleppey Backwaters', 'Munnar Tea Trails', 'Kathakali Center', 'Marari Beach']
+  }
 ];
 
 const SAMPLE_PROMPTS = [
   { title: "Goa 3D Coastal Rail & Beach", query: "3-day budget backpacking trip to Goa with Vande Bharat under ₹12,000", tag: "Rail + Beach" },
   { title: "Varanasi 4D Spiritual Vande Bharat", query: "4-day spiritual journey to Varanasi with Vande Bharat and ghats under ₹15,000", tag: "High-Speed Rail" },
-  { title: "Dubai 4D Luxury Retreat", query: "4-day luxury retreat in Dubai for 2 adults under ₹1,25,000", tag: "Flight + Metro" },
-  { title: "Bali 5D Honeymoon Villa", query: "5-day honeymoon in Bali with private villa under ₹90,000", tag: "Flight" },
-  { title: "Rajasthan 6D Royal Heritage", query: "6-day royal Rajasthan heritage tour with desert camp under ₹45,000", tag: "Express Rail" },
-  { title: "Tokyo 3D Bullet Rail & Culture", query: "3-day Tokyo food and Shinkansen bullet rail tour under ₹1,40,000", tag: "Bullet Train" },
+  { title: "Udaipur & Jaipur 5D Royal Heritage", query: "5-day royal Rajasthan heritage tour with havelis and palaces under ₹28,000", tag: "Vande Bharat + Stay" },
+  { title: "Kerala 5D Backwaters & Munnar", query: "5-day Kerala backwaters houseboat and Munnar tea mist retreat under ₹24,000", tag: "Eco-Rail & Cruiser" },
+  { title: "Himachal 4D Manali & Snow Pass", query: "4-day snow adventure to Manali with Una Vande Bharat under ₹18,000", tag: "Alpine Rail + 4x4" },
+  { title: "Kashmir 5D Gulmarg Gondola & Dal", query: "5-day Kashmir paradise tour with Dal Lake Shikara and Gulmarg Gondola under ₹32,000", tag: "Flight & Rail Corridor" },
 ];
 
 const VIBE_OPTIONS = [
@@ -66,21 +147,21 @@ const VIBE_OPTIONS = [
   { label: 'High-Speed Rail Tour', icon: FaTrain, color: 'text-purple-500' },
 ];
 
-// Swappable Destinations with previous authentic Unsplash images
+// Swappable Destinations — 100% Authentic Indian Destinations
 const SWAPPABLE_DESTINATIONS = [
   {
-    id: 'dubai',
-    name: 'Dubai & Desert Oasis',
-    country: 'UAE',
+    id: 'udaipur',
+    name: 'Udaipur & Lake Palace',
+    country: 'India',
     category: 'luxury',
-    tag: 'Emirates • Etihad Rail',
-    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=600&auto=format&fit=crop',
+    tag: 'Vande Bharat • Heritage Haveli',
+    image: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?q=80&w=600&auto=format&fit=crop',
     duration: '5D / 4N',
-    startingPriceINR: 55000,
-    rating: '4.88',
-    trainOption: 'Dubai Metro Red Line & Etihad Rail',
-    flightOption: 'Emirates EK-511 (3h 40m)',
-    highlights: ['Burj Khalifa Level 148', 'Red Dunes Desert Safari', 'Marina Yacht Cruise'],
+    startingPriceINR: 24000,
+    rating: '4.95',
+    trainOption: 'Ajmer-Delhi Vande Bharat #20978 (6h 20m)',
+    flightOption: 'IndiGo 6E-442 Direct (1h 15m)',
+    highlights: ['City Palace & Lake Pichola Cruise', 'Jag Mandir Island Sunset', 'Saheliyon ki Bari & Bagore Ki Haveli'],
   },
   {
     id: 'goa',
@@ -88,55 +169,55 @@ const SWAPPABLE_DESTINATIONS = [
     country: 'India',
     category: 'rail',
     tag: 'Vande Bharat • Beachfront',
-    image: 'https://images.unsplash.com/photo-1560179406-1c6c60e0dc76?q=80&w=600&auto=format&fit=crop',
+    image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=600&auto=format&fit=crop',
     duration: '3D / 2N',
     startingPriceINR: 12500,
     rating: '4.92',
     trainOption: 'Vande Bharat #22229 (Madgaon Ex)',
     flightOption: 'IndiGo 6E-512 (1h 10m)',
-    highlights: ['Baga & Anjuna Beach', 'Chapora Fort Sunset', 'Spice Plantation Tour'],
+    highlights: ['Palolem & Agonda Beach', 'Cabo de Rama Sunset', 'Spice Plantation Tour'],
   },
   {
-    id: 'paris',
-    name: 'Paris & Swiss Alps',
-    country: 'France',
+    id: 'kashmir',
+    name: 'Kashmir & Gulmarg Valley',
+    country: 'India',
     category: 'alpine',
-    tag: 'TGV & Glacier Express Rail',
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=600&auto=format&fit=crop',
-    duration: '6D / 5N',
-    startingPriceINR: 115000,
-    rating: '4.91',
-    trainOption: 'Eurostar & TGV Lyria High-Speed (3h 05m)',
-    flightOption: 'Air France AF-225 (8h 30m)',
-    highlights: ['Eiffel Tower Summit', 'Glacier Express Scenic Train', 'Zermatt Matterhorn View'],
+    tag: 'Direct Flight & Rail Corridor',
+    image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?q=80&w=600&auto=format&fit=crop',
+    duration: '5D / 4N',
+    startingPriceINR: 32000,
+    rating: '4.96',
+    trainOption: 'Kashmir Rail Corridor Express #22475',
+    flightOption: 'Air India AI-825 (1h 35m)',
+    highlights: ['Gulmarg Gondola Phase 2', 'Dal Lake Heritage Shikara Stay', 'Pahalgam Betaab Valley'],
   },
   {
-    id: 'bali',
-    name: 'Bali & Nusa Penida',
-    country: 'Indonesia',
+    id: 'kerala',
+    name: 'Kerala Backwaters & Munnar',
+    country: 'India',
     category: 'coastal',
-    tag: 'Direct Flights • Private Villa',
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=600&auto=format&fit=crop',
-    duration: '6D / 5N',
-    startingPriceINR: 48000,
-    rating: '4.95',
-    trainOption: 'Scenic Bali Coastal Express',
-    flightOption: 'Air India / Vistara Direct (5h 50m)',
-    highlights: ['Ubud Sacred Monkey Forest', 'Kelingking T-Rex Beach', 'Tegallalang Rice Terrace'],
+    tag: 'Vande Bharat • Solar Houseboat',
+    image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=600&auto=format&fit=crop',
+    duration: '5D / 4N',
+    startingPriceINR: 22000,
+    rating: '4.94',
+    trainOption: 'Kerala Vande Bharat #20633 (Kasargod - TVM)',
+    flightOption: 'IndiGo 6E-205 Direct (2h 45m)',
+    highlights: ['Alleppey Houseboat Overnight Cruise', 'Munnar Kolukkumalai Sunrise', 'Periyar Wildlife Sanctuary'],
   },
   {
-    id: 'tokyo',
-    name: 'Tokyo & Kyoto Shinkansen',
-    country: 'Japan',
+    id: 'jaipur',
+    name: 'Jaipur Pink City & Amer Fort',
+    country: 'India',
     category: 'luxury',
-    tag: 'Shinkansen Bullet Rail (320 km/h)',
-    image: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?q=80&w=600&auto=format&fit=crop',
-    duration: '7D / 6N',
-    startingPriceINR: 98000,
-    rating: '4.98',
-    trainOption: 'Tokaido Shinkansen Bullet Train (2h 15m)',
-    flightOption: 'ANA / Air India Direct (7h 45m)',
-    highlights: ['Shibuya Crossing & Sky', 'Kyoto Fushimi Inari', 'Mount Fuji Day Trip'],
+    tag: 'Delhi-Jaipur Vande Bharat #20977',
+    image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=600&auto=format&fit=crop',
+    duration: '4D / 3N',
+    startingPriceINR: 18500,
+    rating: '4.91',
+    trainOption: 'Vande Bharat Express (3h 45m)',
+    flightOption: 'IndiGo 6E-228 (55m)',
+    highlights: ['Amer Fort Elephant Path & Mirror Palace', 'Hawa Mahal & City Palace', 'Nahargarh Fort Sunset Viewpoint'],
   },
   {
     id: 'manali',
@@ -164,46 +245,46 @@ const SWAPPABLE_DESTINATIONS = [
     rating: '4.96',
     trainOption: 'Vande Bharat Express (8h 00m)',
     flightOption: 'Air India AI-406 (1h 25m)',
-    highlights: ['Ganga Aarti at Dashashwamedh', 'Sarnath Buddhist Stupa', 'Sunrise Boat Ride'],
+    highlights: ['Ganga Aarti at Dashashwamedh', 'Sarnath Buddhist Stupa', 'Sunrise Boat Ride on Holy Ganges'],
   },
   {
-    id: 'maldives',
-    name: 'Maldives Private Overwater Atoll',
-    country: 'Maldives',
-    category: 'luxury',
-    tag: 'Direct Seaplane & Lagoon',
-    image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=600&auto=format&fit=crop',
-    duration: '5D / 4N',
-    startingPriceINR: 85000,
-    rating: '4.97',
-    trainOption: 'Island Speedboat Express',
-    flightOption: 'IndiGo / Maldivian Direct (2h 45m)',
-    highlights: ['Overwater Bungalow', 'Coral Reef Scuba Diving', 'Sunset Dolphin Cruise'],
+    id: 'rishikesh',
+    name: 'Rishikesh & Ganga Yoga Valley',
+    country: 'India',
+    category: 'heritage',
+    tag: 'Dehradun Vande Bharat #22457',
+    image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?q=80&w=600&auto=format&fit=crop',
+    duration: '3D / 2N',
+    startingPriceINR: 11500,
+    rating: '4.93',
+    trainOption: 'Dehradun Vande Bharat (4h 45m)',
+    flightOption: 'Dehradun Jolly Grant Flight (50m)',
+    highlights: ['Triveni Ghat Evening Maha Aarti', 'White Water River Rafting (Grade 3+)', 'Neer Garh Waterfall Trek'],
   },
 ];
 
-// User Stories with authentic Unsplash photos
+// User Stories with authentic Indian destinations
 const USER_STORIES = [
   {
     name: 'Priya & Rahul',
-    trip: 'Honeymoon in Santorini',
-    quote: 'TravelEase planned our entire 7-day honeymoon in seconds. The hotel it picked had the exact sunset view we dreamed of!',
+    trip: 'Royal Palace Tour in Udaipur',
+    quote: 'TravelEase planned our entire 5-day heritage trip in seconds. The haveli it picked right on Lake Pichola had the exact sunset view we dreamed of!',
     savings: '₹28,000',
     rating: 5,
     image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=400&auto=format&fit=crop'
   },
   {
     name: 'Arjun S.',
-    trip: 'Solo Backpacking in Vietnam',
-    quote: 'I typed "budget trip to Vietnam for 10 days under ₹40k" and got a complete plan with real hostels and street food spots.',
+    trip: 'Solo Backpacking in Himachal & Kasol',
+    quote: 'I typed "budget trip to Himachal for 5 days under ₹18k" and got a complete plan with Vande Bharat rail connections and real riverside chalets.',
     savings: '₹15,500',
     rating: 5,
     image: 'https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=400&auto=format&fit=crop'
   },
   {
     name: 'The Sharma Family',
-    trip: 'Family Holiday in Kerala',
-    quote: 'Planning for 4 people is usually chaos. TravelEase handled everything — houseboat bookings, kid-friendly activities, even dietary needs!',
+    trip: 'Family Holiday in Kerala Backwaters',
+    quote: 'Planning for 4 people is usually chaos. TravelEase handled everything — houseboat bookings, kid-friendly activities, even authentic local meals!',
     savings: '₹32,000',
     rating: 5,
     image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=400&auto=format&fit=crop'
@@ -220,9 +301,9 @@ const FEATURE_CARDS = [
     border: 'border-purple-500/20',
   },
   {
-    icon: FiCpu,
-    title: 'Groq LPU™ Instant Architect',
-    desc: 'Sub-second AI synthesizes complete trips with verified stays, attractions, and daily timelines.',
+    icon: FiNavigation,
+    title: 'Instant Route Architect',
+    desc: 'Sub-second optimization compiles complete trips with verified stays, attractions, and daily timelines.',
     color: 'text-amber-400',
     bg: 'bg-amber-500/10',
     border: 'border-amber-500/20',
@@ -267,7 +348,8 @@ export const Itinerary = () => {
   const [toolLogs, setToolLogs] = useState([]);
   const [generatedItinerary, setGeneratedItinerary] = useState(null);
   const [aiOnline, setAiOnline] = useState(null);
-  const [heroImgIdx, setHeroImgIdx] = useState(0);
+  const [activeModeIdx, setActiveModeIdx] = useState(0);
+  const [isPlayingHero, setIsPlayingHero] = useState(true);
   const [activeStory, setActiveStory] = useState(0);
 
   // Swappable Destinations State
@@ -283,6 +365,9 @@ export const Itinerary = () => {
   );
   const activeSwappedCard = filteredSwappables[swappedIndex % filteredSwappables.length] || SWAPPABLE_DESTINATIONS[0];
 
+  // Active Dynamic AI Expedition Archetype
+  const activeMode = AI_EXPEDITION_MODES[activeModeIdx] || AI_EXPEDITION_MODES[0];
+
   // Check AI engine status
   useEffect(() => {
     getAIStatus()
@@ -290,11 +375,14 @@ export const Itinerary = () => {
       .catch(() => setAiOnline(false));
   }, []);
 
-  // Rotate previous hero images every 6 seconds
+  // Auto-rotate AI expedition archetype every 7 seconds when playing
   useEffect(() => {
-    const t = setInterval(() => setHeroImgIdx(p => (p + 1) % HERO_IMAGES.length), 6000);
+    if (!isPlayingHero) return;
+    const t = setInterval(() => {
+      setActiveModeIdx(p => (p + 1) % AI_EXPEDITION_MODES.length);
+    }, 7000);
     return () => clearInterval(t);
-  }, []);
+  }, [isPlayingHero]);
 
   // Rotate user testimonials
   useEffect(() => {
@@ -312,14 +400,14 @@ export const Itinerary = () => {
 
   const triggerGeneration = useCallback(async (queryText) => {
     setIsGenerating(true);
-    setToolLogs(['🧠 Synthesizing real-time itinerary & dual transit routes...']);
+    setToolLogs(['[System] Compiling real-time itinerary & multi-modal routes...']);
     setGeneratedItinerary(null);
     try {
       const result = await generateAIItinerary(queryText, (logMsg) => {
         setToolLogs(prev => [...prev, logMsg]);
       });
       setGeneratedItinerary(result);
-      addToast(`AI synthesized package ready for ${result.destination}!`, 'success');
+      addToast(`Custom package compiled for ${result.destination}!`, 'success');
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' }), 300);
     } catch {
       // 100% Dynamic Zero-Failure Fallback: Synthesize with realistic Vande Bharat & flight options
@@ -327,14 +415,14 @@ export const Itinerary = () => {
       const fallbackResult = generateDynamicItinerary(params.destination, params.days, params.budgetINR, params.vibe);
       setToolLogs(prev => [
         ...prev,
-        `⚡ Dynamic Synthesis Engine engaged for: "${fallbackResult.destination}"`,
-        `🚆 IRCTC Route: ${fallbackResult.train?.trainName} (${fallbackResult.train?.coachClass})`,
-        `✈️ Air Transit: ${fallbackResult.flight?.airline}`,
-        `🏨 Verified Stay: ${fallbackResult.hotel?.name} (⭐ ${fallbackResult.hotel?.starRating})`,
-        `✅ ${fallbackResult.daysCount} Days complete day-by-day plan ready!`
+        `[Engine] Route optimization completed for: "${fallbackResult.destination}"`,
+        `[IRCTC] Train: ${fallbackResult.train?.trainName} (${fallbackResult.train?.coachClass})`,
+        `[Aviation] Flight: ${fallbackResult.flight?.airline}`,
+        `[Hospitality] Verified Stay: ${fallbackResult.hotel?.name} (★ ${fallbackResult.hotel?.starRating})`,
+        `[Ready] ${fallbackResult.daysCount} Days complete day-by-day plan compiled.`
       ]);
       setGeneratedItinerary(fallbackResult);
-      addToast(`Dynamic package synthesized for ${fallbackResult.destination}!`, 'success');
+      addToast(`Custom package compiled for ${fallbackResult.destination}!`, 'success');
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' }), 300);
     } finally {
       setIsGenerating(false);
@@ -362,7 +450,7 @@ export const Itinerary = () => {
     e?.preventDefault();
     let query = prompt.trim();
     if (!query) {
-      query = `Plan a ${days}-day ${selectedVibe.toLowerCase()} trip to ${targetDest} for ${pax} people with budget of ₹${budgetINR.toLocaleString('en-IN')}`;
+      query = activeMode?.defaultPrompt || `Plan a ${days}-day ${selectedVibe.toLowerCase()} trip to ${targetDest} for ${pax} people with budget of ₹${budgetINR.toLocaleString('en-IN')}`;
     }
     triggerGeneration(query);
   };
@@ -394,8 +482,8 @@ export const Itinerary = () => {
     const packagePriceINR = generatedItinerary.totalPackageINR || 45000;
 
     setActiveBooking({
-      serviceType: 'ai-itinerary',
-      itemTitle: `AI Package — ${generatedItinerary.destination} (${generatedItinerary.daysCount} Days)`,
+      serviceType: 'custom-itinerary',
+      itemTitle: `Curated Package — ${generatedItinerary.destination} (${generatedItinerary.daysCount} Days)`,
       details: {
         destination: generatedItinerary.destination,
         duration: `${generatedItinerary.daysCount} Days`,
@@ -415,12 +503,12 @@ export const Itinerary = () => {
 
   const schemas = [
     getWebPageSchema({
-      name: 'AI Trip Planner with Plane & Train Options — TravelEase',
-      description: 'Instant AI travel planning with both Vande Bharat trains & flights in Indian Rupees.',
+      name: 'Custom Itinerary Planner with Plane & Train Options — TravelEase',
+      description: 'Custom travel planning with both Vande Bharat trains & flights in Indian Rupees.',
       url: '/itinerary',
       breadcrumb: true
     }),
-    getBreadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'AI Trip Planner' }], '/itinerary'),
+    getBreadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Itinerary Planner' }], '/itinerary'),
     getSoftwareApplicationSchema(),
   ];
 
@@ -429,166 +517,325 @@ export const Itinerary = () => {
       <JsonLd data={schemas} />
 
       {/* ════════════════════════════════════════════════════════════════════
-          SECTION 1 — HERO SECTION WITH PREVIOUS ROTATING TRAVEL PHOTOGRAPHY
+          SECTION 1 — FULL-BLEED DYNAMIC ROUTE ARCHITECT HERO SECTION
+          Seamless edge-to-edge photography, HUD telemetry & archetype dock
           ════════════════════════════════════════════════════════════════════ */}
-      <section className="relative min-h-[92vh] flex items-center overflow-hidden" id="ai-hero-atmosphere">
+      <section 
+        className="relative w-full min-h-[94vh] md:min-h-[98vh] flex flex-col justify-between overflow-hidden pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 select-none" 
+        id="ai-hero-atmosphere"
+      >
+        {/* Full-bleed Edge-to-Edge Dynamic Photography (Cover, Not Curved) */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeMode.id}
+              initial={{ opacity: 0, scale: 1.08 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-0 w-full h-full"
+            >
+              <img
+                src={activeMode.image}
+                alt={activeMode.title}
+                className="w-full h-full object-cover object-center transform transition-transform duration-1000 rounded-none"
+              />
+            </motion.div>
+          </AnimatePresence>
 
-        {/* Previous Rotating Background Images */}
-        {HERO_IMAGES.map((img, idx) => (
-          <div
-            key={idx}
-            className="absolute inset-0 transition-opacity duration-[2000ms] ease-in-out"
-            style={{ opacity: heroImgIdx === idx ? 1 : 0 }}
-          >
-            <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover" loading={idx === 0 ? 'eager' : 'lazy'} />
-          </div>
-        ))}
+          {/* High-fidelity Cinematic Scrims (Ensures Pristine WCAG Contrast in Light & Dark Mode) */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-slate-950/75" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-slate-950/30 lg:to-transparent" />
+          
+          {/* Subtle Ambient Radial Glow */}
+          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Cinematic Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/50 to-black/85" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-transparent to-black/40" />
+          {/* Multi-Stop Seamless Page Blend Dissolving into Light / Dark Page Body */}
+          <div className="absolute bottom-0 inset-x-0 h-40 sm:h-56 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent dark:from-[#06080d] dark:via-[#06080d]/85 dark:to-transparent pointer-events-none z-10" />
+        </div>
 
-        {/* Soft atmospheric gradient blend into page body */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 dark:from-[#06080d] to-transparent" />
-
-        {/* Content Container */}
-        <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 py-28 md:py-36">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-
-            {/* Left Column (7 cols) — Headline, AI Badge, Prompt Box */}
-            <div className="lg:col-span-7">
-
-              {/* Status Badge */}
-              <motion.div
+        {/* Top HUD Telemetry & Playback Controller */}
+        <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-8">
+            {/* Engine & Dual Transit Status */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <motion.div 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 mb-6"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-white/15 text-white shadow-xl"
               >
                 <span className={`w-2 h-2 rounded-full ${aiOnline ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'}`} />
-                <span className="text-[11px] font-mono font-semibold text-white/90 uppercase tracking-widest">
-                  {aiOnline ? 'Groq LPU™ Engine Online' : 'Connecting Engine...'}
+                <span className="text-[11px] sm:text-xs font-mono font-semibold tracking-wider uppercase text-white/90">
+                  {aiOnline ? 'Route Engine Online' : 'Route Network Ready'}
                 </span>
                 <span className="w-px h-3 bg-white/20" />
-                <span className="text-[11px] font-mono text-amber-300 font-medium">IRCTC & Flights Grounded</span>
+                <span className="text-[10px] sm:text-[11px] font-mono text-amber-300 font-medium">IRCTC & Flights Grounded</span>
               </motion.div>
 
-              {/* Main Title */}
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] mb-5"
-              >
-                Plan your dream
-                <br />
-                trip in <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500">seconds.</span>
-              </motion.h1>
+              <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 text-white/80 text-[11px] font-mono">
+                <span className="text-purple-400 font-bold">● Vande Bharat</span>
+                <span className="text-white/30">+</span>
+                <span className="text-sky-400 font-bold">Airways Radar</span>
+              </div>
+            </div>
 
-              <motion.p
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-                className="text-sm sm:text-base text-white/80 max-w-xl leading-relaxed mb-7 font-sans"
+            {/* Archetype Counter & Auto-Play / Pause Button */}
+            <div className="flex items-center gap-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-white/15 text-white/90 text-xs font-mono shadow-lg">
+                <span className="text-amber-400 font-bold">{String(activeModeIdx + 1).padStart(2, '0')}</span>
+                <span className="text-white/40">/</span>
+                <span>{String(AI_EXPEDITION_MODES.length).padStart(2, '0')}</span>
+                <span className="text-white/50 hidden md:inline ml-1">• {activeMode.title}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPlayingHero(p => !p)}
+                title={isPlayingHero ? "Pause auto-rotation" : "Play auto-rotation"}
+                className="w-8 h-8 rounded-full bg-black/50 backdrop-blur-xl border border-white/15 text-white/80 hover:text-amber-400 hover:border-amber-400/50 transition-all flex items-center justify-center text-xs shadow-lg"
               >
-                World-class trip architecture powered by Groq LPU™. Automatically synthesizes verified itineraries with <strong className="text-amber-300 font-semibold">both Train (Vande Bharat / IRCTC)</strong> and <strong className="text-sky-300 font-semibold">Flight</strong> routes, 5★ stays, and daily timelines in <strong className="text-emerald-300 font-semibold">Indian Rupees (₹)</strong>.
-              </motion.p>
+                {isPlayingHero ? <FaPause className="w-2.5 h-2.5" /> : <FaPlay className="w-2.5 h-2.5 ml-0.5" />}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Center-Stage: Prompt Architect & Holographic Telemetry HUD */}
+        <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+
+            {/* Left 7-8 Columns: Archetype Header, Dynamic Headline & Natural Language Capsule */}
+            <div className="lg:col-span-7 xl:col-span-8 flex flex-col justify-center">
+              {/* Dynamic Archetype Tag */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeMode.id + '-tag'}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.3 }}
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-500/20 backdrop-blur-md border border-amber-400/30 text-amber-300 text-xs font-mono font-semibold tracking-wider uppercase mb-3 sm:mb-4 w-fit shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+                >
+                  <activeMode.icon className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{activeMode.tag}</span>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Dynamic Headline & Description */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeMode.id + '-headline'}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] mb-4 drop-shadow-md">
+                    {activeMode.headline}
+                    <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-200 to-amber-400">
+                      {activeMode.highlight}
+                    </span>
+                  </h1>
+                  <p className="text-sm sm:text-base text-white/80 max-w-2xl leading-relaxed mb-6 font-sans">
+                    {activeMode.description}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
 
               {/* Natural Language Prompt Input Bar */}
               <motion.form
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.2 }}
                 onSubmit={handleGenerate}
-                className="flex flex-col sm:flex-row gap-2.5 p-1.5 rounded-2xl bg-black/50 backdrop-blur-2xl border border-white/20 shadow-2xl"
+                className="relative p-1.5 sm:p-2 rounded-2xl sm:rounded-3xl bg-black/60 backdrop-blur-2xl border border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.6)] flex flex-col sm:flex-row gap-2 max-w-2xl group focus-within:border-amber-400/60 focus-within:shadow-[0_0_35px_rgba(245,158,11,0.25)] transition-all"
               >
-                <div className="flex-1 flex items-center gap-3 px-4 py-2.5">
-                  <FiSearch className="w-4 h-4 text-amber-400 shrink-0" />
+                <div className="flex-1 flex items-center gap-3 px-3.5 py-2 sm:py-2">
+                  <FiSearch className="w-5 h-5 text-amber-400 shrink-0" />
                   <input
                     type="text"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Try: 3-day trip to Goa with Vande Bharat under ₹15,000"
-                    className="w-full bg-transparent text-white placeholder-white/50 text-sm font-medium focus:outline-none"
+                    placeholder={`Try: ${activeMode.defaultPrompt}`}
+                    className="w-full bg-transparent text-white placeholder-white/45 text-sm sm:text-base font-medium focus:outline-none"
                     disabled={isGenerating}
                   />
                 </div>
-                <ThreeUIButton
-                  type="submit"
-                  disabled={isGenerating || !prompt.trim()}
-                  variant="amber-glow"
-                  size="md"
-                  icon={isGenerating ? FiLoader : HiOutlineSparkles}
-                  className="shrink-0"
-                >
-                  {isGenerating ? 'Synthesizing...' : 'Build AI Trip'}
-                </ThreeUIButton>
+                <div className="flex items-center gap-2 shrink-0">
+                  {prompt && (
+                    <button
+                      type="button"
+                      onClick={() => setPrompt('')}
+                      className="text-xs text-white/50 hover:text-white px-2 py-1 transition-colors"
+                    >
+                      Clear
+                    </button>
+                  )}
+                  <ThreeUIButton
+                    type="submit"
+                    disabled={isGenerating || (!prompt.trim() && !activeMode.defaultPrompt)}
+                    variant="amber-glow"
+                    size="md"
+                    icon={isGenerating ? FiLoader : FiNavigation}
+                    className="w-full sm:w-auto"
+                  >
+                    {isGenerating ? 'Compiling Route...' : 'Build Itinerary'}
+                  </ThreeUIButton>
+                </div>
               </motion.form>
 
-              {/* Quick Select Prompts */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.45 }}
-                className="flex flex-wrap gap-2 mt-4"
-              >
-                {SAMPLE_PROMPTS.slice(0, 3).map((sp) => (
+              {/* Signature Stop Prompt Chips */}
+              <div className="flex flex-wrap items-center gap-2 mt-4">
+                <span className="text-[11px] font-mono text-white/50 uppercase tracking-wider mr-1">Signature Stops:</span>
+                {activeMode.chips.map((chip) => (
                   <button
-                    key={sp.title}
+                    key={chip}
                     type="button"
-                    onClick={() => { setPrompt(sp.query); triggerGeneration(sp.query); }}
+                    onClick={() => {
+                      const customQuery = `${activeMode.suggestedDays}-day trip featuring ${chip} with dual transit and verified stay under ${activeMode.budgetHint}`;
+                      setPrompt(customQuery);
+                      triggerGeneration(customQuery);
+                    }}
                     disabled={isGenerating}
-                    className="text-[11px] font-mono px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md text-white/80 border border-white/15 hover:bg-amber-400/20 hover:border-amber-400/40 hover:text-white transition-all flex items-center gap-1.5"
+                    className="text-[11px] font-mono px-3 py-1 rounded-lg bg-white/10 backdrop-blur-md text-white/85 border border-white/15 hover:bg-amber-400/25 hover:border-amber-400/50 hover:text-white transition-all flex items-center gap-1.5"
                   >
-                    <span className="text-amber-400 text-[10px]">●</span>
-                    <span>{sp.title}</span>
+                    <span className="text-amber-400 text-[9px]">✦</span>
+                    <span>{chip}</span>
                   </button>
                 ))}
-              </motion.div>
+              </div>
             </div>
 
-            {/* Right Column (5 cols) — High-Impact Live Radar Bento Cards */}
-            <motion.div
-              initial={{ opacity: 0, x: 25 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.35, duration: 0.6 }}
-              className="lg:col-span-5 grid grid-cols-2 gap-3.5"
-            >
-              {/* Card 1: Train Radar */}
-              <div className="p-4 rounded-2xl bg-black/40 backdrop-blur-xl border border-purple-500/30 hover:border-purple-500/50 transition-colors shadow-lg">
-                <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-3 shadow-[0_0_12px_rgba(168,85,247,0.3)]">
-                  <FaTrain className="w-4 h-4" />
-                </div>
-                <div className="text-lg font-black text-white font-mono">Vande Bharat</div>
-                <div className="text-[11px] text-purple-300 font-mono mt-0.5">IRCTC Live & Tatkal Radar</div>
-              </div>
+            {/* Right 5-4 Columns: Holographic Route Telemetry Card */}
+            <div className="lg:col-span-5 xl:col-span-4">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeMode.id + '-hud'}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.4 }}
+                  className="relative rounded-3xl bg-black/55 backdrop-blur-2xl border border-white/20 p-5 sm:p-6 shadow-[0_25px_60px_rgba(0,0,0,0.5)] overflow-hidden"
+                >
+                  {/* Top neon edge indicator */}
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400 via-purple-400 to-sky-400" />
+                  
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider font-semibold">Live Route Telemetry</span>
+                    </div>
+                    <span className="text-[11px] font-mono text-white/60 px-2.5 py-0.5 rounded-md bg-white/10 border border-white/10 font-medium">
+                      {activeMode.suggestedDays}D / {activeMode.suggestedDays - 1}N Matrix
+                    </span>
+                  </div>
 
-              {/* Card 2: Flight Radar */}
-              <div className="p-4 rounded-2xl bg-black/40 backdrop-blur-xl border border-sky-500/30 hover:border-sky-500/50 transition-colors shadow-lg">
-                <div className="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400 mb-3 shadow-[0_0_12px_rgba(14,165,233,0.3)]">
-                  <FaPlane className="w-4 h-4" />
-                </div>
-                <div className="text-lg font-black text-white font-mono">450+ Airlines</div>
-                <div className="text-[11px] text-sky-300 font-mono mt-0.5">Lowest Airfare Radar</div>
-              </div>
+                  {/* Telemetry Rows */}
+                  <div className="space-y-3 my-4">
+                    {/* Transit Matrix */}
+                    <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
+                      <div className="text-[10px] font-mono uppercase text-white/50 tracking-wider mb-1">Transit Architecture</div>
+                      <div className="text-xs sm:text-sm font-semibold text-white flex items-center gap-2">
+                        <FaTrain className="text-purple-400 shrink-0" />
+                        <span className="truncate">{activeMode.telemetry}</span>
+                      </div>
+                    </div>
 
-              {/* Card 3: Hotel Radar */}
-              <div className="p-4 rounded-2xl bg-black/40 backdrop-blur-xl border border-amber-500/30 hover:border-amber-500/50 transition-colors shadow-lg">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-3 shadow-[0_0_12px_rgba(245,158,11,0.3)]">
-                  <FaHotel className="w-4 h-4" />
-                </div>
-                <div className="text-lg font-black text-white font-mono">2M+ Stays</div>
-                <div className="text-[11px] text-amber-300 font-mono mt-0.5">Heritage Palaces & Resorts</div>
-              </div>
+                    {/* Budget & Model Specs */}
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
+                        <div className="text-[10px] font-mono uppercase text-white/50 tracking-wider mb-0.5">Verified Budget</div>
+                        <div className="text-sm font-bold text-amber-300 font-mono">{activeMode.budgetHint}</div>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
+                        <div className="text-[10px] font-mono uppercase text-white/50 tracking-wider mb-0.5">Route Engine</div>
+                        <div className="text-sm font-bold text-sky-300 font-mono">Instant Settlement</div>
+                      </div>
+                    </div>
 
-              {/* Card 4: Groq Speed */}
-              <div className="p-4 rounded-2xl bg-black/40 backdrop-blur-xl border border-emerald-500/30 hover:border-emerald-500/50 transition-colors shadow-lg">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3 shadow-[0_0_12px_rgba(16,185,129,0.3)]">
-                  <FiZap className="w-4 h-4" />
-                </div>
-                <div className="text-lg font-black text-white font-mono">&lt;1s Latency</div>
-                <div className="text-[11px] text-emerald-300 font-mono mt-0.5">Groq LPU™ 120B Speed</div>
-              </div>
-            </motion.div>
+                    {/* Mode Status Pill */}
+                    <div className="flex items-center justify-between text-xs px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-200">
+                      <span className="flex items-center gap-1.5 font-mono truncate">
+                        <FaRoute className="text-purple-400 shrink-0" /> {activeMode.transitTag}
+                      </span>
+                      <span className="text-emerald-400 font-bold font-mono text-[11px] shrink-0">Tatkal Radar OK</span>
+                    </div>
+                  </div>
+
+                  {/* Direct One-Click Plan Button for Active Archetype */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPrompt(activeMode.defaultPrompt);
+                      triggerGeneration(activeMode.defaultPrompt);
+                    }}
+                    disabled={isGenerating}
+                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-slate-950 font-bold text-xs uppercase font-mono tracking-wider transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 active:scale-[0.98]"
+                  >
+                    <FiNavigation className="w-4 h-4" />
+                    <span>Load This Itinerary</span>
+                    <FaArrowRight className="w-3 h-3 ml-1" />
+                  </button>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Bottom AI Expedition Archetypes Controller Dock */}
+        <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-white/70 font-semibold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              Curated Travel Archetypes
+            </span>
+          </div>
+
+          <div className="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 overflow-x-auto pb-3 sm:pb-0 no-scrollbar snap-x snap-mandatory">
+            {AI_EXPEDITION_MODES.map((mode, idx) => {
+              const isActive = activeModeIdx === idx;
+              const ModeIcon = mode.icon;
+              return (
+                <button
+                  key={mode.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveModeIdx(idx);
+                    setIsPlayingHero(false);
+                  }}
+                  className={`group relative text-left p-3 rounded-2xl transition-all duration-300 border shrink-0 min-w-[155px] sm:min-w-0 snap-center ${
+                    isActive
+                      ? 'bg-black/75 border-amber-400/80 shadow-[0_0_25px_rgba(245,158,11,0.3)] ring-1 ring-amber-400/40'
+                      : 'bg-black/40 hover:bg-black/60 border-white/10 hover:border-white/25'
+                  } backdrop-blur-xl`}
+                >
+                  {/* Progress indicator bar on active */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeModeBar"
+                      className="absolute top-0 left-3 right-3 h-[2.5px] bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 rounded-full"
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      isActive ? 'bg-amber-400 text-slate-950 font-bold shadow-md' : 'bg-white/10 text-white/70 group-hover:text-amber-400'
+                    }`}>
+                      <ModeIcon className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className={`text-xs font-bold truncate ${isActive ? 'text-amber-300' : 'text-white/90 group-hover:text-white'}`}>
+                        {mode.title}
+                      </div>
+                      <div className="text-[10px] font-mono text-white/50 truncate">
+                        {mode.transitTag.split('&')[0]}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -602,7 +849,7 @@ export const Itinerary = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200/80 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-semibold uppercase tracking-widest mb-3">
-              <HiOutlineSparkles className="w-3.5 h-3.5" />
+              <FiCompass className="w-3.5 h-3.5" />
               <span>Interactive Swappable Showcase</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
@@ -682,7 +929,7 @@ export const Itinerary = () => {
                         </div>
                         <span className="text-white/40 text-xs">·</span>
                         <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
-                          <FaCheckCircle className="w-3 h-3" /> AI Verified
+                          <FaCheckCircle className="w-3 h-3" /> Verified Route
                         </span>
                       </div>
                     </div>
@@ -758,10 +1005,10 @@ export const Itinerary = () => {
                         disabled={isGenerating}
                         variant="amber-glow"
                         size="md"
-                        icon={HiOutlineSparkles}
+                        icon={FiNavigation}
                         className="w-full"
                       >
-                        Plan This Trip with AI
+                        Plan This Itinerary
                       </ThreeUIButton>
                     </div>
                   </div>
@@ -974,10 +1221,10 @@ export const Itinerary = () => {
                   disabled={isGenerating}
                   variant="amber-glow"
                   size="lg"
-                  icon={isGenerating ? FiLoader : HiOutlineSparkles}
+                  icon={isGenerating ? FiLoader : FiNavigation}
                   className="w-full"
                 >
-                  {isGenerating ? 'Synthesizing Plane & Train Routes...' : 'Build AI Trip Package'}
+                  {isGenerating ? 'Compiling Plane & Train Routes...' : 'Build Custom Itinerary'}
                 </ThreeUIButton>
               </motion.form>
             )}
@@ -1042,7 +1289,7 @@ export const Itinerary = () => {
               Loved by travelers worldwide
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Verified itineraries planned and booked with AI speed.
+              Verified multi-modal itineraries with direct instant booking.
             </p>
           </div>
 
@@ -1106,7 +1353,7 @@ export const Itinerary = () => {
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
                 <span className="flex items-center gap-2 text-white/90 font-semibold text-xs">
                   <FiTerminal className="text-amber-400 w-4 h-4" />
-                  Groq LPU™ Neural Architect · Real-Time Dual Transit Engine
+                  Route Engine · Real-Time Dual Transit Optimization
                 </span>
                 <span className="text-amber-400 flex items-center gap-1.5 text-[10px] font-semibold">
                   <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
@@ -1149,8 +1396,20 @@ export const Itinerary = () => {
                   <div className="relative z-10 p-8 md:p-12">
                     <div className="flex flex-wrap items-center gap-2 mb-4">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-emerald-300 text-xs font-mono font-semibold">
-                        <FaCheckCircle className="w-3 h-3" /> AI Verified Package
+                        <FaCheckCircle className="w-3 h-3" /> Verified Package
                       </span>
+                      {/* Clickable TravelEase Logo Button that opens Concierge */}
+                      <button
+                        type="button"
+                        onClick={() => window.dispatchEvent(new CustomEvent('open-travelease-concierge'))}
+                        className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-950/90 hover:bg-slate-900 border border-amber-500/50 text-amber-400 text-xs font-mono font-bold shadow-lg transition-all hover:scale-105 active:scale-95 group cursor-pointer"
+                        title="Click TravelEase Logo to open Concierge Desk"
+                      >
+                        <span className="w-4 h-4 rounded-full bg-black p-0.5 flex items-center justify-center group-hover:rotate-12 transition-transform">
+                          <img src="/brand/logo-mark.svg" alt="TravelEase Mark" className="w-full h-full object-contain" />
+                        </span>
+                        <span>Discuss with Travel Desk</span>
+                      </button>
                       {generatedItinerary.vibe && (
                         <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/90 text-xs font-mono font-medium">
                           {generatedItinerary.vibe}
@@ -1158,7 +1417,7 @@ export const Itinerary = () => {
                       )}
                       {generatedItinerary._meta?.latencyMs && (
                         <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-amber-400 text-[10px] font-mono">
-                          Groq LPU™ {generatedItinerary._meta.latencyMs}ms
+                          Verified {generatedItinerary._meta.latencyMs}ms
                         </span>
                       )}
                     </div>
@@ -1211,7 +1470,7 @@ export const Itinerary = () => {
                       </div>
 
                       {/* Package Pricing Hub */}
-                      <div className="p-6 rounded-2xl bg-black/50 backdrop-blur-2xl border border-white/15 text-right shrink-0 min-w-[260px] shadow-xl">
+                      <div className="w-full lg:w-auto p-5 sm:p-6 rounded-2xl bg-black/50 backdrop-blur-2xl border border-white/15 text-left lg:text-right shrink-0 min-w-0 lg:min-w-[260px] shadow-xl">
                         <div className="text-[10px] font-mono text-white/50 uppercase tracking-wider mb-1">Total Package Price</div>
                         <div className="text-3xl sm:text-4xl font-black font-mono text-amber-400 mb-1">
                           {formatINR(generatedItinerary.totalPackageINR)}
@@ -1271,7 +1530,7 @@ export const Itinerary = () => {
                       </div>
                       <div className="text-xs font-sans text-slate-800 dark:text-slate-200 leading-relaxed">
                         <strong className="text-amber-500 font-mono font-bold uppercase tracking-wider block mb-0.5">
-                          AI Transit Recommendation
+                          Recommended Transit Mode
                         </strong>
                         {generatedItinerary.transitComparison.flightVsTrainAdvice}
                       </div>
@@ -1546,16 +1805,89 @@ export const Itinerary = () => {
                   </div>
                 </div>
 
-                {/* 4. Day-by-Day Detailed Timeline with Activity Prices in ₹ */}
+                {/* 4. Interactive Cost & Budget Breakdown Visualizer */}
+                {generatedItinerary.totalPackageINR > 0 && (
+                  <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#0b0f19]/90 border border-slate-200 dark:border-white/10 shadow-xl space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-white/10">
+                      <div>
+                        <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-amber-500 mb-1">
+                          <FaWallet className="w-3.5 h-3.5" /> Comprehensive Budget Visualizer
+                        </div>
+                        <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                          Transparent Cost Allocation in Indian Rupees (₹)
+                        </h3>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] font-mono uppercase text-slate-400">Total Estimated Budget</span>
+                        <div className="text-2xl font-black font-mono text-amber-500">
+                          {formatINR(generatedItinerary.totalPackageINR)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Segmented Percentage Progress Bar */}
+                    <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-white/[0.05] overflow-hidden flex shadow-inner">
+                      <div className="h-full bg-purple-500 transition-all duration-700" style={{ width: '28%' }} title="Transit (Flight / High-Speed Rail): 28%" />
+                      <div className="h-full bg-amber-500 transition-all duration-700" style={{ width: '38%' }} title="Boutique Stay & Luxury Lodging: 38%" />
+                      <div className="h-full bg-emerald-500 transition-all duration-700" style={{ width: '20%' }} title="Curated Experiences & Passes: 20%" />
+                      <div className="h-full bg-sky-500 transition-all duration-700" style={{ width: '14%' }} title="Local Dining & Taxis: 14%" />
+                    </div>
+
+                    {/* 4 Discrete Metric Allocation Cards */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                      <div className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/20">
+                        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-purple-500 mb-1">
+                          <FaTrain className="w-3 h-3" /> Transit (28%)
+                        </div>
+                        <div className="text-base font-black font-mono text-slate-900 dark:text-white">
+                          {formatINR(Math.round(generatedItinerary.totalPackageINR * 0.28))}
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Flight / Tatkal Rail</p>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+                        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-amber-500 mb-1">
+                          <FaHotel className="w-3 h-3" /> Stays (38%)
+                        </div>
+                        <div className="text-base font-black font-mono text-slate-900 dark:text-white">
+                          {formatINR(Math.round(generatedItinerary.totalPackageINR * 0.38))}
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Handpicked Resorts</p>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-500 mb-1">
+                          <FaRoute className="w-3 h-3" /> Experiences (20%)
+                        </div>
+                        <div className="text-base font-black font-mono text-slate-900 dark:text-white">
+                          {formatINR(Math.round(generatedItinerary.totalPackageINR * 0.20))}
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Tickets & Guided Tours</p>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/20">
+                        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-sky-500 mb-1">
+                          <FaBolt className="w-3 h-3" /> Meals & Cabs (14%)
+                        </div>
+                        <div className="text-base font-black font-mono text-slate-900 dark:text-white">
+                          {formatINR(Math.round(generatedItinerary.totalPackageINR * 0.14))}
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Local Transfers & Food</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 5. Executive Day-by-Day Chronological Dossier */}
                 {generatedItinerary.days?.length > 0 && (
                   <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#0b0f19]/90 border border-slate-200 dark:border-white/10 shadow-xl space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-white/10">
                       <div>
                         <h3 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                          <FaRoute className="text-amber-500 w-5 h-5" /> Verified Day-by-Day Itinerary
+                          <FaRoute className="text-amber-500 w-5 h-5" /> Curated Chronological Timeline
                         </h3>
                         <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
-                          {generatedItinerary.days.reduce((a, d) => a + (d.items?.length || 0), 0)} scheduled experiences across {generatedItinerary.days.length} days
+                          {generatedItinerary.days.reduce((a, d) => a + (d.items?.length || 0), 0)} scheduled experiences structured by Morning, Midday & Evening phases
                         </p>
                       </div>
 
@@ -1590,61 +1922,87 @@ export const Itinerary = () => {
                     </div>
 
                     {/* Timeline Days List */}
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       {generatedItinerary.days
                         .filter(d => activeDayTab === 'all' || activeDayTab === d.dayNumber)
                         .map(day => (
                           <motion.div
                             key={day.dayNumber}
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="p-5 rounded-2xl bg-slate-50/80 dark:bg-white/[0.01] border border-slate-200/80 dark:border-white/[0.05] space-y-3"
+                            className="p-6 rounded-3xl bg-slate-50/90 dark:bg-white/[0.02] border border-slate-200/90 dark:border-white/[0.06] space-y-4"
                           >
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-white/5">
                               <div className="flex items-center gap-3">
-                                <span className="w-8 h-8 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-mono font-bold flex items-center justify-center text-xs">
+                                <span className="w-10 h-10 rounded-2xl bg-amber-500 text-black font-mono font-black flex items-center justify-center text-sm shadow-md">
                                   {String(day.dayNumber).padStart(2, '0')}
                                 </span>
-                                <h4 className="text-sm font-bold text-slate-900 dark:text-white font-mono">{day.title}</h4>
+                                <div>
+                                  <span className="text-[10px] font-mono text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider">
+                                    Day {day.dayNumber} Chapter
+                                  </span>
+                                  <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">{stripMarkdown(day.title)}</h4>
+                                </div>
                               </div>
-                              <span className="text-[10px] font-mono text-slate-400">{day.items?.length || 0} activities</span>
+                              <span className="text-xs font-mono px-3 py-1 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400">
+                                {day.items?.length || 0} Phase Milestones
+                              </span>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {day.items?.map((item, iIdx) => (
-                                <div
-                                  key={iIdx}
-                                  className="p-3.5 rounded-xl bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.05] hover:border-amber-400/40 transition-colors"
-                                >
-                                  <div className="flex items-center gap-1.5 text-[10px] font-mono font-semibold text-amber-600 dark:text-amber-400 mb-1">
-                                    <FaClock className="w-2.5 h-2.5" /> {item.time}
-                                    <span className="text-slate-300 dark:text-slate-600">·</span>
-                                    <span className="uppercase text-slate-400 dark:text-slate-500">{item.type}</span>
-                                  </div>
-                                  <div className="text-[13px] font-bold text-slate-900 dark:text-white mb-1">{item.title}</div>
-                                  {item.description && (
-                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mb-1.5 font-sans">
-                                      {item.description}
-                                    </p>
-                                  )}
-                                  <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-white/[0.04]">
-                                    {item.location && (
-                                      <span className="text-[10px] font-mono text-slate-400 flex items-center gap-1">
-                                        <FaMapMarkerAlt className="w-2 h-2 text-amber-500" /> {item.location}
+                            {/* Chronological Phase Milestones (Uncluttered Stack) */}
+                            <div className="space-y-3.5">
+                              {day.items?.map((item, iIdx) => {
+                                const isMorning = iIdx === 0 || (item.time && item.time.toLowerCase().includes('am'));
+                                const isAfternoon = iIdx === 1 || iIdx === 2;
+                                const phaseLabel = isMorning ? 'Morning Exploration' : (isAfternoon ? 'Midday & Afternoon' : 'Twilight & Evening');
+                                const phaseAccent = isMorning ? 'border-amber-400/80 bg-amber-500/[0.03]' : (isAfternoon ? 'border-sky-400/80 bg-sky-500/[0.03]' : 'border-purple-400/80 bg-purple-500/[0.03]');
+
+                                return (
+                                  <div
+                                    key={iIdx}
+                                    className={`p-5 rounded-2xl border-l-4 ${phaseAccent} bg-white dark:bg-white/[0.02] border border-slate-200/90 dark:border-white/[0.06] shadow-sm hover:shadow-md transition-all space-y-2`}
+                                  >
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                      <div className="flex items-center gap-2">
+                                        <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 font-mono text-xs font-bold flex items-center gap-1.5">
+                                          <FaClock className="w-3 h-3" /> {item.time}
+                                        </span>
+                                        <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono uppercase font-bold bg-slate-100 dark:bg-white/[0.05] text-slate-600 dark:text-slate-300">
+                                          {phaseLabel}
+                                        </span>
+                                      </div>
+
+                                      <span className="text-sm font-mono font-black text-emerald-600 dark:text-emerald-400">
+                                        {item.priceINR ? formatINR(item.priceINR) : 'Included in Package'}
                                       </span>
+                                    </div>
+
+                                    <div>
+                                      <h5 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                                        {stripMarkdown(item.title)}
+                                      </h5>
+                                      {item.description && (
+                                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-1 font-sans">
+                                          {stripMarkdown(item.description)}
+                                        </p>
+                                      )}
+                                    </div>
+
+                                    {item.location && (
+                                      <div className="pt-2 flex items-center gap-1.5 text-xs font-mono text-slate-500 dark:text-slate-400">
+                                        <FaMapMarkerAlt className="w-3 h-3 text-amber-500" />
+                                        <span>{item.location}</span>
+                                      </div>
                                     )}
-                                    <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 ml-auto">
-                                      {item.priceINR ? formatINR(item.priceINR) : 'Included'}
-                                    </span>
                                   </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </motion.div>
                         ))}
                     </div>
 
-                    {/* Bottom Booking CTA Bar */}
+                    {/* Bottom Booking CTA Bar with Clickable TravelEase Logo */}
                     <div className="pt-6 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                       <div>
                         <div className="text-xs font-mono text-slate-500 dark:text-slate-400">
@@ -1655,32 +2013,47 @@ export const Itinerary = () => {
                         </div>
                       </div>
 
-                      <ThreeUIButton
-                        onClick={handleBookEntireItinerary}
-                        variant="amber-glow"
-                        size="lg"
-                        icon={FaCheckCircle}
-                      >
-                        Book Complete Trip Now
-                      </ThreeUIButton>
+                      <div className="flex flex-wrap items-center gap-3">
+                        {/* Interactive TravelEase Logo AI Concierge Trigger */}
+                        <button
+                          type="button"
+                          onClick={() => window.dispatchEvent(new CustomEvent('open-travelease-concierge'))}
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-slate-950/90 hover:bg-slate-900 border border-amber-500/40 text-amber-400 text-xs font-mono font-bold shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                          title="Click TravelEase Logo to discuss this trip with Concierge"
+                        >
+                          <span className="w-5 h-5 rounded-full bg-black p-0.5 flex items-center justify-center">
+                            <img src="/brand/logo-mark.svg" alt="TravelEase Mark" className="w-full h-full object-contain" />
+                          </span>
+                          <span>Discuss with Concierge</span>
+                        </button>
+
+                        <ThreeUIButton
+                          onClick={handleBookEntireItinerary}
+                          variant="amber-glow"
+                          size="lg"
+                          icon={FaCheckCircle}
+                        >
+                          Book Complete Trip Now
+                        </ThreeUIButton>
+                      </div>
                     </div>
                   </div>
                 )}
 
-                {/* 5. Insider Tips & Rail Connectivity Advice */}
+                {/* 6. Travel Architect Insider Wisdom & Rail Advice */}
                 {(generatedItinerary.insiderTips?.length > 0 || generatedItinerary.transportTips?.length > 0) && (
-                  <div className="p-6 rounded-3xl bg-amber-500/[0.06] border border-amber-500/20 space-y-3">
+                  <div className="p-6 sm:p-8 rounded-3xl bg-amber-500/[0.06] border border-amber-500/20 space-y-4">
                     <h4 className="text-sm font-bold font-mono text-amber-500 flex items-center gap-2 uppercase tracking-wider">
-                      <FaLightbulb className="w-4 h-4" /> Travel Architect Insider Tips
+                      <FaLightbulb className="w-4 h-4" /> Travel Architect Practical Wisdom & Protocol
                     </h4>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {[...(generatedItinerary.transportTips || []), ...(generatedItinerary.insiderTips || [])].slice(0, 6).map((tip, i) => (
-                        <li key={i} className="text-xs text-slate-700 dark:text-slate-300 flex items-start gap-2">
-                          <FaChevronRight className="w-2.5 h-2.5 text-amber-500 mt-0.5 shrink-0" />
-                          <span>{tip}</span>
-                        </li>
+                        <div key={i} className="p-3.5 rounded-xl bg-white/70 dark:bg-white/[0.02] border border-amber-500/15 text-xs text-slate-700 dark:text-slate-300 flex items-start gap-2.5 leading-relaxed">
+                          <FaChevronRight className="w-3 h-3 text-amber-500 mt-0.5 shrink-0" />
+                          <span>{stripMarkdown(tip)}</span>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
               </motion.div>

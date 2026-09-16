@@ -14,8 +14,8 @@ const Home = () => {
   const homeSchemas = [
     getWebPageSchema({
       type: 'CollectionPage',
-      name: 'TravelEase — AI-Powered Travel Platform | Flights, Hotels & Experiences',
-      description: 'TravelEase is the world\'s smartest travel platform. AI-powered trip planning, real-time flight & hotel deals, and curated experiences. Trusted by 5M+ travelers worldwide.',
+      name: 'TravelEase — Multi-Modal Travel Platform | IRCTC, Flights, Stays & Custom Itineraries',
+      description: 'TravelEase is India\'s multi-modal travel platform. High-performance trip planning, real-time IRCTC & flight deals, and curated stays. Trusted by travelers nationwide.',
       url: '/',
       breadcrumb: true,
     }),

@@ -215,27 +215,30 @@ async function callGroq({ messages, model = PRIMARY_MODEL, jsonMode = false, tem
 
 // ─── System Prompts ─────────────────────────────────────────────────────────
 
-const TRAVEL_AGENT_SYSTEM_PROMPT = `You are TravelEase AI — the world's most intelligent 24/7 travel concierge and booking assistant. You are powered by Groq LPU™ technology for ultra-fast responses.
+const TRAVEL_AGENT_SYSTEM_PROMPT = `You are TravelEase AI — the premier Indian travel concierge and booking advisor powered by high-speed neural processing.
 
-## Your Core Capabilities
-- You help users plan complete trips, find deals, compare prices, and make informed booking decisions.
-- You provide REAL, accurate travel information — current prices, distances, durations, visa requirements, weather, local tips.
-- You know global airports (IATA codes), railway stations (India), hotel chains, cab services, and tour operators.
-- You can suggest budget-optimized trips, luxury retreats, adventure expeditions, honeymoon packages, and family vacations.
-- You handle booking queries: flights, hotels, trains (IRCTC), buses, car rentals, homestays, and tours.
+CRITICAL FORMATTING RULES (STRICTLY ENFORCED):
+1. NEVER output raw markdown header syntax like '##', '###', or '#'.
+2. NEVER output raw bold asterisks like '**text**' or '__text__'. Always write clean, plain readable text without asterisks.
+3. Structure your response into 3 to 4 clean, distinct sections with plain titles like:
+   1. Overview & Best Time
+   2. Curated Day-by-Day Highlights
+   3. IRCTC Rail & Flight Connectivity
+   4. Estimated Budget & Practical Tips
+4. Use bullet points starting with '• ' for itemized activities, timings, train numbers, and insider recommendations.
+5. Keep explanations concise, crisp, punchy, and uncluttered. Avoid rambling or dense walls of text.
 
-## Response Style
-- Be concise yet comprehensive. Use bullet points and structured formatting.
-- Always mention specific prices in both USD and INR (use approximate rate: 1 USD ≈ ₹86.5).
-- When suggesting trips, include: destination, duration, estimated total cost, best time to visit, must-see attractions.
-- Provide actionable next steps — tell the user exactly what to do next on TravelEase.
-- Be warm, professional, and enthusiastic about travel.
+INDIAN TRAVEL FOCUS:
+- Prioritize authentic Indian travel destinations (e.g., Varanasi, Udaipur, Jaipur, Kerala backwaters & Munnar, Manali & Rohtang, Goa, Kashmir, Rishikesh, Hampi, Ladakh).
+- Always quote prices primarily in Indian Rupees (₹).
+- Detail authentic Indian Railways routes: Vande Bharat Express, Tejas Rajdhani, Shatabdi Express, and IRCTC Tatkal booking rules.
+- Detail authentic domestic flight routes (IndiGo, Air India, Akasa Air) and airport codes (DEL, BOM, BLR, GOI, VNS, CCU, etc.).
 
 ## Navigation Actions
-When relevant, suggest navigation actions the user can take on the platform. Include these as JSON action objects:
-- { "label": "Search Flights", "path": "/flights", "params": { "from": "DEL", "to": "DXB" } }
-- { "label": "Browse Hotels", "path": "/hotels", "params": { "destination": "Goa" } }
-- { "label": "Plan AI Itinerary", "path": "/itinerary", "params": { "prompt": "..." } }
+When relevant, suggest navigation actions the user can take on the platform:
+- { "label": "Search Flights", "path": "/flights" }
+- { "label": "Browse Hotels", "path": "/hotels" }
+- { "label": "Itinerary Planner", "path": "/itinerary" }
 - { "label": "Book Trains", "path": "/trains" }
 - { "label": "Explore Destinations", "path": "/destinations" }
 
@@ -243,8 +246,7 @@ When relevant, suggest navigation actions the user can take on the platform. Inc
 - NEVER fabricate booking confirmation numbers or claim a booking has been made.
 - Always recommend the user complete bookings through the TravelEase platform pages.
 - If asked about something outside travel, politely redirect to travel topics.
-- Provide current, realistic pricing — not inflated or unrealistically cheap numbers.
-- For Indian domestic travel, prefer INR. For international, show both currencies.`;
+- Provide current, realistic pricing in Indian Rupees (₹).`;
 
 const ITINERARY_SYSTEM_PROMPT = `You are TravelEase's Elite AI Trip Architect powered by Groq LPU™. You synthesize verified, bookable travel itineraries with real-world data.
 
@@ -760,7 +762,7 @@ function extractActions(text) {
       actions.push({ label: 'Book Trains', path: '/trains', icon: 'train' });
     }
     if (lower.includes('itinerary') || lower.includes('trip plan') || lower.includes('day plan')) {
-      actions.push({ label: 'AI Trip Planner', path: '/itinerary', icon: 'sparkles' });
+      actions.push({ label: 'Itinerary Planner', path: '/itinerary', icon: 'compass' });
     }
     if (lower.includes('destination') || lower.includes('explore') || lower.includes('discover')) {
       actions.push({ label: 'Explore Destinations', path: '/destinations', icon: 'compass' });
@@ -780,9 +782,20 @@ function extractActions(text) {
 }
 
 function cleanResponse(text) {
-  // Remove JSON action objects from the visible reply text
-  let cleaned = text.replace(/```json[\s\S]*?```/g, '');
-  cleaned = cleaned.replace(/\{[^{}]*"label"\s*:\s*"[^"]*"[^{}]*"path"\s*:\s*"[^"]*"[^{}]*\}/g, '');
+  if (!text || typeof text !== 'string') return '';
+  // Remove JSON action objects and code blocks from the visible reply text
+  let cleaned = text.replace(/```json[\s\S]*?```/gi, '');
+  cleaned = cleaned.replace(/\{[^{}]*"label"\s*:\s*"[^"]*"[^{}]*"path"\s*:\s*"[^"]*"[^{}]*\}/gi, '');
+  
+  // Strip markdown header symbols: '## 1. Overview' -> '1. Overview'
+  cleaned = cleaned.replace(/^#{1,6}\s*/gm, '');
+
+  // Strip raw markdown asterisks and underscores
+  cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '$1');
+  cleaned = cleaned.replace(/\*(.*?)\*/g, '$1');
+  cleaned = cleaned.replace(/__(.*?)__/g, '$1');
+  cleaned = cleaned.replace(/_(.*?)_/g, '$1');
+
   cleaned = cleaned.trim();
   // Remove trailing orphaned markers
   cleaned = cleaned.replace(/\n{3,}/g, '\n\n');

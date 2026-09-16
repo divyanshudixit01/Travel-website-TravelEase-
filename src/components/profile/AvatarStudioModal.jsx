@@ -4,7 +4,6 @@ import {
   FaTimes, FaCheck, FaCamera, FaUpload, FaLink, 
   FaTrashAlt, FaImage, FaUndo
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
 import { TRAVEL_AVATARS } from './travelAvatars';
 
 export const AvatarStudioModal = ({ isOpen, onClose, currentAvatar, onSaveAvatar }) => {
@@ -113,7 +112,7 @@ export const AvatarStudioModal = ({ isOpen, onClose, currentAvatar, onSaveAvatar
           <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-white/10 mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-500 flex items-center justify-center border border-amber-500/30">
-                <HiOutlineSparkles className="w-5 h-5" />
+                <FaCamera className="w-5 h-5" />
               </div>
               <div>
                 <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
@@ -178,8 +177,8 @@ export const AvatarStudioModal = ({ isOpen, onClose, currentAvatar, onSaveAvatar
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <HiOutlineSparkles className="text-amber-400" />
-              <span>Curated SVG Personas ({TRAVEL_AVATARS.length})</span>
+              <FaImage className="text-amber-400" />
+              <span>Curated Personas ({TRAVEL_AVATARS.length})</span>
             </button>
             <button
               type="button"

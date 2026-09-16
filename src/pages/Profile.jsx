@@ -9,8 +9,7 @@ import {
   FaPlaneDeparture, FaTrain, FaUsers, FaPlus, FaTrashAlt, FaMobileAlt,
   FaLock, FaCheckCircle, FaExclamationCircle, FaUserCheck
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
-import { FiCheckCircle, FiShield, FiSmartphone } from 'react-icons/fi';
+import { FiCheckCircle, FiShield, FiSmartphone, FiAward } from 'react-icons/fi';
 import { AvatarStudioModal } from '../components/profile/AvatarStudioModal';
 import { TRAVEL_AVATARS } from '../components/profile/travelAvatars';
 
@@ -36,7 +35,7 @@ const Profile = () => {
     passportNumber: user?.passportNumber || 'Z4920194',
     passportExpiry: user?.passportExpiry || '2032-11-15',
     dateOfBirth: user?.dateOfBirth || '1994-06-20',
-    gender: user?.gender || 'Male',
+    gender: user?.gender || 'Preference',
     bio: user?.bio || 'Passionate explorer of mountain trails, IRCTC heritage railways, and boutique sanctuaries.',
     frequentFlyer: user?.frequentFlyer || 'AI-902841 (Star Alliance Gold)',
     irctcUserId: user?.irctcUserId || 'alex_traveler_irctc',
@@ -92,7 +91,7 @@ const Profile = () => {
       name: newTravelerName.trim(),
       relation: newTravelerRelation,
       age: 28,
-      gender: 'Other',
+      gender: 'Preference',
       seatPref: 'Window',
       mealPref: 'Standard'
     };
@@ -117,7 +116,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-900 dark:text-white pt-24 pb-20 px-3 sm:px-6 lg:px-8 transition-colors duration-500" id="profile-page">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-white pt-24 pb-20 px-3 sm:px-6 lg:px-8 transition-colors duration-500" id="profile-page">
       <div className="max-w-7xl mx-auto space-y-8">
 
         {/* Page Title & Breadcrumb */}
@@ -193,7 +192,7 @@ const Profile = () => {
               </p>
 
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-[10.5px] font-mono font-bold">
-                <HiOutlineSparkles /> INFINITE VIP MEMBER
+                <FiAward /> INFINITE VIP MEMBER
               </div>
             </div>
 
@@ -381,10 +380,11 @@ const Profile = () => {
                         isEditingPersonal ? 'bg-slate-100 dark:bg-white/10 border border-amber-400 text-slate-900 dark:text-white focus:outline-none' : 'bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/5 text-slate-700 dark:text-slate-200'
                       }`}
                     >
-                      <option>Male</option>
-                      <option>Female</option>
-                      <option>Non-Binary</option>
-                      <option>Prefer not to say</option>
+                      <option value="Preference">Preference (Gender)</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Non-Binary">Non-Binary</option>
+                      <option value="Prefer not to say">Prefer not to say</option>
                     </select>
                   </div>
 
@@ -637,7 +637,7 @@ const Profile = () => {
                     { key: 'priceAlerts', title: 'Airfare Drop Radar', desc: 'Notify instantly when tracked flight or stay drops in price' },
                     { key: 'whatsappUpdates', title: 'WhatsApp Live Trip Updates', desc: 'Receive Tatkal confirmation and gate changes on WhatsApp' },
                     { key: 'gateAlerts', title: 'Real-time Airport Gate Alerts', desc: 'Push notifications for gate assignment and boarding calls' },
-                    { key: 'newsletter', title: 'Curated Itinerary Chronicles', desc: 'Weekly AI travel inspiration and secret sanctuary guides' },
+                    { key: 'newsletter', title: 'Curated Itinerary Chronicles', desc: 'Weekly curated travel inspiration and secret sanctuary guides' },
                   ].map((item) => (
                     <div
                       key={item.key}

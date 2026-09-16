@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  FaApple, FaGooglePlay, FaTrain, FaPlane, FaRobot, FaCheckCircle, 
-  FaStar, FaBolt, FaQrcode, FaWifi, FaBatteryFull, FaSignal 
+  FaApple, FaGooglePlay, FaTrain, FaPlane, FaCheckCircle, 
+  FaStar, FaBolt, FaQrcode, FaWifi, FaBatteryFull, FaSignal, FaCompass 
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
 import { FiSmartphone, FiBell } from 'react-icons/fi';
 
 export const MobileSuite = () => {
@@ -14,7 +13,7 @@ export const MobileSuite = () => {
   const screens = [
     { id: 'tatkal', label: 'Tatkal Radar', icon: <FaTrain className="w-3.5 h-3.5" /> },
     { id: 'boarding', label: 'Smart Pass', icon: <FaPlane className="w-3.5 h-3.5" /> },
-    { id: 'concierge', label: 'AI Concierge', icon: <FaRobot className="w-3.5 h-3.5" /> },
+    { id: 'concierge', label: 'Travel Concierge', icon: <FaCompass className="w-3.5 h-3.5" /> },
   ];
 
   const features = [
@@ -29,14 +28,14 @@ export const MobileSuite = () => {
       desc: 'Receive live push notifications for gate changes, baggage carousels, and delay predictions before the airport announces them.',
     },
     {
-      icon: <HiOutlineSparkles className="w-4 h-4 text-sky-500" />,
+      icon: <FaCheckCircle className="w-4 h-4 text-sky-500" />,
       title: 'Offline Biometric Boarding Passes',
       desc: 'All tickets, train passes, and hotel vouchers cached securely offline with Apple Wallet and Google Wallet integration.',
     },
   ];
 
   return (
-    <section className="relative py-28 px-4 overflow-hidden bg-slate-50 dark:bg-[#06080d] border-t border-slate-200/90 dark:border-white/10 transition-colors duration-500" id="mobile-suite">
+    <section className="relative py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden bg-slate-50 dark:bg-[#06080d] border-t border-slate-200/90 dark:border-white/10 transition-colors duration-500" id="mobile-suite">
       {/* Background Ambient Glows */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/8 dark:bg-amber-500/10 rounded-full blur-[160px]" />
@@ -45,20 +44,20 @@ export const MobileSuite = () => {
 
       <div className="max-w-7xl mx-auto relative z-10">
         
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-widest mb-4 shadow-sm">
-            <FiSmartphone className="w-3.5 h-3.5" />
+        {/* 3-Tier Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-widest mb-4 shadow-sm">
+            <FiSmartphone className="w-3.5 h-3.5 text-amber-500" />
             <span>MOBILE SUITE · iOS & ANDROID ECOSYSTEM</span>
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight mb-4">
             The Entire World in Your Pocket.{' '}
             <span className="text-gradient-primary block sm:inline">Built for Pure Speed.</span>
           </h2>
 
-          <p className="text-slate-600 dark:text-slate-400 text-base md:text-lg font-medium leading-relaxed">
-            Rated <span className="text-amber-500 font-bold">4.95/5</span> across 142,000+ verified explorer reviews. Experience zero-friction rail booking, biometric boarding passes, and autonomous travel intelligence.
+          <p className="font-body text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed">
+            Rated <span className="text-amber-500 font-bold tabular-nums">4.95/5</span> across 142,000+ verified explorer reviews. Experience zero-friction rail booking, biometric boarding passes, and instant travel support.
           </p>
         </div>
 
@@ -365,7 +364,7 @@ export const MobileSuite = () => {
                         </motion.div>
                       )}
 
-                      {/* SCREEN 3: GEMINI 2.5 CONCIERGE */}
+                      {/* SCREEN 3: TRAVEL CONCIERGE */}
                       {activeScreen === 'concierge' && (
                         <motion.div
                           key="concierge"
@@ -376,8 +375,8 @@ export const MobileSuite = () => {
                           className="space-y-2 text-xs"
                         >
                           <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center gap-1.5">
-                            <HiOutlineSparkles className="text-amber-500 w-3.5 h-3.5" />
-                            <span className="font-mono font-bold text-amber-700 dark:text-amber-300 text-[10px]">Gemini 2.5 Concierge</span>
+                            <FaCompass className="text-amber-500 w-3.5 h-3.5" />
+                            <span className="font-mono font-bold text-amber-700 dark:text-amber-300 text-[10px]">Travel Concierge Desk</span>
                           </div>
 
                           {/* Chat Messages */}
@@ -389,7 +388,7 @@ export const MobileSuite = () => {
                           <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-slate-800 dark:text-slate-200 space-y-0.5 shadow-sm">
                             <div className="text-[9px] font-mono text-amber-600 dark:text-amber-400 flex items-center gap-1 font-bold">
                               <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                              TravelEase AI · 09:40
+                              TravelEase Concierge · 09:40
                             </div>
                             <p className="text-[11px] leading-snug">
                               Reserved Table 4 at <strong>Pizzeria Vaatika Cafe</strong> facing sunset Aarti. 4 min walk.

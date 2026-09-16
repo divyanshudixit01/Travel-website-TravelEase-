@@ -6,7 +6,6 @@ import {
   FaArrowLeft, FaEnvelope, FaCheckCircle, FaLock, FaShieldAlt,
   FaPaperPlane, FaRedo
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
 import api from '../services/api';
 
 const ForgotPassword = () => {

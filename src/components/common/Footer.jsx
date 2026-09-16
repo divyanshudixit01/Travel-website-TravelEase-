@@ -4,9 +4,11 @@ import {
   FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, 
   FaHeart, FaArrowUp
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
-import { FiCheckCircle, FiLock, FiGlobe, FiActivity } from 'react-icons/fi';
+import { FiCheckCircle, FiLock, FiGlobe, FiShield, FiClock } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import { 
+  IrctcPartnerSeal, UpiLogo, RuPayLogo, VisaLogo, MastercardLogo, ApplePayLogo 
+} from './BrandVectors';
 
 export const Footer = () => {
   const scrollToTop = () => {
@@ -16,10 +18,10 @@ export const Footer = () => {
   const footerLinks = {
     explore: [
       { name: 'Trending Destinations', path: '/destinations' },
-      { name: 'AI Trip Architect', path: '/itinerary', badge: 'GEMINI 2.5' },
+      { name: 'Custom Itinerary Planner', path: '/itinerary', badge: 'INSTANT' },
       { name: 'Travel Chronicles', path: '/blog' },
-      { name: '3D World Explorer', path: '/explore' },
-      { name: 'Flash Weekend Deals', path: '/hotels' },
+      { name: 'Interactive Map Explorer', path: '/explore' },
+      { name: 'Curated Boutique Stays', path: '/hotels' },
     ],
     services: [
       { name: 'IRCTC Train Booking', path: '/trains', badge: 'TATKAL LIVE' },
@@ -29,11 +31,11 @@ export const Footer = () => {
       { name: 'Airport Express Cabs', path: '/cars' },
     ],
     intelligence: [
-      { name: 'Gemini 2.5 Neural Engine', path: '/itinerary' },
-      { name: 'Tatkal Seat Prediction', path: '/trains', badge: '98% ACC' },
+      { name: 'Multi-Modal Route Engine', path: '/itinerary' },
+      { name: 'Tatkal Seat Probability Radar', path: '/trains', badge: '98% ACC' },
       { name: 'Airfare Drop Radar', path: '/flights' },
-      { name: 'Live Train Radar', path: '/trains' },
-      { name: 'Interactive Map Matrix', path: '/explore' },
+      { name: 'Live Train Running Status', path: '/trains' },
+      { name: 'Interactive 3D Destination Matrix', path: '/explore' },
     ],
     company: [
       { name: 'About TravelEase', path: '/about' },
@@ -52,18 +54,9 @@ export const Footer = () => {
     { icon: <FaFacebook className="w-3.5 h-3.5" />, label: 'Facebook', href: 'https://facebook.com' },
   ];
 
-  const paymentPartners = [
-    { name: 'IRCTC Certified', icon: '🚆' },
-    { name: 'UPI AutoPay', icon: '⚡' },
-    { name: 'Visa Infinite', icon: '💳' },
-    { name: 'Mastercard World', icon: '💳' },
-    { name: 'Amex Centurion', icon: '✨' },
-    { name: 'Apple Pay', icon: '' },
-  ];
-
   return (
     <footer 
-      className="relative bg-slate-100/90 dark:bg-[#06080d] text-slate-600 dark:text-slate-400 pt-20 pb-12 overflow-hidden border-t border-slate-200/90 dark:border-white/10 transition-colors duration-500" 
+      className="relative bg-slate-50 dark:bg-[#06080d] text-slate-600 dark:text-slate-400 pt-16 sm:pt-20 pb-32 lg:pb-16 overflow-hidden border-t border-slate-200/80 dark:border-white/10 transition-colors duration-500" 
       id="site-footer"
     >
       {/* ThreeUI Ambient Glow Layers */}
@@ -74,22 +67,22 @@ export const Footer = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         
-        {/* Top Command Strip — Operational Status + System Telemetry + Scroll-to-top */}
+        {/* Top Command Strip — Operational Status + System Reassurance + Scroll-to-top */}
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pb-10 mb-12 border-b border-slate-200 dark:border-white/10">
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
             {/* Live operational badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 text-xs font-mono shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse" />
-              <span className="text-slate-900 dark:text-slate-200 font-bold">ALL SYSTEMS NOMINAL</span>
+              <IrctcPartnerSeal className="w-4 h-4" />
+              <span className="text-slate-900 dark:text-slate-200 font-bold">IRCTC AUTHORIZED PARTNER</span>
               <span className="text-slate-300 dark:text-slate-600">·</span>
-              <span className="text-amber-600 dark:text-amber-400 font-bold">IRCTC TATKAL RADAR 99.9%</span>
+              <span className="text-amber-600 dark:text-amber-400 font-bold">LIVE TATKAL RADAR 99.9%</span>
             </div>
 
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-200/60 dark:bg-white/[0.03] border border-slate-300/60 dark:border-white/8 text-[11px] font-mono text-slate-600 dark:text-slate-400">
-              <FiActivity className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-              <span>LATENCY: 18ms</span>
+              <FiShield className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+              <span>100% REFUND GUARANTEE</span>
               <span className="text-slate-300 dark:text-slate-600">·</span>
-              <span>12 EDGE POPS</span>
+              <span>ZERO CONVENIENCE MARKUPS</span>
             </div>
 
             <div className="hidden xl:inline-flex items-center gap-1.5 text-xs font-mono text-slate-500">
@@ -120,45 +113,45 @@ export const Footer = () => {
             <div>
               {/* Brand Wordmark */}
               <Link to="/" className="inline-flex items-center gap-2.5 mb-5 group">
-                <div className="w-10 h-10 rounded-2xl bg-slate-900 border border-amber-500/30 overflow-hidden flex items-center justify-center p-1 shadow-[0_4px_16px_rgba(6,182,212,0.25)] group-hover:scale-105 transition-transform">
+                <div className="w-10 h-10 rounded-2xl bg-slate-900 border border-amber-500/30 overflow-hidden flex items-center justify-center p-1.5 shadow-[0_4px_16px_rgba(6,182,212,0.25)] group-hover:scale-105 transition-transform">
                   <img src="/brand/logo-mark.svg" alt="TravelEase Mark" className="w-full h-full object-contain" />
                 </div>
-                <span className="font-sans text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                <span className="font-brand text-xl font-black text-slate-900 dark:text-white tracking-tight">
                   Travel<span className="text-gradient-primary">Ease</span>
                 </span>
                 <span className="px-2 py-0.5 rounded-full bg-amber-500/10 dark:bg-white/10 border border-amber-500/20 dark:border-white/15 text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400 uppercase">
-                  v2026
+                  Verified
                 </span>
               </Link>
 
               <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm mb-6 font-medium">
-                The world's most sophisticated travel OS. Powered by Gemini 2.5 neural itinerary synthesis, live Tatkal rail automation, and curated sanctuary expeditions.
+                India's premier intelligent travel platform. Real-time Tatkal seat radar, global flight comparison, handpicked boutique stays, and personalized AI itineraries.
               </p>
 
               {/* Verified Trust Badges */}
               <div className="space-y-2.5 mb-6">
                 <div className="flex items-center gap-2 text-xs font-mono text-slate-700 dark:text-slate-300">
                   <FiCheckCircle className="text-emerald-500 dark:text-emerald-400 w-3.5 h-3.5 shrink-0" />
-                  <span>IATA Accredited & IRCTC Verified Agent</span>
+                  <span>IATA Accredited & Official IRCTC Verified Agent</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs font-mono text-slate-700 dark:text-slate-300">
                   <FiLock className="text-amber-500 dark:text-amber-400 w-3.5 h-3.5 shrink-0" />
-                  <span>256-Bit Bank Grade Specular Encryption</span>
+                  <span>256-Bit Bank Grade SSL Encryption</span>
                 </div>
               </div>
 
-              {/* ThreeUI Mini Tatkal Telemetry Capsule */}
+              {/* Mini Tatkal Telemetry Capsule */}
               <div className="p-3.5 rounded-xl bg-white/80 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-xs font-mono text-slate-600 dark:text-slate-400 max-w-sm shadow-sm">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[10px] font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    IRCTC Cloud Gateway
+                    IRCTC Direct Gateway
                   </span>
-                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">NODE: NDLS-01</span>
+                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">STATUS: ACTIVE</span>
                 </div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-400 flex justify-between">
-                  <span>Tatkal Sync: 120ms</span>
-                  <span>Confirmation: 98.4%</span>
+                  <span>Tatkal Sync: Instant</span>
+                  <span>Confirmation Rate: 98.4%</span>
                 </div>
               </div>
             </div>
@@ -219,19 +212,19 @@ export const Footer = () => {
         {/* Payment Partners & Security Strip */}
         <div className="border-t border-slate-200 dark:border-white/10 pt-6 pb-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-mono text-slate-500 dark:text-slate-500 uppercase tracking-wider mr-2 font-semibold">
-                Certified Rails:
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-1 font-bold">
+                Verified Gateways:
               </span>
-              {paymentPartners.map((p) => (
-                <span
-                  key={p.name}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/8 text-[11px] font-mono text-slate-700 dark:text-slate-300 shadow-sm"
-                >
-                  <span>{p.icon}</span>
-                  <span className="font-medium">{p.name}</span>
-                </span>
-              ))}
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 shadow-sm text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
+                <IrctcPartnerSeal className="w-4 h-4" />
+                <span>IRCTC Certified</span>
+              </div>
+              <UpiLogo className="h-6 w-auto" />
+              <RuPayLogo className="h-6 w-auto" />
+              <VisaLogo className="h-6 w-auto" />
+              <MastercardLogo className="h-6 w-auto" />
+              <ApplePayLogo className="h-6 w-auto" />
             </div>
 
             <div className="flex items-center gap-3 text-xs font-mono text-slate-500 dark:text-slate-400">

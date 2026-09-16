@@ -5,8 +5,7 @@ import {
   FaSearch, FaArrowRight, FaTrain, FaPlane, FaHotel, 
   FaPlay, FaPause, FaChevronLeft, FaChevronRight, FaMapMarkerAlt
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
-import { FiCompass, FiCheckCircle } from 'react-icons/fi';
+import { FiCompass, FiCheckCircle, FiNavigation, FiSliders } from 'react-icons/fi';
 import { ThreeUIButton } from '../ui/ThreeUIButton';
 import { 
   getHotelsRoute, 
@@ -22,10 +21,10 @@ const HERO_CHAPTERS = [
     id: 'welcome',
     chapterNumber: 'CHAPTER 01',
     badge: 'GATEWAY TO TRAVELEASE OS',
-    badgeIcon: HiOutlineSparkles,
+    badgeIcon: FiCompass,
     headline: 'Your Gateway to 190+ Countries,',
     highlight: 'Unified by Speed & Precision',
-    tagline: 'Experience the next-generation travel platform unifying verified Tatkal rail, live flight radar, authentic boutique stays, and sub-second AI itineraries in one intelligent ecosystem.',
+    tagline: 'Experience the next-generation travel platform unifying verified Tatkal rail, live flight radar, authentic boutique stays, and multi-modal custom itineraries in one unified ecosystem.',
     image: '/images/destinations/hero_swiss_alps.jpg',
     telemetry: '190+ COUNTRIES · ZERO CONVENIENCE FEES',
     searchMode: 'search',
@@ -37,9 +36,9 @@ const HERO_CHAPTERS = [
       variant: 'amber-glow',
     },
     secondaryBtn: {
-      label: 'Launch AI Architect',
+      label: 'Launch Route Planner',
       route: '/itinerary',
-      icon: HiOutlineSparkles,
+      icon: FiNavigation,
       variant: 'liquid-metal',
     },
     quickPills: [
@@ -57,8 +56,8 @@ const HERO_CHAPTERS = [
     badge: 'IRCTC TATKAL & BULLET RAIL OS',
     badgeIcon: FaTrain,
     headline: 'Book Confirmed Train Berths Across',
-    highlight: 'All 28 Indian States with AI Radar',
-    tagline: 'Real-time Vande Bharat, Rajdhani & Shatabdi timetables with AI confirmation probability, multi-day availability radar, and direct IRCTC Tatkal booking.',
+    highlight: 'All 28 Indian States with Predictive Radar',
+    tagline: 'Real-time Vande Bharat, Rajdhani & Shatabdi timetables with predictive confirmation probability, multi-day availability radar, and direct IRCTC Tatkal booking.',
     image: '/images/trains/ir_vande_bharat.jpg',
     telemetry: 'LIVE IRCTC TIMETABLES · 98% CONFIRMED TATKAL RADAR',
     searchMode: 'trains',
@@ -148,19 +147,19 @@ const HERO_CHAPTERS = [
   {
     id: 'ai',
     chapterNumber: 'CHAPTER 05',
-    badge: 'GROQ LPU™ AI TRIP ARCHITECT',
-    badgeIcon: HiOutlineSparkles,
-    headline: 'Sub-Second Custom Travel Itineraries',
-    highlight: 'Synthesizing Trains, Flights & Stays',
-    tagline: 'Describe your trip in plain language. Our AI engine builds a day-by-day itinerary with verified trains, flights, hotels, and activities ready to book in one click.',
+    badge: 'MULTI-MODAL ROUTE ARCHITECT',
+    badgeIcon: FiNavigation,
+    headline: 'Instant Custom Travel Itineraries',
+    highlight: 'Coordinating Trains, Flights & Stays',
+    tagline: 'Describe your trip in plain language. Our route engine builds a day-by-day itinerary with verified trains, flights, hotels, and activities ready to book in one click.',
     image: '/images/destinations/hero_varanasi_ghats.jpg',
-    telemetry: '✦ GROQ LPU™ ACCELERATED · 100% PERSONALIZED',
+    telemetry: 'HIGH-SPEED RAIL & AIR INTEGRATION · 100% PERSONALIZED',
     searchMode: 'ai',
     searchPlaceholder: "Describe your dream trip: '4-day spiritual journey to Varanasi under ₹15,000'...",
     primaryBtn: {
-      label: 'Launch AI Trip Architect',
+      label: 'Launch Route Architect',
       route: '/itinerary',
-      icon: HiOutlineSparkles,
+      icon: FiNavigation,
       variant: 'amber-glow',
     },
     secondaryBtn: {
@@ -259,7 +258,7 @@ export const HeroSection = () => {
         {/* ==================================================================== */}
         {/* LUXURY CONTAINED HERO STAGE (Dual-Ring Glass Bevel & Dynamic Elevation) */}
         {/* ==================================================================== */}
-        <div className="relative w-full min-h-[580px] sm:min-h-[620px] md:min-h-[660px] lg:h-[72vh] lg:max-h-[760px] rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3.2rem] overflow-hidden ring-1 ring-slate-900/10 dark:ring-white/10 border border-white/80 dark:border-white/10 shadow-[0_30px_80px_-20px_rgba(15,23,42,0.16),0_12px_36px_-10px_rgba(245,158,11,0.15)] dark:shadow-[0_30px_90px_-20px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.15)] group">
+        <div className="relative w-full min-h-[640px] sm:min-h-[620px] md:min-h-[660px] lg:h-[72vh] lg:max-h-[760px] rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3.2rem] overflow-hidden ring-1 ring-slate-900/10 dark:ring-white/10 border border-white/80 dark:border-white/10 shadow-[0_30px_80px_-20px_rgba(15,23,42,0.16),0_12px_36px_-10px_rgba(245,158,11,0.15)] dark:shadow-[0_30px_90px_-20px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.15)] group">
           
           {/* Subtle Top Glass Rim Reflection for Physical Depth */}
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/50 dark:via-white/25 to-transparent pointer-events-none z-30" />
@@ -322,7 +321,7 @@ export const HeroSection = () => {
                     <IconComponent className="w-2.5 h-2.5" />
                     <span>0{idx + 1}</span>
                     <span className="hidden lg:inline capitalize">
-                      {chapter.id === 'welcome' ? 'Welcome' : chapter.id === 'ai' ? 'AI Planner' : chapter.id}
+                      {chapter.id === 'welcome' ? 'Welcome' : (chapter.id === 'ai' || chapter.id === 'itinerary') ? 'Itinerary' : chapter.id}
                     </span>
                   </button>
                 );
@@ -396,7 +395,7 @@ export const HeroSection = () => {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.45 }}
-                className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.12]"
+                className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.12]"
               >
                 <span className="block">{activeChapter.headline}</span>
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-white">
@@ -410,7 +409,7 @@ export const HeroSection = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1, duration: 0.45 }}
-                className="text-xs sm:text-sm md:text-base text-white/90 font-medium max-w-2xl leading-relaxed [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]"
+                className="font-body text-xs sm:text-sm md:text-base text-white/90 font-medium max-w-2xl leading-relaxed [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]"
               >
                 {activeChapter.tagline}
               </motion.p>
@@ -423,7 +422,7 @@ export const HeroSection = () => {
               <form onSubmit={handleSearchSubmit} className="relative group">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
                   {activeChapter.searchMode === 'ai' ? (
-                    <HiOutlineSparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+                    <FiNavigation className="w-4 h-4 text-amber-400" />
                   ) : activeChapter.searchMode === 'trains' ? (
                     <FaTrain className="w-4 h-4 text-purple-400" />
                   ) : activeChapter.searchMode === 'flights' ? (
@@ -535,13 +534,13 @@ export const HeroSection = () => {
         <div className="flex animate-ticker whitespace-nowrap">
           <div className="flex shrink-0 gap-8 items-center">
             {[
-              { text: 'Dynamic Geocoding Live: Explore any place across India & World', icon: <HiOutlineSparkles className="text-sky-400" /> },
+              { text: 'Dynamic Geocoding Live: Explore any place across India & World', icon: <FiCompass className="text-sky-400" /> },
               { text: 'IRCTC Tatkal Engine: Live Vande Bharat seat prediction active', icon: <FaTrain className="text-amber-400" /> },
               { text: 'Sub-Second Flight Matrix: Monitored over 1,400+ airlines', icon: <FaPlane className="text-sky-400" /> },
               { text: 'Verified Boutique Stays: Real photos & authentic amenities', icon: <FaHotel className="text-emerald-400" /> },
-              { text: 'Groq LPU™ Trip Architect: 1-click automatic itinerary ready', icon: <HiOutlineSparkles className="text-purple-400" /> },
+              { text: 'Multi-Modal Route Engine: 1-click automatic itinerary ready', icon: <FiNavigation className="text-purple-400" /> },
               { text: 'OpenStreetMap + Wikipedia: Real photos & live telemetry', icon: <FiCompass className="text-teal-400" /> },
-              { text: 'Dynamic Geocoding Live: Explore any place across India & World', icon: <HiOutlineSparkles className="text-sky-400" /> },
+              { text: 'Dynamic Geocoding Live: Explore any place across India & World', icon: <FiCompass className="text-sky-400" /> },
               { text: 'IRCTC Tatkal Engine: Live Vande Bharat seat prediction active', icon: <FaTrain className="text-amber-400" /> },
             ].map((item, idx) => (
               <div

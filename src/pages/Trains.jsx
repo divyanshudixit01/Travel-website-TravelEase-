@@ -507,7 +507,7 @@ const Trains = () => {
 
   // ── Multi-Passenger Booking State (Up to 6 Passengers) ──
   const [passengerList, setPassengerList] = useState([
-    { id: 1, name: '', age: '', gender: 'Male', berth: 'No Preference' }
+    { id: 1, name: '', age: '', gender: 'Preference', berth: 'No Preference' }
   ]);
   const [selectedQuota, setSelectedQuota] = useState('GN'); // GN, TQ, SS (Senior), LD (Ladies)
 
@@ -840,7 +840,7 @@ const Trains = () => {
     }
     setPassengerList(prev => [
       ...prev,
-      { id: Date.now(), name: '', age: '', gender: 'Male', berth: 'No Preference' }
+      { id: Date.now(), name: '', age: '', gender: 'Preference', berth: 'No Preference' }
     ]);
   };
 
@@ -1048,7 +1048,7 @@ const Trains = () => {
   ];
 
   return (
-    <div className="bg-slate-50 dark:bg-[#071326] text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-500" id="trains-page">
+    <div className="bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-500" id="trains-page">
       <JsonLd data={trainSchemas} />
 
       {/* ═══════ 1. CINEMATIC FLYBY ═══════ */}
@@ -1087,8 +1087,8 @@ const Trains = () => {
             />
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-50/95 via-slate-900/15 to-black/35 dark:from-[#071326] dark:via-[#071326]/30 dark:to-black/45" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/25 to-transparent dark:from-[#071326]/85 dark:via-[#071326]/30 dark:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-50/95 via-slate-900/15 to-black/35 dark:from-[#06080d] dark:via-[#06080d]/30 dark:to-black/45" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/25 to-transparent dark:from-[#06080d]/85 dark:via-[#06080d]/30 dark:to-transparent" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(245,166,35,0.25)_0%,transparent_60%)]" />
         </motion.div>
 
@@ -1150,13 +1150,13 @@ const Trains = () => {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 text-amber-300 text-[11px] font-bold uppercase tracking-wider mb-3">
                 <span>Real-Time Indian Railways Engine</span>
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.08] drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
                 Book Your Train<br />
                 <span className="bg-gradient-to-r from-amber-300 via-amber-400 to-orange-400 bg-clip-text text-transparent drop-shadow-[0_4px_24px_rgba(245,166,35,0.4)]">
                   Journey
                 </span>
               </h1>
-              <p className="text-slate-200/90 text-sm sm:text-base font-normal mt-3.5 max-w-lg leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+              <p className="font-body text-slate-200/90 text-sm sm:text-base font-normal mt-3.5 max-w-lg leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
                 Live IRCTC timetable search, real-time GPS telemetry radar, 6-day availability matrix, and zero-cancellation Tatkal booking.
               </p>
 
@@ -1660,7 +1660,7 @@ const Trains = () => {
                                 to={getItineraryRoute(normalizeCityName(toStationObj?.name || toCode))}
                                 className="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
                               >
-                                <FaRoute className="w-3 h-3" /> AI Plan
+                                <FaRoute className="w-3 h-3" /> Custom Plan
                               </Link>
                             </div>
                           </div>
@@ -2760,10 +2760,11 @@ const Trains = () => {
                           className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none"
                         />
                         <select
-                          value={p.gender}
+                          value={p.gender || 'Preference'}
                           onChange={(e) => handleUpdatePassenger(p.id, 'gender', e.target.value)}
                           className="px-2 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:outline-none"
                         >
+                          <option value="Preference">Preference (Gender)</option>
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
                           <option value="Transgender">Transgender</option>

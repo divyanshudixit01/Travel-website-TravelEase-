@@ -4,7 +4,6 @@ import {
   FaTimes, FaPrint, FaDownload, FaPlane, FaTrain, FaHotel, FaCar, FaBus, 
   FaCheckCircle, FaQrcode, FaBarcode, FaShieldAlt, FaShareAlt, FaSuitcaseRolling, FaInfoCircle
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
 
 export const BookingTicketModal = ({ isOpen, onClose, booking }) => {
   if (!isOpen || !booking) return null;

@@ -85,11 +85,11 @@ const NoResults = ({
         {config.icon}
       </div>
 
-      <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white mb-3">
+      <h3 className="font-display text-2xl font-extrabold text-slate-900 dark:text-white mb-3 tracking-tight">
         {config.title}
       </h3>
 
-      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-md mb-6">
+      <p className="font-body text-sm font-medium text-slate-500 dark:text-slate-400 max-w-md mb-6 leading-relaxed">
         {config.description}
       </p>
 

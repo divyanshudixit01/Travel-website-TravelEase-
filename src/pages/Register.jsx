@@ -8,7 +8,6 @@ import {
   FaArrowRight, FaCheck, FaShieldAlt,
   FaLock, FaEnvelope, FaUser, FaCompass, FaTag, FaGift
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { ThreeUIButton } from '../components/ui/ThreeUIButton';
 
@@ -106,8 +105,8 @@ const Register = () => {
   const perks = [
     { 
       icon: <FaCompass className="text-emerald-500 dark:text-emerald-400" />, 
-      title: 'AI Smart Explorer', 
-      desc: 'Autonomous trip curation tailored to your lifestyle' 
+      title: 'Route Explorer Engine', 
+      desc: 'Dynamic trip curation tailored to your travel style' 
     },
     { 
       icon: <FaTag className="text-sky-500 dark:text-sky-400" />, 
@@ -214,7 +213,7 @@ const Register = () => {
               border: theme === 'dark' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(16, 185, 129, 0.4)',
             }}
           >
-            <HiOutlineSparkles className="w-3.5 h-3.5" />
+            <FaCompass className="w-3.5 h-3.5" />
             <span>Join 250,000+ Explorers Worldwide</span>
           </motion.div>
 
@@ -237,7 +236,7 @@ const Register = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-slate-700 dark:text-slate-300 text-sm sm:text-base font-medium leading-relaxed mb-8 max-w-lg"
           >
-            Create your account in seconds to unlock smart flight discovery, AI-curated journeys, and members-only hotel rates.
+            Create your account in seconds to unlock smart flight discovery, custom-curated journeys, and members-only hotel rates.
           </motion.p>
 
           {/* Liquid Glass Feature Cards */}

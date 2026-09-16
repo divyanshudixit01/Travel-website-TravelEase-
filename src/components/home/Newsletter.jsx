@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiMail, FiBell, FiSmartphone } from 'react-icons/fi';
+import { FiMail, FiBell, FiSmartphone, FiLock, FiCheckCircle, FiShield, FiCreditCard, FiZap, FiTrendingUp } from 'react-icons/fi';
 import { FaCheck, FaChartLine } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
 import { ThreeUIButton } from '../ui/ThreeUIButton';
 import api from '../../services/api';
 
@@ -33,27 +32,27 @@ const Newsletter = () => {
 
   const features = [
     { icon: <FiBell className="w-5 h-5" />, title: "Price Drop Alerts", desc: "Instant notifications when flight or train fares drop on your routes" },
-    { icon: <FaChartLine className="w-5 h-5" />, title: "Fare Predictions", desc: "AI predicts exact booking windows for Tatkal and lowest airfares" },
+    { icon: <FaChartLine className="w-5 h-5" />, title: "Fare Predictions", desc: "Predictive algorithms calculate exact booking windows for Tatkal and lowest airfares" },
     { icon: <FiSmartphone className="w-5 h-5" />, title: "VIP Flash Access", desc: "Secret drops and limited resort quotas delivered directly to you" },
   ];
 
   const trustBadges = [
-    "🔒 256-bit SSL Encrypted",
-    "✅ IATA Accredited",
-    "🏆 ISO 27001 Certified",
-    "💳 PCI DSS Level 1",
-    "⚡ Instant Tatkal Refund Guarantee",
+    { icon: <FiLock className="w-3.5 h-3.5 text-amber-500" />, label: "256-bit SSL Encrypted" },
+    { icon: <FiCheckCircle className="w-3.5 h-3.5 text-emerald-500" />, label: "IATA Accredited" },
+    { icon: <FiShield className="w-3.5 h-3.5 text-sky-500" />, label: "ISO 27001 Certified" },
+    { icon: <FiCreditCard className="w-3.5 h-3.5 text-indigo-500" />, label: "PCI DSS Level 1" },
+    { icon: <FiZap className="w-3.5 h-3.5 text-amber-400" />, label: "Instant Tatkal Refund Guarantee" },
   ];
 
   return (
-    <section className="relative py-28 overflow-hidden bg-slate-50 dark:bg-[#06080d] border-t border-slate-200 dark:border-white/10 transition-colors duration-500" id="smart-alerts">
+    <section className="relative py-20 lg:py-28 overflow-hidden bg-slate-50 dark:bg-[#06080d] border-t border-slate-200 dark:border-white/10 transition-colors duration-500" id="smart-alerts">
       {/* Ambient Lighting Backdrops */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[140px]" />
         <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[140px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-5xl mx-auto">
           {/* Top Section — CTA + Features */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
@@ -63,15 +62,15 @@ const Newsletter = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-200/80 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-semibold uppercase tracking-widest mb-6">
-                <HiOutlineSparkles className="w-3.5 h-3.5" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-widest mb-4">
+                <FiTrendingUp className="w-3.5 h-3.5 text-amber-500" />
                 <span>INTELLIGENT FARE RADAR</span>
               </div>
 
-              <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight tracking-tight">
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight tracking-tight">
                 Unlock <span className="text-gradient-primary">price drop alerts</span> & secret flash drops
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-base md:text-lg mb-8 leading-relaxed">
+              <p className="font-body text-slate-600 dark:text-slate-400 text-sm sm:text-base mb-8 leading-relaxed">
                 Join 2.4M savvy explorers who save an average of 23% on flights, boutique stays, and Tatkal trains.
               </p>
 
@@ -152,16 +151,17 @@ const Newsletter = () => {
           {/* Trust Badges & Guarantee Strip */}
           <div className="pt-10 border-t border-slate-200/90 dark:border-white/10 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-xs font-mono text-slate-600 dark:text-slate-400 font-semibold">
-              <HiOutlineSparkles className="text-amber-500 w-4 h-4" />
-              <span>AI FARE PREDICTION ENGINE · 99.4% HISTORICAL ACCURACY</span>
+              <FiTrendingUp className="text-amber-500 w-4 h-4" />
+              <span>PREDICTIVE FARE RADAR · 99.4% HISTORICAL ACCURACY</span>
             </div>
             <div className="flex flex-wrap gap-2.5">
               {trustBadges.map((badge) => (
                 <span
-                  key={badge}
-                  className="text-xs text-slate-700 dark:text-slate-300 font-mono bg-white dark:bg-white/[0.04] px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-white/10 shadow-sm"
+                  key={badge.label}
+                  className="inline-flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 font-mono bg-white dark:bg-white/[0.04] px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-white/10 shadow-sm"
                 >
-                  {badge}
+                  {badge.icon}
+                  <span>{badge.label}</span>
                 </span>
               ))}
             </div>

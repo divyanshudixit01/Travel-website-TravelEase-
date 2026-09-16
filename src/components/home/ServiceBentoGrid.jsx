@@ -4,10 +4,10 @@ import {
   FaTrain, FaPlane, FaHotel, 
   FaArrowRight, FaStar, FaBolt, FaCheckCircle
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
-import { FiTrendingDown, FiMapPin } from 'react-icons/fi';
+import { FiTrendingDown, FiMapPin, FiNavigation, FiLayers } from 'react-icons/fi';
 import { ThreeCard3D } from '../ui/ThreeCard3D';
 import { ThreeUIButton } from '../ui/ThreeUIButton';
+import { IrctcPartnerSeal } from '../common/BrandVectors';
 import { 
   getHotelsRoute, 
   getFlightsRoute, 
@@ -33,26 +33,26 @@ export const ServiceBentoGrid = () => {
   const popularHotelHubs = ['Varanasi', 'Ayodhya', 'Udaipur', 'Goa', 'Jaipur', 'Manali'];
 
   return (
-    <section className="relative py-20 px-4 max-w-7xl mx-auto z-20" id="services-bento-grid">
-      {/* Section Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+    <section className="relative py-20 lg:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto z-20" id="services-bento-grid">
+      {/* 3-Tier Section Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 lg:mb-16 gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200/80 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-semibold uppercase tracking-widest mb-3">
-            <HiOutlineSparkles className="w-3.5 h-3.5" />
-            <span>Integrated Travel Ecosystem</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-widest mb-3">
+            <FiLayers className="w-3.5 h-3.5 text-amber-500" />
+            <span>INTEGRATED TRAVEL ECOSYSTEM</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
             Engineered for <span className="text-gradient-primary">seamless exploration</span>
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base mt-2 max-w-xl">
-            Live IRCTC Tatkal prediction, global flight radar, boutique stays, and AI generation — unified into one platform.
+          <p className="font-body text-slate-600 dark:text-slate-400 text-sm md:text-base mt-3 max-w-xl leading-relaxed">
+            Live IRCTC Tatkal prediction, global flight radar, boutique stays, and multi-modal route planning — unified into one platform.
           </p>
         </div>
 
-        <div className="mt-4 md:mt-0">
+        <div className="mt-2 md:mt-0 shrink-0">
           <Link
             to="/destinations"
-            className="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-600 dark:text-amber-400 hover:text-amber-500 uppercase tracking-wider group"
+            className="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-600 dark:text-amber-400 hover:text-amber-500 uppercase tracking-wider group tap-bounce"
           >
             <span>Explore All 190+ Countries</span>
             <FaArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
@@ -60,11 +60,11 @@ export const ServiceBentoGrid = () => {
         </div>
       </div>
 
-      {/* Bento Grid Container */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-5">
+      {/* Bento Grid Container (Robust 12-col grid across all devices) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5">
         
         {/* CARD 1: FEATURED TRAINS RADAR (7 COLS) */}
-        <div className="lg:col-span-7">
+        <div className="md:col-span-2 lg:col-span-7">
           <ThreeCard3D spotlightColor="rgba(168, 85, 247, 0.15)" className="p-6 md:p-8 flex flex-col justify-between min-h-[420px]">
             <div>
               {/* Header tags */}
@@ -76,8 +76,9 @@ export const ServiceBentoGrid = () => {
                   <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                       Train Journeys & Tatkal Live
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-400 text-black">
-                        IRCTC Verified
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-400 text-black inline-flex items-center gap-1">
+                        <IrctcPartnerSeal className="w-3 h-3" />
+                        <span>IRCTC Verified</span>
                       </span>
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">High-speed rail booking with instant seat prediction</p>
@@ -171,7 +172,7 @@ export const ServiceBentoGrid = () => {
         </div>
 
         {/* CARD 2: FLIGHTS FARE RADAR (5 COLS) */}
-        <div className="lg:col-span-5">
+        <div className="md:col-span-2 lg:col-span-5">
           <ThreeCard3D spotlightColor="rgba(56, 189, 248, 0.15)" className="p-6 md:p-8 flex flex-col justify-between min-h-[420px]">
             <div>
               <div className="flex items-center justify-between gap-3 mb-5">
@@ -233,7 +234,7 @@ export const ServiceBentoGrid = () => {
         </div>
 
         {/* CARD 3: HOTELS & SANCTUARY STAYS (5 COLS) */}
-        <div className="lg:col-span-5">
+        <div className="md:col-span-2 lg:col-span-5">
           <ThreeCard3D spotlightColor="rgba(245, 158, 11, 0.15)" className="p-6 md:p-8 flex flex-col justify-between min-h-[380px]">
             <div>
               <div className="flex items-center justify-between gap-3 mb-4">
@@ -306,28 +307,28 @@ export const ServiceBentoGrid = () => {
           </ThreeCard3D>
         </div>
 
-        {/* CARD 4: SMART TRIP ARCHITECT (7 COLS) */}
-        <div className="lg:col-span-7">
+        {/* CARD 4: SMART ROUTE ENGINE (7 COLS) */}
+        <div className="md:col-span-2 lg:col-span-7">
           <ThreeCard3D spotlightColor="rgba(245, 158, 11, 0.2)" className="p-6 md:p-8 flex flex-col justify-between min-h-[380px]">
             <div>
               <div className="flex items-center justify-between gap-3 mb-5">
                 <div className="flex items-center gap-2.5">
                   <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/40 flex items-center justify-center text-amber-500 dark:text-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.35)]">
-                    <HiOutlineSparkles className="w-5 h-5 animate-pulse" />
+                    <FiNavigation className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      AI Trip Architect
+                      Multi-Modal Route Engine
                       <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-                        Gemini 2.5
+                        Dynamic Routing
                       </span>
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">Generates 100% custom day-by-day itineraries</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">Generates 100% verified day-by-day travel itineraries</p>
                   </div>
                 </div>
 
                 <div className="text-xs font-mono text-slate-500 dark:text-slate-400 hidden sm:block">
-                  Avg generation: 1.8s
+                  Avg compile: 1.2s
                 </div>
               </div>
 
@@ -335,7 +336,7 @@ export const ServiceBentoGrid = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 {[
                   { step: '01', title: 'Target & Vibe', desc: 'Pick cities & mood' },
-                  { step: '02', title: 'Neural Match', desc: 'Flights + hotels sync' },
+                  { step: '02', title: 'Transit Match', desc: 'Flights + hotels sync' },
                   { step: '03', title: 'Route Optimizer', desc: 'Day-by-day map flow' },
                   { step: '04', title: 'Single Checkout', desc: 'Instant voucher issuance' },
                 ].map((item) => (
@@ -369,9 +370,9 @@ export const ServiceBentoGrid = () => {
                 variant="amber-glow"
                 size="md"
                 to={`/itinerary?prompt=${encodeURIComponent('Plan a comprehensive 7-day trip to Tokyo & Kyoto with authentic cultural experiences, bullet train routes, and handpicked boutique stays under ₹1.2L budget')}`}
-                icon={<HiOutlineSparkles className="w-4 h-4 text-black" />}
+                icon={<FiNavigation className="w-4 h-4 text-black" />}
               >
-                Generate My Itinerary
+                Build My Itinerary
               </ThreeUIButton>
             </div>
           </ThreeCard3D>

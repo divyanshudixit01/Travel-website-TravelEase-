@@ -7,7 +7,7 @@ import React from 'react';
 
 // Base shimmer block
 const Shimmer = ({ className = '' }) => (
-  <div className={`animate-pulse bg-slate-200 dark:bg-slate-700/50 rounded-lg ${className}`} />
+  <div className={`animate-pulse bg-gradient-to-r from-slate-200/80 via-slate-100 to-slate-200/80 dark:from-white/[0.04] dark:via-white/[0.08] dark:to-white/[0.04] rounded-xl relative overflow-hidden ${className}`} />
 );
 
 // Flight card skeleton

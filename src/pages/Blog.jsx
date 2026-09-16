@@ -10,7 +10,6 @@ import {
   FaCamera, FaVolumeUp, FaVolumeMute, FaCheckCircle,
   FaQuoteLeft, FaGlobeAmericas
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
 import JsonLd from '../components/seo/JsonLd';
 import { getWebPageSchema, getBreadcrumbSchema } from '../utils/schemas';
 import { ThreeUIButton } from '../components/ui/ThreeUIButton';
@@ -509,7 +508,7 @@ const Blog = () => {
           {/* Explorer Stories Reel (Instagram / Editorial Style Strip) */}
           <div className="pt-5 pb-2">
             <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2">
-              <HiOutlineSparkles className="text-amber-500" /> Active Explorers in the Field
+              <FaCompass className="text-amber-500" /> Active Explorers in the Field
             </p>
 
             <div className="flex items-center gap-4 overflow-x-auto no-scrollbar py-2 -mx-2 px-2">
@@ -1195,7 +1194,7 @@ const Blog = () => {
                       Inspired to visit {selectedStory.location}?
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Explore live flight routes, boutique stays, and generate an AI itinerary for this region.
+                      Explore live flight routes, boutique stays, and plan a custom itinerary for this region.
                     </p>
                   </div>
 
@@ -1204,7 +1203,7 @@ const Blog = () => {
                     onClick={() => setSelectedStory(null)}
                     className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-xs shadow-md shadow-amber-500/20 whitespace-nowrap transition-all"
                   >
-                    Build AI Itinerary →
+                    Plan Itinerary →
                   </Link>
                 </div>
 

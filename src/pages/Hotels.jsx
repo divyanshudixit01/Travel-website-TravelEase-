@@ -49,7 +49,7 @@ const Hotels = () => {
 
   // Search parameters
   const [destination, setDestination] = useState(() =>
-    searchParams.get('destination') || searchParams.get('city') || searchParams.get('q') || 'Varanasi'
+    searchParams.get('destination') || searchParams.get('city') || searchParams.get('q') || ''
   );
 
   // Check-in & check-out dates (default +3 days and +6 days)
@@ -96,11 +96,19 @@ const Hotels = () => {
 
   // Search Handler — 100% Real-Time Backend API (Zero Hardcoded Array Fallbacks)
   const handleSearch = useCallback(async (page = 1) => {
+    const searchTarget = destination.trim();
+    if (!searchTarget) {
+      setHotels([]);
+      setTotalAvailable(0);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const liveRes = await searchGoogleHotels({
-        destination: destination.trim() || 'Varanasi',
+        destination: searchTarget,
         checkIn,
         checkOut,
         adults: guestsCount,
@@ -264,7 +272,7 @@ const Hotels = () => {
   ];
 
   return (
-    <div className="bg-slate-50 dark:bg-[#0a0e1a] text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-500" id="hotels-page">
+    <div className="bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-500" id="hotels-page">
       <JsonLd data={hotelSchemas} />
 
       {/* ─── Hero Section with Modern Search Dock ───────────────────────────── */}
@@ -286,7 +294,7 @@ const Hotels = () => {
             <span>Real-Time Wholesale Hotel Engine • Pan-India</span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight mb-8 drop-shadow-md">
+          <h1 className="font-display text-3xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight mb-8 drop-shadow-md">
             Extraordinary Hotels. <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-orange-400">Guaranteed Real Rates.</span>
           </h1>
 
@@ -424,35 +432,35 @@ const Hotels = () => {
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
             <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
-              Cross-Service Travel Hub for <span className="text-amber-500 font-extrabold">{destination}</span>:
+              Cross-Service Travel Hub {destination ? <>for <span className="text-amber-500 font-extrabold">{destination}</span>:</> : <>for India:</>}
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {hasTrainNetwork(destination) && (
+            {hasTrainNetwork(destination || 'New Delhi') && (
               <Link
-                to={getTrainsRoute(destination)}
+                to={getTrainsRoute(destination || 'NDLS')}
                 className="px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-600 dark:text-purple-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
               >
                 <FaTrain className="w-3 h-3 text-purple-500" /> Tatkal Trains
               </Link>
             )}
             <Link
-              to={getFlightsRoute(destination)}
+              to={getFlightsRoute(destination || 'DEL')}
               className="px-3 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-600 dark:text-sky-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
             >
               <FaPlane className="w-3 h-3 text-sky-500" /> Live Flights
             </Link>
             <Link
-              to={getExploreRoute(destination)}
+              to={getExploreRoute(destination || 'Goa')}
               className="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
             >
               <FaMapMarkerAlt className="w-3 h-3 text-amber-500" /> Live Map
             </Link>
             <Link
-              to={getItineraryRoute(destination)}
+              to={getItineraryRoute(destination || 'Goa')}
               className="px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
             >
-              <FaRoute className="w-3 h-3 text-emerald-500" /> AI Itinerary
+              <FaRoute className="w-3 h-3 text-emerald-500" /> Custom Plan
             </Link>
             <Link
               to={getDestinationsRoute(destination)}
@@ -494,7 +502,7 @@ const Hotels = () => {
               <div>
                 <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <FaHotel className="text-amber-500" />
-                  <span>Stays in {destination}</span>
+                  <span>{destination ? `Stays in ${destination}` : 'Verified Stays Across India'}</span>
                   <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                     {totalAvailable} verified
                   </span>
@@ -537,17 +545,47 @@ const Hotels = () => {
             {isLoading ? (
               <HotelSkeletonList count={4} />
             ) : filteredAndSortedHotels.length === 0 ? (
-              <NoResults
-                type="no-hotels"
-                serviceName="Hotels & Resorts"
-                searchQuery={destination}
-                suggestions={[
-                  { label: 'Reset Filter Slabs', onClick: handleResetFilters },
-                  { label: 'Explore Varanasi Stays', onClick: () => setDestination('Varanasi') },
-                  { label: 'Explore Ayodhya Stays', onClick: () => setDestination('Ayodhya') },
-                  { label: 'Explore Goa Resorts', onClick: () => setDestination('Goa') }
-                ]}
-              />
+              !destination.trim() ? (
+                <div className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center space-y-4 shadow-sm">
+                  <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto text-2xl">
+                    <FaHotel />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white">Explore Verified Hotels in India</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
+                      Search any Indian city, tourist haven, or landmark above to compare verified hotels with live wholesale rates in INR.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                    <span className="text-xs font-mono text-slate-400 w-full">Quick Popular Indian Destinations:</span>
+                    {['Goa', 'Jaipur', 'Udaipur', 'Kerala', 'Manali', 'Varanasi', 'Mumbai'].map((city) => (
+                      <button
+                        key={city}
+                        type="button"
+                        onClick={() => {
+                          setDestination(city);
+                          setSearchParams({ destination: city });
+                        }}
+                        className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 hover:text-black dark:hover:bg-amber-500 dark:hover:text-black text-xs font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer shadow-sm"
+                      >
+                        {city}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <NoResults
+                  type="no-hotels"
+                  serviceName="Hotels & Resorts"
+                  searchQuery={destination}
+                  suggestions={[
+                    { label: 'Reset Filter Slabs', onClick: handleResetFilters },
+                    { label: 'Explore Goa Resorts', onClick: () => { setDestination('Goa'); setSearchParams({ destination: 'Goa' }); } },
+                    { label: 'Explore Jaipur Palaces', onClick: () => { setDestination('Jaipur'); setSearchParams({ destination: 'Jaipur' }); } },
+                    { label: 'Explore Kerala Stays', onClick: () => { setDestination('Kerala'); setSearchParams({ destination: 'Kerala' }); } }
+                  ]}
+                />
+              )
             ) : (
               <div className="space-y-5">
                 {filteredAndSortedHotels.map((hotel) => (

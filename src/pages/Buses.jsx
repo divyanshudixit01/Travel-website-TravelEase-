@@ -168,7 +168,7 @@ export const Buses = () => {
   ], []);
 
   return (
-    <div className="relative bg-slate-50 dark:bg-[#070a13] text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-500">
+    <div className="relative bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-500">
       <JsonLd data={busSchemas} />
 
       {/* ═══════════════════════════════════════════════════════════════════════════
@@ -439,7 +439,7 @@ export const Buses = () => {
       {/* ═══════════════════════════════════════════════════════════════════════════
           2. FILTER & TIME SUB-DOCK
       ═══════════════════════════════════════════════════════════════════════════ */}
-      <div className="sticky top-20 z-30 bg-slate-50/90 dark:bg-[#070a13]/90 backdrop-blur-xl border-y border-slate-200/80 dark:border-white/10 py-3.5 transition-colors">
+      <div className="sticky top-20 z-30 bg-slate-50/90 dark:bg-[#06080d]/90 backdrop-blur-xl border-y border-slate-200/80 dark:border-white/10 py-3.5 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-4">
           {/* Time Filter Pills */}
           <div className="flex items-center gap-3">

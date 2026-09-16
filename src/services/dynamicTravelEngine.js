@@ -903,6 +903,14 @@ export function getLiveExploreDestinations() {
       state: "Uttar Pradesh",
       tag: "Spiritual Twilight Aarti",
       vibe: "heritage",
+      weather: { temp: "26°C", status: "Pleasant", icon: "sun" },
+      bestSeason: "Oct – Mar (Twilight Aarti)",
+      highlights: [
+        "Private Sunrise Ganges Wooden Boat Tour",
+        "VIP Dashashwamedh Evening Maha Aarti Pass",
+        "Kashi Vishwanath Corridor Darshan Guide",
+        "Centuries-Old Handloom Silk Weavers Quarter"
+      ],
       image: "https://images.unsplash.com/photo-1561359313-0639aad49ca6?q=80&w=800&auto=format&fit=crop",
       description: "Sacred Ganges ghats with ancient stone steppes, morning hand-rowed boat journeys, and evening Maha Aarti ceremonies.",
       trainRoute: "Vande Bharat Express #22436 · 7h 45m",
@@ -923,6 +931,14 @@ export function getLiveExploreDestinations() {
       state: "Uttar Pradesh",
       tag: "UNESCO World Wonder",
       vibe: "heritage",
+      weather: { temp: "25°C", status: "Clear Skies", icon: "sun" },
+      bestSeason: "Oct – Mar (Cool Breeze)",
+      highlights: [
+        "Sunrise Priority Access at Taj Mahal",
+        "Mughal Red Fort Emperor Chambers Tour",
+        "Mehtab Bagh River Sunset Viewpoint",
+        "Authentic Marble Inlay Artisan Studio"
+      ],
       image: "https://images.unsplash.com/photo-1610361418971-50cb8d1f8339?q=80&w=800&auto=format&fit=crop",
       description: "Ivory-white marble mausoleum on the Yamuna river bank, acclaimed worldwide as the supreme crown jewel of Mughal architecture.",
       trainRoute: "Gatimaan / Vande Bharat Express · 1h 40m",
@@ -943,6 +959,14 @@ export function getLiveExploreDestinations() {
       state: "Goa",
       tag: "Golden Sunset & Shacks",
       vibe: "beaches",
+      weather: { temp: "29°C", status: "Tropical Warmth", icon: "sun" },
+      bestSeason: "Nov – Apr (Beach Season)",
+      highlights: [
+        "South Goa Palolem Sunset Catamaran Sail",
+        "UNESCO Old Goa Portuguese Basilica Walk",
+        "Fontainhas Latin Quarter Heritage Trail",
+        "Beachfront Candlelight Fresh Seafood Dining"
+      ],
       image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=800&auto=format&fit=crop",
       description: "Pristine sandy shores, Portuguese colonial villas, water sports, and vibrant beachfront twilight dining.",
       trainRoute: "Madgaon Vande Bharat Express #22229",
@@ -963,6 +987,14 @@ export function getLiveExploreDestinations() {
       state: "Himachal Pradesh",
       tag: "Snow Valleys & Treks",
       vibe: "mountains",
+      weather: { temp: "14°C", status: "Crisp Mountain Air", icon: "cloud" },
+      bestSeason: "Dec – Feb (Snow) / May – Jun (Summer)",
+      highlights: [
+        "Rohtang Snow Pass & Atal Tunnel Transit",
+        "Solang Valley Paragliding & Alpine Trails",
+        "Ancient 15th-Century Wooden Hadimba Shrine",
+        "Old Manali Riverfront Pine Woodland Cafes"
+      ],
       image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?q=80&w=800&auto=format&fit=crop",
       description: "Himalayan pine valleys, Atal Tunnel high-altitude crossings, Solang paragliding, and historic wooden shrines.",
       trainRoute: "Una Vande Bharat #22447 + Scenic Cab",
@@ -972,7 +1004,7 @@ export function getLiveExploreDestinations() {
     {
       id: 5,
       name: "Kerala Backwaters & Munnar",
-      category: "nature",
+      category: "beach",
       lat: 9.4981,
       lng: 76.3388,
       price: "₹15,800",
@@ -983,6 +1015,14 @@ export function getLiveExploreDestinations() {
       state: "Kerala",
       tag: "God's Own Country",
       vibe: "nature",
+      weather: { temp: "27°C", status: "Emerald & Gentle", icon: "sun" },
+      bestSeason: "Sep – Mar (Lush Backwaters)",
+      highlights: [
+        "Alleppey Private Teak Houseboat Safari",
+        "Munnar High-Altitude Tea Estate Trek",
+        "Authentic Kalaripayattu & Kathakali Show",
+        "Periyar Wildlife Reserve Bamboo Rafting"
+      ],
       image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?q=80&w=800&auto=format&fit=crop",
       description: "Gliding on traditional teak houseboats through tropical backwaters, surrounded by emerald tea hills.",
       trainRoute: "Vande Bharat Express (Trivandrum-Kasargod)",
@@ -1003,6 +1043,14 @@ export function getLiveExploreDestinations() {
       state: "Rajasthan",
       tag: "Pink City Royalty",
       vibe: "heritage",
+      weather: { temp: "28°C", status: "Sunny & Warm", icon: "sun" },
+      bestSeason: "Oct – Mar (Pleasant Royalty)",
+      highlights: [
+        "Amber Fort Elephant Path & Mirror Palace",
+        "City Palace Private Royal Museum Pass",
+        "Jantar Mantar Astronomical Observatory",
+        "Johari Bazaar Artisan Gem & Block-print Walk"
+      ],
       image: "https://images.unsplash.com/photo-1609949279531-cf48d64bed89?q=80&w=800&auto=format&fit=crop",
       description: "Amber Fort elephant trails, City Palace courtyards, and astronomical wonders of Jantar Mantar.",
       trainRoute: "Ajmer Shatabdi / Vande Bharat Express",
@@ -1023,6 +1071,14 @@ export function getLiveExploreDestinations() {
       state: "Ladakh",
       tag: "Trans-Himalayan Moonland",
       vibe: "mountains",
+      weather: { temp: "8°C", status: "Clear Mountain Sun", icon: "sun" },
+      bestSeason: "Jun – Sep (Clear Passes)",
+      highlights: [
+        "Pangong Tso High-Altitude Sapphire Lake",
+        "Khardung La 18,380ft World Pass Crossing",
+        "Nubra Valley Double-Humped Camel Dunes",
+        "Ancient Thiksey & Hemis Gompa Monasteries"
+      ],
       image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?q=80&w=800&auto=format&fit=crop",
       description: "High-altitude sapphire lakes, Khardung La mountain pass, ancient gompas, and desert camel safaris.",
       trainRoute: "Jammu Tawi Express + Scenic Highway",
@@ -1043,11 +1099,75 @@ export function getLiveExploreDestinations() {
       state: "Uttarakhand",
       tag: "Yoga & River Rafting",
       vibe: "nature",
+      weather: { temp: "23°C", status: "Refreshing Breeze", icon: "sun" },
+      bestSeason: "Sep – Nov / Mar – May (Adventure)",
+      highlights: [
+        "Grade 3+ River Rafting on Ganga Rapids",
+        "Parmarth Niketan Twilight Ganga Aarti",
+        "Beatles Ashram (Chaurasi Kutia) Tour",
+        "Neer Garh Himalayan Waterfall Forest Trek"
+      ],
       image: "https://images.unsplash.com/photo-1514565131-fce0801e5785?q=80&w=800&auto=format&fit=crop",
       description: "The world capital of yoga, white water rafting rapids, suspension bridges, and cliffside cafes.",
       trainRoute: "Dehradun Vande Bharat #22457 · 4h 30m",
       flightRoute: "Direct Flight to Dehradun (DED) · 45m",
       daysCount: 3
+    },
+    {
+      id: 9,
+      name: "Amritsar Golden Temple",
+      category: "heritage",
+      lat: 31.6200,
+      lng: 74.8765,
+      price: "₹7,400",
+      numericPrice: 7400,
+      rating: 4.97,
+      reviews: "7.1k",
+      country: "India",
+      state: "Punjab",
+      tag: "Sacred Golden Sanctum",
+      vibe: "heritage",
+      weather: { temp: "24°C", status: "Serene & Clear", icon: "sun" },
+      bestSeason: "Oct – Mar (Pleasant Weather)",
+      highlights: [
+        "Harmandir Sahib Golden Temple Twilight Darshan",
+        "Langar Community Kitchen Experience",
+        "Wagah Border Beating Retreat Ceremony",
+        "Jallianwala Bagh Historic Memorial"
+      ],
+      image: "https://images.unsplash.com/photo-1609949279531-cf48d64bed89?q=80&w=800&auto=format&fit=crop",
+      description: "Spiritual sanctuary bathed in gold, surrounded by the Amrit Sarovar sacred pool and world-renowned community hospitality.",
+      trainRoute: "Amritsar Vande Bharat Express · 5h 30m",
+      flightRoute: "Direct Flight to ATQ · 1h 10m",
+      daysCount: 3
+    },
+    {
+      id: 10,
+      name: "Udaipur Lake Pichola & Palaces",
+      category: "luxe",
+      lat: 24.5854,
+      lng: 73.7125,
+      price: "₹16,900",
+      numericPrice: 16900,
+      rating: 4.94,
+      reviews: "4.5k",
+      country: "India",
+      state: "Rajasthan",
+      tag: "Venice of the East",
+      vibe: "luxury",
+      weather: { temp: "26°C", status: "Pleasant & Calm", icon: "sun" },
+      bestSeason: "Oct – Mar (Lake Breezes)",
+      highlights: [
+        "Sunset Boat Cruise on Lake Pichola",
+        "City Palace Museum & Crystal Gallery",
+        "Jag Mandir Island Royal Courtyard",
+        "Bagore Ki Haveli Traditional Folk Dance"
+      ],
+      image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?q=80&w=800&auto=format&fit=crop",
+      description: "Ethereal lake palace city flanked by Aravalli mountains, ornate marble courtyards, and shimmering sunset waters.",
+      trainRoute: "Udaipur Vande Bharat Express #20980",
+      flightRoute: "Direct Flight to Maharana Pratap Airport (UDR)",
+      daysCount: 4
     }
   ];
 }

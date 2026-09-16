@@ -10,8 +10,7 @@ import {
   FaExternalLinkAlt, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaUserEdit,
   FaChevronRight, FaCopy, FaCheck, FaExclamationTriangle, FaTimes
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
-import { FiActivity, FiArrowUpRight, FiCompass } from 'react-icons/fi';
+import { FiActivity, FiArrowUpRight, FiCompass, FiNavigation, FiAward } from 'react-icons/fi';
 import { BookingTicketModal } from '../components/bookings/BookingTicketModal';
 import { AvatarStudioModal } from '../components/profile/AvatarStudioModal';
 import { TRAVEL_AVATARS } from '../components/profile/travelAvatars';
@@ -108,7 +107,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-900 dark:text-white pt-24 pb-20 px-3 sm:px-6 lg:px-8 transition-colors duration-500" id="dashboard-page">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-white pt-24 pb-20 px-3 sm:px-6 lg:px-8 transition-colors duration-500" id="dashboard-page">
       <div className="max-w-7xl mx-auto space-y-8">
 
         {/* 1. HERO PROFILE & COMMAND BAR OVERHAUL */}
@@ -156,7 +155,7 @@ const Dashboard = () => {
                     {displayName}
                   </h1>
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1 shadow-sm">
-                    <HiOutlineSparkles /> INFINITE VIP EXPLORER
+                    <FiAward /> INFINITE VIP EXPLORER
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium mb-3">
@@ -182,7 +181,7 @@ const Dashboard = () => {
                 to="/itinerary"
                 className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2"
               >
-                <HiOutlineSparkles /> Plan with AI
+                <FiNavigation /> Plan Itinerary
               </Link>
               <Link
                 to="/trains"

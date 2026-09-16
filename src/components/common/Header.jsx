@@ -4,8 +4,7 @@ import {
   FaPlane, FaHotel, FaCar, FaTrain, FaBus, FaUmbrellaBeach, FaHiking,
   FaUserCircle, FaChevronDown, FaSignOutAlt, FaSuitcase, FaSearch, FaTimes, FaBars, FaHome, FaCompass
 } from 'react-icons/fa';
-import { FiSun, FiMoon, FiGrid, FiCompass as FiCompassIcon, FiBookOpen } from 'react-icons/fi';
-import { HiOutlineSparkles } from 'react-icons/hi';
+import { FiSun, FiMoon, FiGrid, FiCompass as FiCompassIcon, FiBookOpen, FiNavigation } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthContext from '../../context/AuthContext';
 import ThemeContext from '../../context/ThemeContext';
@@ -219,7 +218,7 @@ const Header = () => {
                   <span>EXPLORE</span>
                 </button>
 
-                {/* AI PLANNER */}
+                {/* ITINERARY */}
                 <button
                   className="atd-item"
                   data-dock-item
@@ -228,9 +227,9 @@ const Header = () => {
                   onClick={() => navigate('/itinerary')}
                 >
                   <span className="atd-icon" aria-hidden="true">
-                    <HiOutlineSparkles className="text-amber-400" />
+                    <FiNavigation className="text-amber-400" />
                   </span>
-                  <span>AI PLANNER</span>
+                  <span>ITINERARY</span>
                 </button>
 
                 {/* BOOK (Mega Menu Dropdown) */}
@@ -651,7 +650,7 @@ const Header = () => {
                 >
                   {/* Top Bar inside Drawer */}
                   <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-white/10">
-                    <div className="flex items-center gap-2">
+                    <Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-full bg-slate-900 border border-amber-500/30 overflow-hidden flex items-center justify-center p-0.5 shadow-md">
                         <img src="/brand/logo-mark.svg" alt="TravelEase Mark" className="w-full h-full object-contain" />
                       </div>
@@ -659,7 +658,7 @@ const Header = () => {
                         <span className="text-sm font-extrabold text-slate-900 dark:text-white">Travel<span className="text-amber-500">Ease</span></span>
                         <span className="ml-1.5 px-1.5 py-0.2 rounded text-[9px] font-mono bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold">2.0</span>
                       </div>
-                    </div>
+                    </Link>
 
                     <div className="flex items-center gap-2">
                       <button
@@ -724,7 +723,7 @@ const Header = () => {
                       {[
                         { path: '/', label: 'HOME', icon: <FaHome /> },
                         { path: '/destinations', label: 'EXPLORE', icon: <FaCompass /> },
-                        { path: '/itinerary', label: 'AI PLANNER', badge: 'AI', icon: <HiOutlineSparkles className="text-amber-400" /> },
+                        { path: '/itinerary', label: 'ITINERARY', icon: <FiNavigation className="text-amber-400" /> },
                         { path: '/blog', label: 'STORIES', icon: <FiBookOpen /> },
                         { path: '/explore', label: 'MAP EXPLORE', icon: <FiCompassIcon className="text-sky-400" /> },
                         { path: '/my-bookings', label: 'MY BOOKINGS', icon: <FaSuitcase className="text-amber-400" />, count: userBookings?.length },

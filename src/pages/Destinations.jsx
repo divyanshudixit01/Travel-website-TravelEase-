@@ -17,8 +17,8 @@ import {
   FaLandmark, FaGlobeAmericas, FaGlobeAsia, FaGlobeEurope,
   FaRoute, FaThLarge, FaEye, FaLightbulb, FaTrain
 } from 'react-icons/fa';
-import { HiOutlineSparkles, HiOutlineLightningBolt } from 'react-icons/hi';
-import { FiActivity, FiCompass, FiShield, FiPercent } from 'react-icons/fi';
+import { HiOutlineLightningBolt } from 'react-icons/hi';
+import { FiActivity, FiCompass, FiShield, FiPercent, FiNavigation } from 'react-icons/fi';
 import JsonLd from '../components/seo/JsonLd';
 import { getWebPageSchema, getBreadcrumbSchema, getItemListSchema } from '../utils/schemas';
 import { ThreeUIButton } from '../components/ui/ThreeUIButton';
@@ -43,11 +43,11 @@ const sevenWonders = getLiveSevenWonders();
 const { incredibleIndia, globalEscapes } = getLiveDestinationsCatalog();
 
 const vibeOptions = [
-  { id: 'all', label: 'All Vibes', icon: '✨' },
+  { id: 'all', label: 'All Vibes', icon: '🧭' },
   { id: 'beaches', label: 'Beaches & Islands', icon: '🏖️' },
   { id: 'mountains', label: 'Mountains & Treks', icon: '🏔️' },
   { id: 'heritage', label: 'Heritage & Culture', icon: '🏛️' },
-  { id: 'luxe', label: 'Ultra-Luxury', icon: '✨' },
+  { id: 'luxe', label: 'Ultra-Luxury', icon: '💎' },
   { id: 'nature', label: 'Wildlife & Nature', icon: '🌿' }
 ];
 
@@ -398,7 +398,7 @@ export const Destinations = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold uppercase tracking-widest backdrop-blur-md"
               >
-                <HiOutlineSparkles className="w-3.5 h-3.5" />
+                <FiCompass className="w-3.5 h-3.5" />
                 <span>{currentSlide.vibe}</span>
                 <span className="text-amber-400/50">|</span>
                 <span>Starting {currentSlide.startingPrice}</span>
@@ -434,7 +434,7 @@ export const Destinations = () => {
                   iconPosition="right"
                   id="hero-plan-trip-btn"
                 >
-                  Plan AI Trip
+                  Plan Itinerary
                 </ThreeUIButton>
 
                 <ThreeUIButton
@@ -707,9 +707,9 @@ export const Destinations = () => {
                   </div>
                   <div className="absolute bottom-3.5 left-3.5 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md text-white font-mono text-xs flex items-center gap-2 border border-white/15 shadow">
                     <FaSun className="text-amber-400 text-xs animate-[spin_10s_linear_infinite]" />
-                    <span className="font-bold">{dynamicCityData.cityProfile.weather.temp}</span>
+                    <span className="font-bold">{dynamicCityData.cityProfile?.weather?.temp || '26°C'}</span>
                     <span className="text-white/40">·</span>
-                    <span>{dynamicCityData.cityProfile.weather.status}</span>
+                    <span>{dynamicCityData.cityProfile?.weather?.status || 'Pleasant'}</span>
                   </div>
                 </div>
 
@@ -758,9 +758,9 @@ export const Destinations = () => {
                       variant="amber-glow"
                       size="sm"
                       to={`/itinerary?prompt=${encodeURIComponent(`Plan a 4-day trip to ${dynamicCityData.cityProfile.name}`)}`}
-                      icon={<HiOutlineSparkles className="text-amber-950 dark:text-white" />}
+                      icon={<FiNavigation className="text-amber-950 dark:text-white" />}
                     >
-                      AI Trip Architect
+                      Route Architect
                     </ThreeUIButton>
 
                     <ThreeUIButton
@@ -954,9 +954,9 @@ export const Destinations = () => {
                               variant="specular-dark"
                               size="sm"
                               to={getItineraryRoute(pkg.city || dynamicCityData.cityProfile.name, pkg.itineraryPrompt)}
-                              icon={<HiOutlineSparkles className="text-amber-500" />}
+                              icon={<FiNavigation className="text-amber-500" />}
                             >
-                              AI Customizer
+                              Customize Route
                             </ThreeUIButton>
                           </div>
                         </div>
@@ -1180,11 +1180,11 @@ export const Destinations = () => {
                             }}
                             variant="glass-frost"
                             size="sm"
-                            icon={HiOutlineSparkles}
+                            icon={FiNavigation}
                             className="shrink-0"
-                            title="Plan AI Itinerary"
+                            title="Plan Custom Itinerary"
                           >
-                            AI Plan
+                            Route
                           </ThreeUIButton>
 
                           <ThreeUIButton
@@ -1223,14 +1223,14 @@ export const Destinations = () => {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-slate-200/80 dark:border-white/10 pb-6">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/25 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold tracking-widest uppercase mb-3">
-                <HiOutlineSparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+                <FiCompass className="w-3.5 h-3.5 text-amber-500" />
                 <span>UNESCO GLOBAL MASTERPIECES · THE 7 WONDERS</span>
               </div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
                 The Seven Wonders <span className="gradient-text">of the World.</span>
               </h2>
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium max-w-2xl mt-1.5">
-                Pinnacles of human perseverance and engineering. Explore architectural marvels, nearest multi-modal air and rail hubs, and generate bespoke itineraries.
+                Pinnacles of human perseverance and engineering. Explore architectural marvels, nearest multi-modal air and rail hubs, and build bespoke itineraries.
               </p>
             </div>
 
@@ -1408,7 +1408,7 @@ export const Destinations = () => {
                         iconPosition="right"
                         onClick={() => navigate(`/itinerary?prompt=${encodeURIComponent(activeWonder.itineraryPrompt)}`, { state: { prompt: activeWonder.itineraryPrompt } })}
                       >
-                        Plan AI Expedition with Groq™
+                        Plan Custom Expedition
                       </ThreeUIButton>
 
                       <ThreeUIButton
@@ -1647,7 +1647,7 @@ export const Destinations = () => {
                           onClick={() => navigate(`/itinerary?prompt=${encodeURIComponent(wonder.itineraryPrompt)}`, { state: { prompt: wonder.itineraryPrompt } })}
                           className="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-mono text-xs font-black transition-all flex items-center gap-1.5 shadow-sm"
                         >
-                          <span>Plan AI Trip</span>
+                          <span>Plan Itinerary</span>
                           <FaArrowRight className="w-2.5 h-2.5" />
                         </button>
                       </div>
@@ -1678,13 +1678,13 @@ export const Destinations = () => {
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-500 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-widest mb-3">
                   <HiOutlineLightningBolt className="w-3.5 h-3.5" />
-                  <span>AI TRIP RECOMMENDER</span>
+                  <span>TRIP RECOMMENDER ENGINE</span>
                 </div>
                 <h3 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
                   Not sure where to venture?
                 </h3>
                 <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                  Answer 2 quick preferences and let our neural engine reveal your ideal getaway.
+                  Answer 2 quick preferences and let our recommendation engine reveal your ideal getaway.
                 </p>
               </div>
 
@@ -1750,7 +1750,7 @@ export const Destinations = () => {
               <div className="relative rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-2xl p-6 text-white space-y-4">
                 <div className="flex items-center justify-between text-xs font-mono">
                   <span className="text-amber-400 font-bold flex items-center gap-1.5">
-                    <HiOutlineSparkles className="w-4 h-4" /> 98% MATCH FOR YOU
+                    <FiPercent className="w-4 h-4" /> 98% MATCH FOR YOU
                   </span>
                   <span className="text-white/60">{quizRecommendation.duration}</span>
                 </div>
@@ -1813,16 +1813,16 @@ export const Destinations = () => {
               Ready to embark on your journey?
             </h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
-              Over 40,000 travelers have redefined their horizon with TravelEase's neural-assisted vacation engine.
+              Over 40,000 travelers have redefined their horizon with TravelEase's multi-modal vacation engine.
             </p>
             <div className="pt-2 flex justify-center gap-3">
               <ThreeUIButton
                 to="/itinerary"
                 variant="liquid-metal"
                 size="md"
-                icon={FaCompass}
+                icon={FiNavigation}
               >
-                Launch AI Trip Architect
+                Launch Route Architect
               </ThreeUIButton>
             </div>
           </div>

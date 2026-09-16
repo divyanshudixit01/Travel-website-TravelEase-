@@ -10,10 +10,53 @@ import { generateDynamicItinerary } from './dynamicTravelEngine';
 
 const CLIENT_GROQ_KEY = import.meta.env.VITE_GROQ_API_KEY || '';
 
+// ─── Markdown Artifact Cleaner ──────────────────────────────────────────────
+// Ensures zero raw '**', '__', or '##' ever leak into user-facing content.
+export function stripMarkdownText(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/^#{1,6}\s*/gm, '')       // Strip markdown header hashes
+    .replace(/\*\*(.*?)\*\*/g, '$1')   // Strip double asterisks
+    .replace(/\*(.*?)\*/g, '$1')       // Strip single asterisks
+    .replace(/__(.*?)__/g, '$1')       // Strip double underscores
+    .replace(/_(.*?)_/g, '$1')         // Strip single underscores
+    .replace(/`{1,3}[a-z]*\n?/gi, '')  // Strip code block ticks
+    .trim();
+}
+
+export function sanitizeItineraryContent(itinerary) {
+  if (!itinerary || typeof itinerary !== 'object') return itinerary;
+  
+  if (Array.isArray(itinerary.days)) {
+    itinerary.days = itinerary.days.map(day => ({
+      ...day,
+      title: stripMarkdownText(day.title),
+      items: Array.isArray(day.items) ? day.items.map(item => ({
+        ...item,
+        title: stripMarkdownText(item.title),
+        description: stripMarkdownText(item.description),
+        location: stripMarkdownText(item.location)
+      })) : []
+    }));
+  }
+
+  if (Array.isArray(itinerary.transportTips)) {
+    itinerary.transportTips = itinerary.transportTips.map(stripMarkdownText);
+  }
+  if (Array.isArray(itinerary.insiderTips)) {
+    itinerary.insiderTips = itinerary.insiderTips.map(stripMarkdownText);
+  }
+
+  return itinerary;
+}
+
 // ─── AI Chat — Conversational Travel Agent ──────────────────────────────────
 export async function aiChatMessage(message, history = []) {
   try {
     const res = await api.post('/v1/ai/chat', { message, history });
+    if (res.data && res.data.reply) {
+      res.data.reply = stripMarkdownText(res.data.reply);
+    }
     return res.data;
   } catch {
     // Tier 2: Direct Client Groq Call
@@ -28,7 +71,18 @@ export async function aiChatMessage(message, history = []) {
           body: JSON.stringify({
             model: 'qwen/qwen3.8-27b',
             messages: [
-              { role: 'system', content: 'You are TravelEase AI concierge. Provide helpful, realistic travel advice with prices in Indian Rupees (₹) and suggested trains/flights.' },
+              {
+                role: 'system',
+                content: `You are TravelEase AI concierge, an elite Indian travel architect and booking advisor.
+Provide crisp, concise, uncluttered, and visually structured advice for travelers exploring India.
+CRITICAL FORMATTING RULES:
+1. NEVER output raw markdown symbols like '**', '__', '##', or '###'. Write clean, plain text.
+2. Structure your response into clear numbered sections with concise titles (e.g., "1. Overview & Best Time", "2. Curated Day-by-Day Plan", "3. IRCTC Rail & Flight Logistics", "4. Budget Breakdown (INR)").
+3. Use bullet points starting with "• " for key activities, timings, and insider tips.
+4. Keep explanations concise, crisp, and actionable. Avoid long walls of text.
+5. Emphasize authentic Indian travel destinations (e.g., Varanasi, Udaipur, Jaipur, Kerala backwaters, Manali, Goa, Rishikesh, Kashmir, Hampi).
+6. State all prices in Indian Rupees (₹) with realistic IRCTC train classes (Vande Bharat, Tatkal) and domestic flights.`
+              },
               ...history.slice(-4).map(h => ({ role: h.role === 'ai' ? 'assistant' : 'user', content: h.text || h.content || '' })),
               { role: 'user', content: message }
             ],
@@ -38,14 +92,15 @@ export async function aiChatMessage(message, history = []) {
         });
         if (groqRes.ok) {
           const data = await groqRes.json();
-          const reply = data.choices?.[0]?.message?.content || '';
+          const rawReply = data.choices?.[0]?.message?.content || '';
+          const reply = stripMarkdownText(rawReply);
           return {
             reply,
-            source: 'Groq LPU™ (Direct)',
-            model: 'qwen/qwen3.8-27b',
+            source: 'Travel Desk Engine (Direct)',
+            model: 'dynamic-v2',
             actions: [
               { label: 'Explore Destinations', path: '/destinations', icon: 'compass' },
-              { label: 'AI Trip Planner', path: '/itinerary', icon: 'sparkles' },
+              { label: 'Itinerary Planner', path: '/itinerary', icon: 'compass' },
               { label: 'Book Trains', path: '/trains', icon: 'train' }
             ]
           };
@@ -56,10 +111,11 @@ export async function aiChatMessage(message, history = []) {
     }
 
     return {
-      reply: `I would love to help you with that! TravelEase offers full dynamic booking for flights, Vande Bharat trains, verified hotels, and complete customized itineraries in Indian Rupees (₹). Where would you like to travel?`,
+      reply: `I would love to help you plan an unforgettable Indian journey! TravelEase offers unified booking for Vande Bharat trains, IRCTC Tatkal radar, domestic flights, and handpicked stays in Varanasi, Udaipur, Goa, Kerala, and Himachal in Indian Rupees (₹). Where would you like to travel?`,
       actions: [
         { label: 'Explore Destinations', path: '/destinations', icon: 'compass' },
-        { label: 'AI Trip Planner', path: '/itinerary', icon: 'sparkles' }
+        { label: 'Itinerary Planner', path: '/itinerary', icon: 'compass' },
+        { label: 'Book Trains', path: '/trains', icon: 'train' }
       ]
     };
   }
@@ -67,16 +123,16 @@ export async function aiChatMessage(message, history = []) {
 
 // ─── AI Itinerary — Neural Trip Synthesis ───────────────────────────────────
 export async function generateAIItinerary(userPrompt, onLogUpdate = () => {}) {
-  onLogUpdate('🧠 Connecting to Groq LPU™ Neural Engine...');
+  onLogUpdate('[System] Connecting to Route Optimization Engine...');
 
   // Parse user prompt for parameters
   const params = parsePromptToParams(userPrompt);
 
-  onLogUpdate(`🔍 AI Agent analyzing: "${params.destination}" · ${params.days} days · ${params.pax} travelers · ₹${params.budgetINR.toLocaleString('en-IN')} budget`);
+  onLogUpdate(`[Route Engine] Analyzing parameters: "${params.destination}" · ${params.days} days · ${params.pax} travelers · ₹${params.budgetINR.toLocaleString('en-IN')} budget`);
 
   // Tier 1: Express Backend Proxy
   try {
-    onLogUpdate('⚡ Groq LPU™ 120B model synthesizing real-time itinerary & dual transit routes...');
+    onLogUpdate('[Routing] Compiling multi-modal travel itinerary & transit routes...');
 
     const res = await api.post('/v1/ai/itinerary', {
       destination: params.destination,
@@ -91,16 +147,17 @@ export async function generateAIItinerary(userPrompt, onLogUpdate = () => {}) {
       const it = res.data.itinerary;
       const latency = res.data.latencyMs || 0;
 
-      onLogUpdate(`✈️ AI Flight: ${it.flight?.airline || 'Air India / IndiGo'} (${it.flight?.cabinClass || 'Economy'}) · ₹${(it.flight?.priceINR || 5500).toLocaleString('en-IN')}`);
-      onLogUpdate(`🚆 AI Train: ${it.train?.trainName || 'Vande Bharat Express'} · ₹${(it.train?.priceINR || 2150).toLocaleString('en-IN')} (${it.train?.tatkalStatus || 'Confirmed'})`);
-      onLogUpdate(`🏨 AI Stay: ${it.hotel?.name || 'Premium Stay'} · ⭐ ${it.hotel?.starRating || 4.5} · ₹${(it.hotel?.pricePerNightINR || 4200).toLocaleString('en-IN')}/night`);
-      onLogUpdate(`📍 ${it.days?.length || params.days} Days · ${it.days?.reduce((a, d) => a + (d.items?.length || 0), 0) || '18+'} verified activities · 100% bookable`);
-      onLogUpdate(`⚡ Groq inference: ${latency}ms · Model: ${res.data.model || 'openai/gpt-oss-120b'}`);
-      onLogUpdate('✅ Verified AI Trip Package with Plane & Train options ready!');
+      onLogUpdate(`[Transit] Flight: ${it.flight?.airline || 'Air India / IndiGo'} (${it.flight?.cabinClass || 'Economy'}) · ₹${(it.flight?.priceINR || 5500).toLocaleString('en-IN')}`);
+      onLogUpdate(`[IRCTC] Train: ${it.train?.trainName || 'Vande Bharat Express'} · ₹${(it.train?.priceINR || 2150).toLocaleString('en-IN')} (${it.train?.tatkalStatus || 'Confirmed'})`);
+      onLogUpdate(`[Hospitality] Stay: ${it.hotel?.name || 'Premium Stay'} · ⭐ ${it.hotel?.starRating || 4.5} · ₹${(it.hotel?.pricePerNightINR || 4200).toLocaleString('en-IN')}/night`);
+      onLogUpdate(`[Locations] ${it.days?.length || params.days} Days · ${it.days?.reduce((a, d) => a + (d.items?.length || 0), 0) || '18+'} verified activities · 100% bookable`);
+      onLogUpdate(`[Route Engine] Latency: ${latency}ms`);
+      onLogUpdate('[Ready] Verified Travel Package with Flight & Train routes ready!');
 
+      const sanitized = sanitizeItineraryContent(it);
       return {
-        ...it,
-        totalPackageINR: it.totalPackageINR || (it.totalPackageUSD ? Math.round(it.totalPackageUSD * 86.5) : params.budgetINR),
+        ...sanitized,
+        totalPackageINR: sanitized.totalPackageINR || (sanitized.totalPackageUSD ? Math.round(sanitized.totalPackageUSD * 86.5) : params.budgetINR),
         _meta: {
           source: res.data.source,
           model: res.data.model,
@@ -116,7 +173,7 @@ export async function generateAIItinerary(userPrompt, onLogUpdate = () => {}) {
   // Tier 2: Direct Client-Side Groq API Call
   if (CLIENT_GROQ_KEY) {
     try {
-      onLogUpdate('⚡ Engaging high-speed Groq LPU™ Qwen 27B client connection (<1s latency)...');
+      onLogUpdate('[Routing] Engaging high-speed route optimization engine...');
       const directPrompt = `Generate a ${params.days}-day trip to ${params.destination} with budget ₹${params.budgetINR}. Return STRICT JSON with destination, daysCount (${params.days}), vibe, totalPackageINR (${params.budgetINR}), savingsINR, hotel: {name, tier, pricePerNightINR, starRating, address, amenities: []}, flight: {airline, flightNumber, priceINR, cabinClass, from, to, duration, stops: "Non-stop"}, train: {trainName, trainNumber, priceINR, coachClass: "Executive Chair Car (EC)", departureStation, arrivalStation, departureTime: "06:00 AM", arrivalTime: "01:45 PM", duration: "7h 45m", tatkalStatus: "98% Confirmed Tatkal", features: ["Kavach Anti-Collision", "Hot Meals Included"]}, transitComparison: {flightVsTrainAdvice, recommendedMode, priceDifferenceINR}, days: [{dayNumber, title, items: [{time, type, title, priceINR, description, location}]}], transportTips: [], insiderTips: []. All prices primarily in INR (₹).`;
 
       const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -128,7 +185,7 @@ export async function generateAIItinerary(userPrompt, onLogUpdate = () => {}) {
         body: JSON.stringify({
           model: 'qwen/qwen3.8-27b',
           messages: [
-            { role: 'system', content: 'You are TravelEase Elite AI Trip Architect. Return valid JSON only with dual transit (Plane + Vande Bharat Train).' },
+            { role: 'system', content: 'You are TravelEase Elite Route Architect. Return valid JSON only with dual transit (Plane + Vande Bharat Train).' },
             { role: 'user', content: directPrompt }
           ],
           response_format: { type: 'json_object' },
@@ -142,10 +199,11 @@ export async function generateAIItinerary(userPrompt, onLogUpdate = () => {}) {
         const content = groqData.choices?.[0]?.message?.content;
         const parsed = JSON.parse(content);
         if (parsed.destination && parsed.days) {
-          onLogUpdate(`✅ Groq Direct Inference Succeeded! (${groqData.model})`);
+          onLogUpdate(`[Ready] Route Compilation Succeeded!`);
+          const sanitizedDirect = sanitizeItineraryContent(parsed);
           return {
-            ...parsed,
-            _meta: { source: 'Groq LPU™ Direct', model: groqData.model }
+            ...sanitizedDirect,
+            _meta: { source: 'Dynamic Engine Direct', model: groqData.model }
           };
         }
       }
@@ -155,7 +213,7 @@ export async function generateAIItinerary(userPrompt, onLogUpdate = () => {}) {
   }
 
   // Tier 3: Universal Dynamic Travel Intelligence Synthesis (Zero Failure)
-  onLogUpdate(`⚡ Universal Dynamic Synthesis Engine activated for ${params.destination}...`);
+  onLogUpdate(`[System] Multi-Modal Route Engine activated for ${params.destination}...`);
   const dynamicPlan = generateDynamicItinerary(params.destination, params.days, params.budgetINR, params.vibe);
   onLogUpdate(`🚆 IRCTC Route: ${dynamicPlan.train?.trainName} (${dynamicPlan.train?.coachClass})`);
   onLogUpdate(`✈️ Air Route: ${dynamicPlan.flight?.airline}`);
@@ -187,7 +245,7 @@ export async function getAIStatus() {
     const res = await api.get('/v1/ai/status');
     return res.data;
   } catch {
-    return { status: 'offline', engine: 'Groq LPU™', apiKeyConfigured: false };
+    return { status: 'offline', engine: 'Travel Concierge Engine', apiKeyConfigured: false };
   }
 }
 

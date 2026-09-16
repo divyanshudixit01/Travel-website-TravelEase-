@@ -6,16 +6,16 @@ export const DestinationAutocomplete = ({
   value,
   onChange,
   onSelectDest,
-  placeholder = 'City, destination or property name...'
+  placeholder = 'City, destination or hotel name (e.g. Goa, Jaipur...)'
 }) => {
-  const [query, setQuery] = useState(value || 'Varanasi');
+  const [query, setQuery] = useState(value || '');
   const [isOpen, setIsOpen] = useState(false);
   const [suggestions, setSuggestions] = useState(POPULAR_DESTINATIONS);
   const [highlightIndex, setHighlightIndex] = useState(0);
   const wrapperRef = useRef(null);
 
   useEffect(() => {
-    setQuery(value);
+    setQuery(value || '');
   }, [value]);
 
   useEffect(() => {

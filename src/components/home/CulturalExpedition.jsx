@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { FaCompass, FaArrowRight, FaHotel, FaTrain, FaPlane } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
+import { FiNavigation } from 'react-icons/fi';
 import { ThreeCard3D } from '../ui/ThreeCard3D';
 import { ThreeUIButton } from '../ui/ThreeUIButton';
 import { getLiveCulturalExpeditions } from '../../services/dynamicTravelEngine';
@@ -51,7 +51,7 @@ export const CulturalExpedition = () => {
 
   return (
     <section 
-      className="relative py-28 px-4 bg-slate-100/90 dark:bg-[#07090e] border-y border-slate-200/90 dark:border-white/10 overflow-hidden transition-colors duration-500" 
+      className="relative py-20 lg:py-28 px-4 sm:px-6 lg:px-8 bg-slate-100/90 dark:bg-[#07090e] border-y border-slate-200/90 dark:border-white/10 overflow-hidden transition-colors duration-500" 
       id="cultural-expeditions"
     >
       {/* Background Subtle Watermark */}
@@ -60,17 +60,17 @@ export const CulturalExpedition = () => {
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+        {/* 3-Tier Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 lg:mb-16 gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200/80 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-mono font-semibold uppercase tracking-widest mb-3">
-              <FaCompass className="w-3.5 h-3.5" />
-              <span>Cultural Odyssey 2026</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-widest mb-3">
+              <FaCompass className="w-3.5 h-3.5 text-amber-500" />
+              <span>CULTURAL ODYSSEY · HERITAGE & SPIRITUAL</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
               Incredible <span className="text-gradient-primary">India Expeditions</span>
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base mt-2 max-w-xl">
+            <p className="font-body text-slate-600 dark:text-slate-400 text-sm md:text-base mt-3 max-w-xl leading-relaxed">
               An architectural exploration of spiritual sanctuaries, ancient fortresses, and high-altitude Himalayan valleys.
             </p>
           </div>
@@ -191,8 +191,8 @@ export const CulturalExpedition = () => {
                       }}
                       className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-800 dark:text-white font-mono text-xs font-bold border border-slate-300 dark:border-white/15 transition-all flex items-center gap-1.5"
                     >
-                      <HiOutlineSparkles className="w-3 h-3 text-amber-500" />
-                      AI Plan
+                      <FiNavigation className="w-3 h-3 text-amber-500" />
+                      Plan Route
                     </button>
 
                     <ThreeUIButton

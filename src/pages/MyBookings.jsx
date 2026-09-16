@@ -8,7 +8,7 @@ import {
   FaCheckCircle, FaDownload, FaArrowLeft, FaSuitcase, FaCopy, FaCheck,
   FaCalendarAlt, FaTimes, FaShieldAlt, FaExclamationTriangle
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
+import { FiNavigation } from 'react-icons/fi';
 import JsonLd from '../components/seo/JsonLd';
 import { getWebPageSchema, getBreadcrumbSchema } from '../utils/schemas';
 import { BookingTicketModal } from '../components/bookings/BookingTicketModal';
@@ -109,7 +109,7 @@ const MyBookings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] flex items-center justify-center">
         <div className="w-10 h-10 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -117,7 +117,7 @@ const MyBookings = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-900 dark:text-white pt-32 pb-20 px-4 transition-colors duration-500 flex items-center justify-center" id="my-bookings-auth-gate">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-white pt-32 pb-20 px-4 transition-colors duration-500 flex items-center justify-center" id="my-bookings-auth-gate">
         <JsonLd data={schemas} />
         <div className="max-w-md w-full p-8 rounded-3xl bg-white dark:bg-[#121422] border border-slate-200 dark:border-white/10 shadow-2xl text-center space-y-6">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 text-2xl shadow-inner">
@@ -165,7 +165,7 @@ const MyBookings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#07090e] text-slate-900 dark:text-white pt-24 pb-20 px-3 sm:px-6 lg:px-8 transition-colors duration-500" id="my-bookings-page">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-white pt-24 pb-20 px-3 sm:px-6 lg:px-8 transition-colors duration-500" id="my-bookings-page">
       <JsonLd data={schemas} />
 
       <div className="max-w-6xl mx-auto space-y-8">
@@ -195,7 +195,7 @@ const MyBookings = () => {
               to="/itinerary"
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-xs shadow-md shadow-amber-500/20 transition-all flex items-center gap-2"
             >
-              <HiOutlineSparkles /> AI Trip Planner
+              <FiNavigation /> Itinerary Planner
             </Link>
           </div>
         </div>

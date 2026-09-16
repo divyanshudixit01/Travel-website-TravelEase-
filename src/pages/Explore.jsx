@@ -621,7 +621,7 @@ export const Explore = () => {
                         />
                         <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[9.5px] font-mono font-bold text-white flex items-center gap-1">
                           <FaSun className="text-amber-400 text-[8px]" />
-                          {dest.weather.temp}
+                          {dest.weather?.temp || '24°C'}
                         </span>
                       </div>
 
@@ -826,14 +826,14 @@ export const Explore = () => {
                 <div className="p-3 rounded-2xl bg-slate-100/80 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10">
                   <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-0.5">Weather Status</span>
                   <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 font-mono">
-                    <FaSun className="text-amber-500 text-xs" /> {detailModalDest.weather.temp} ({detailModalDest.weather.status})
+                    <FaSun className="text-amber-500 text-xs" /> {detailModalDest.weather?.temp || '24°C'} ({detailModalDest.weather?.status || 'Pleasant'})
                   </p>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-slate-100/80 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10">
                   <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-0.5">Best Season</span>
                   <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 font-mono">
-                    <FaCalendarAlt className="text-teal-500 text-xs" /> {detailModalDest.bestSeason}
+                    <FaCalendarAlt className="text-teal-500 text-xs" /> {detailModalDest.bestSeason || 'Year-Round'}
                   </p>
                 </div>
 
@@ -854,7 +854,12 @@ export const Explore = () => {
 
                 <h4 className="text-xs font-bold text-slate-900 dark:text-white font-mono uppercase tracking-wider pt-2">Curated Highlights:</h4>
                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {detailModalDest.highlights.map((item, idx) => (
+                  {(detailModalDest.highlights || [
+                    'Verified local guide tours',
+                    'Scenic architectural landmarks',
+                    'Exclusive stay privileges',
+                    'Flexible concierge support'
+                  ]).map((item, idx) => (
                     <li key={idx} className="flex items-center gap-2 text-xs font-mono font-semibold text-slate-700 dark:text-slate-200 bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 p-2.5 rounded-xl">
                       <FaCheckCircle className="text-emerald-500 w-3 h-3 shrink-0" />
                       <span>{item}</span>
@@ -872,7 +877,7 @@ export const Explore = () => {
                   icon={<FaRoute className="w-3.5 h-3.5" />}
                   className="w-full text-center"
                 >
-                  Plan AI Trip
+                  Plan Route
                 </ThreeUIButton>
 
                 <ThreeUIButton 

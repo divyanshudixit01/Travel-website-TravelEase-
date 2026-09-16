@@ -8,7 +8,6 @@ import {
   FaArrowRight, FaCheck, FaShieldAlt,
   FaLock, FaEnvelope, FaPlane, FaRoute, FaHeadset
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { ThreeUIButton } from '../components/ui/ThreeUIButton';
 
@@ -72,7 +71,7 @@ const Login = () => {
   const features = [
     { 
       icon: <FaRoute className="text-amber-500 dark:text-amber-400" />, 
-      title: 'AI Smart Itineraries', 
+      title: 'Custom Itineraries', 
       desc: 'Bespoke day-by-day travel plans curated in seconds' 
     },
     { 
@@ -83,7 +82,7 @@ const Login = () => {
     { 
       icon: <FaHeadset className="text-emerald-500 dark:text-emerald-400" />, 
       title: '24/7 Concierge Support', 
-      desc: 'Smart agent for rebooking, gates & local tips' 
+      desc: 'Dedicated support for rebooking, gates & local tips' 
     },
   ];
 
@@ -182,7 +181,7 @@ const Login = () => {
               border: theme === 'dark' ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid rgba(245, 158, 11, 0.4)',
             }}
           >
-            <HiOutlineSparkles className="w-3.5 h-3.5" />
+            <FaRoute className="w-3.5 h-3.5" />
             <span>Intelligent Global Travel</span>
           </motion.div>
 
@@ -205,7 +204,7 @@ const Login = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-slate-700 dark:text-slate-300 text-sm sm:text-base font-medium leading-relaxed mb-8 max-w-lg"
           >
-            Sign in to access synchronized itineraries, unlock member-only flight & hotel tariffs, and explore autonomous AI concierge planning.
+            Sign in to access synchronized itineraries, unlock member-only flight & hotel tariffs, and explore seamless concierge booking support.
           </motion.p>
 
           {/* Liquid Glass Feature Cards */}

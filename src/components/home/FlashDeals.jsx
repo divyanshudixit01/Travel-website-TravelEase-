@@ -29,30 +29,30 @@ export const FlashDeals = () => {
   const deals = useMemo(() => getLiveFlashDeals(), []);
 
   return (
-    <section className="relative py-20 px-4 max-w-7xl mx-auto z-20" id="flash-deals-countdown">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+    <section className="relative py-20 lg:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto z-20" id="flash-deals-countdown">
+      {/* 3-Tier Section Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 lg:mb-16">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-mono font-bold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-mono font-bold uppercase tracking-widest mb-3">
             <FaFire className="w-3.5 h-3.5 animate-pulse text-rose-500" />
-            Limited Window Allocations
+            <span>LIMITED WINDOW PRIVILEGES</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
             Flash <span className="gradient-text">Privileges</span>
           </h2>
-          <p className="mt-2 text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-xl">
+          <p className="font-body mt-3 text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-xl leading-relaxed">
             Live inventory sweeps with steep flash discounts expiring when the timer reaches zero.
           </p>
         </div>
 
         {/* Global Countdown HUD */}
-        <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/80 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 shadow-sm backdrop-blur-md">
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/80 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 shadow-sm backdrop-blur-md shrink-0">
           <div className="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500">
             <FaClock className="w-4 h-4" />
           </div>
           <div>
             <div className="text-[10px] font-mono font-bold uppercase text-slate-400">EXPIRES IN</div>
-            <div className="flex items-center gap-1 font-mono text-sm font-black">
+            <div className="flex items-center gap-1 font-mono text-sm font-black tabular-nums">
               <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-black/60 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10">
                 {String(timeLeft.hours).padStart(2, '0')}h
               </span>

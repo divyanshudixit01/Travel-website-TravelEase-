@@ -49,7 +49,7 @@ const Flights = () => {
 
   // Search Parameters State
   const [fromAirport, setFromAirport] = useState(() => searchParams.get('from') || 'DEL');
-  const [toAirport, setToAirport] = useState(() => resolveAirportCode(destQuery) || 'DXB');
+  const [toAirport, setToAirport] = useState(() => resolveAirportCode(destQuery) || 'BOM');
   const [departDate, setDepartDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 7);
@@ -223,7 +223,7 @@ const Flights = () => {
   ], []);
 
   return (
-    <div className="relative bg-slate-50 dark:bg-[#0a0e1a] text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-500" id="flights-page">
+    <div className="relative bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-slate-100 min-h-screen transition-colors duration-500" id="flights-page">
       <JsonLd data={flightSchemas} />
 
       {/* ─── Hero Section with Cinematic Flying Airliner Backdrop & Atmospheric Cloudscape ─── */}
@@ -241,7 +241,7 @@ const Flights = () => {
             className="w-full h-full object-cover object-[center_35%] brightness-[0.86] contrast-[1.08] saturate-[1.05]"
           />
           {/* Multilayered Atmospheric Gradients for Dual Light/Dark Legibility */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/40 to-slate-50/90 dark:to-[#0a0e1a]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/40 to-slate-50/90 dark:to-[#06080d]" />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-transparent to-slate-950/60" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_30%,rgba(6,10,24,0.65)_100%)]" />
         </motion.div>
@@ -262,7 +262,7 @@ const Flights = () => {
             </div>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight mb-8 drop-shadow-lg">
+          <h1 className="font-display text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight mb-8 drop-shadow-lg">
             Fly Anywhere. <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-orange-500">Zero Convenience Fee.</span>
           </h1>
 
@@ -421,7 +421,7 @@ const Flights = () => {
               to={getItineraryRoute(toAirport)}
               className="px-3 py-1.5 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/30 text-teal-600 dark:text-teal-300 text-xs font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
             >
-              <FaRoute className="w-3 h-3 text-teal-500" /> AI Itinerary
+              <FaRoute className="w-3 h-3 text-teal-500" /> Custom Plan
             </Link>
             <Link
               to={getDestinationsRoute(toAirport)}

@@ -13,7 +13,7 @@ const NotFound = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0e1a] flex items-center justify-center p-4 transition-colors duration-500">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] flex items-center justify-center p-4 transition-colors duration-500">
       <div className="max-w-2xl w-full text-center">
         {/* Animated 404 Number */}
         <motion.div

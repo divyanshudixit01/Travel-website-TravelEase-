@@ -14,7 +14,7 @@ const Tours = () => {
   const [searchParams] = useSearchParams();
   const { formatPrice, setActiveBooking, addToast } = useBooking();
 
-  const urlLoc = searchParams.get('destination') || searchParams.get('city') || searchParams.get('location') || searchParams.get('q') || 'Varanasi';
+  const urlLoc = searchParams.get('destination') || searchParams.get('city') || searchParams.get('location') || searchParams.get('q') || '';
   const [location, setLocation] = useState(urlLoc);
   const [tourResults, setTourResults] = useState([]);
   const [activeModal, setActiveModal] = useState(null);
@@ -24,7 +24,7 @@ const Tours = () => {
   const y1 = useTransform(scrollY, [0, 800], [0, 250]);
 
   const handleSearch = useCallback(() => {
-    const results = searchRealtimeTours(location);
+    const results = searchRealtimeTours(location || 'India');
     setTourResults(results);
   }, [location]);
 
@@ -60,14 +60,14 @@ const Tours = () => {
   ], []);
 
   return (
-    <div className="bg-slate-50 dark:bg-[#0a0e1a] text-slate-900 dark:text-slate-100 transition-colors duration-500" id="tours-page">
+    <div className="bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-slate-100 transition-colors duration-500" id="tours-page">
       <JsonLd data={tourSchemas} />
 
       {/* Hero */}
       <section ref={heroRef} className="relative h-[75vh] min-h-[550px] w-full overflow-hidden flex items-center justify-center">
         <motion.div style={{ y: y1 }} className="absolute inset-0 z-0">
           <img src="https://images.unsplash.com/photo-1530789253388-582c481c54b0?q=80&w=2070&auto=format&fit=crop" alt="Experiences Wallpaper" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-slate-50 dark:to-[#0a0e1a]"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-slate-50 dark:to-[#06080d]"></div>
         </motion.div>
 
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto mt-12">
@@ -85,7 +85,7 @@ const Tours = () => {
           <div className="glass-crystal p-6 rounded-3xl border border-white/20 shadow-2xl text-left max-w-4xl mx-auto flex flex-col md:flex-row gap-3 items-end">
             <div className="flex-1">
               <label className="block text-[10px] text-amber-300 font-bold uppercase mb-1">Destination / Landmark</label>
-              <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Dubai, Paris, Agra, Bali..." className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white font-extrabold text-sm focus:outline-none focus:border-amber-400" />
+              <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Goa, Jaipur, Agra, Kerala, Manali..." className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-2xl text-white font-extrabold text-sm focus:outline-none focus:border-amber-400" />
             </div>
             <ThreeUIButton
               type="button"
@@ -102,7 +102,7 @@ const Tours = () => {
 
       {/* Feed */}
       <div className="max-w-7xl mx-auto px-4 py-16">
-        <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8">Guided Experiences in {location} ({tourResults.length})</h2>
+        <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8">Guided Experiences {location ? `in ${location}` : 'Across India'} ({tourResults.length})</h2>
         {tourResults.length === 0 ? (
           <NoResults
             type="coming-soon"
@@ -110,7 +110,7 @@ const Tours = () => {
             searchQuery={location}
             suggestions={[
               { label: 'Explore Top Destinations', onClick: () => navigate('/destinations') },
-              { label: 'Generate Custom AI Itinerary', onClick: () => navigate('/itinerary') },
+              { label: 'Plan Custom Itinerary', onClick: () => navigate('/itinerary') },
             ]}
           />
         ) : (

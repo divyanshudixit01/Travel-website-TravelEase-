@@ -5,7 +5,7 @@ import {
   FaStar, FaHeart, FaRegHeart, FaArrowRight, FaMapMarkerAlt,
   FaTrain, FaPlane, FaHotel, FaCompass
 } from 'react-icons/fa';
-import { HiOutlineSparkles } from 'react-icons/hi';
+import { FiNavigation, FiCompass } from 'react-icons/fi';
 import { ThreeCard3D } from '../ui/ThreeCard3D';
 import { SegmentedPillToggle } from '../ui/ThreeUIToggle';
 import { ThreeUIButton } from '../ui/ThreeUIButton';
@@ -66,18 +66,18 @@ export const TrendingDestinations = () => {
   );
 
   return (
-    <section className="relative py-20 px-4 max-w-7xl mx-auto z-20" id="trending-destinations-showcase">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+    <section className="relative py-20 lg:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto z-20" id="trending-destinations-showcase">
+      {/* 3-Tier Section Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 lg:mb-16">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-wider mb-3">
-            <HiOutlineSparkles className="w-3.5 h-3.5 animate-spin" />
-            Top Global Itineraries
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-mono font-bold uppercase tracking-widest mb-3">
+            <FiCompass className="w-3.5 h-3.5 text-amber-500" />
+            <span>CURATED GLOBAL EXPEDITIONS</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
             Trending <span className="gradient-text">Destinations</span>
           </h2>
-          <p className="mt-2 text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-xl">
+          <p className="font-body mt-3 text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-xl leading-relaxed">
             Curated, high-demand escapes with locked multi-modal routes, local verified stays, and real-time availability.
           </p>
         </div>
@@ -154,8 +154,8 @@ export const TrendingDestinations = () => {
 
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/15">
                       <FaStar className="w-3 h-3 text-amber-400" />
-                      <span className="text-xs font-bold text-white font-mono">{dest.rating}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">({dest.reviews})</span>
+                      <span className="text-xs font-bold text-white font-mono tabular-nums">{dest.rating}</span>
+                      <span className="text-[10px] text-slate-400 font-mono tabular-nums">({dest.reviews})</span>
                     </div>
                   </div>
                 </div>
@@ -172,7 +172,7 @@ export const TrendingDestinations = () => {
 
                     <div className="text-right flex-none">
                       <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">Starting at</span>
-                      <div className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{dest.price}</div>
+                      <div className="text-base font-extrabold text-slate-900 dark:text-white font-mono tabular-nums">{dest.price}</div>
                     </div>
                   </div>
 
@@ -239,10 +239,10 @@ export const TrendingDestinations = () => {
                           navigate(getItineraryRoute(dest.name, prompt), { state: { prompt } });
                         }}
                         className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-mono text-[11px] font-bold flex items-center gap-1 transition-colors"
-                        title="Generate customized AI trip"
+                        title="Plan custom itinerary"
                       >
-                        <HiOutlineSparkles className="w-3 h-3 text-amber-500" />
-                        AI Plan
+                        <FiNavigation className="w-3 h-3 text-amber-500" />
+                        Plan Route
                       </button>
 
                       <button
@@ -271,7 +271,7 @@ export const TrendingDestinations = () => {
           variant="liquid-metal"
           size="lg"
           to="/destinations"
-          icon={<HiOutlineSparkles className="w-4 h-4 text-amber-500" />}
+          icon={<FiCompass className="w-4 h-4 text-amber-500" />}
         >
           View Complete 190+ Destinations Catalog
         </ThreeUIButton>

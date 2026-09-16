@@ -63,7 +63,7 @@ const BookingConfirmation = () => {
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0a0e1a] flex flex-col items-center justify-center p-4 transition-colors duration-500">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] flex flex-col items-center justify-center p-4 transition-colors duration-500">
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -88,7 +88,7 @@ const BookingConfirmation = () => {
   const gst = booking.gstDetails || booking.details?.gstDetails;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0e1a] py-10 px-4 transition-colors duration-500 print:bg-white print:p-0" id="confirmation-page">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] py-10 px-4 transition-colors duration-500 print:bg-white print:p-0" id="confirmation-page">
       <div className="max-w-3xl mx-auto">
 
         {/* Confirmation Header Banner - Hidden in Print */}
@@ -266,8 +266,8 @@ const BookingConfirmation = () => {
           </div>
           
           {/* Decorative Notch */}
-          <div className="absolute top-1/2 -left-3 w-6 h-6 bg-slate-50 dark:bg-[#0a0e1a] rounded-full transform -translate-y-1/2 print:hidden"></div>
-          <div className="absolute top-1/2 -right-3 w-6 h-6 bg-slate-50 dark:bg-[#0a0e1a] rounded-full transform -translate-y-1/2 print:hidden"></div>
+          <div className="absolute top-1/2 -left-3 w-6 h-6 bg-slate-50 dark:bg-[#06080d] rounded-full transform -translate-y-1/2 print:hidden"></div>
+          <div className="absolute top-1/2 -right-3 w-6 h-6 bg-slate-50 dark:bg-[#06080d] rounded-full transform -translate-y-1/2 print:hidden"></div>
         </motion.div>
 
         {/* Dashboard Link - Hidden in Print */}

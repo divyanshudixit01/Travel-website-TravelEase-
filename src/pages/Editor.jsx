@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 const Editor = () => {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0e1a] pt-24 pb-12 px-4 transition-colors duration-500">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] pt-24 pb-12 px-4 transition-colors duration-500">
       <div className="max-w-4xl mx-auto">
         <Link to="/blog" className="inline-flex items-center gap-2 text-slate-500 hover:text-amber-500 mb-8 font-semibold transition-colors">
           <FaArrowLeft className="w-4 h-4" /> Back to Stories

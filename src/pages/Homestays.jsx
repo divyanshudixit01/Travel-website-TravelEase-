@@ -62,14 +62,14 @@ const Homestays = () => {
   ];
 
   return (
-    <div className="bg-slate-50 dark:bg-[#0a0e1a] text-slate-900 dark:text-slate-100 transition-colors duration-500" id="homestays-page">
+    <div className="bg-slate-50 dark:bg-[#06080d] text-slate-900 dark:text-slate-100 transition-colors duration-500" id="homestays-page">
       <JsonLd data={homestaySchemas} />
 
       {/* Hero */}
       <section ref={heroRef} className="relative h-[75vh] min-h-[550px] w-full overflow-hidden flex items-center justify-center">
         <motion.div style={{ y: y1 }} className="absolute inset-0 z-0">
           <img src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=2070&auto=format&fit=crop" alt="Homestays Wallpaper" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-slate-50 dark:to-[#0a0e1a]"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-slate-50 dark:to-[#06080d]"></div>
         </motion.div>
 
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto mt-12">

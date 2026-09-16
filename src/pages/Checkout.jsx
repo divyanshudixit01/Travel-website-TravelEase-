@@ -186,7 +186,7 @@ const Checkout = () => {
       addToast('Maximum 9 travelers allowed per reservation.', 'warning');
       return;
     }
-    setCoPassengers(prev => [...prev, { id: Date.now(), name: '', age: '', gender: 'Male', type: 'adult', passportNumber: '', passportExpiry: '' }]);
+    setCoPassengers(prev => [...prev, { id: Date.now(), name: '', age: '', gender: 'Preference', type: 'adult', passportNumber: '', passportExpiry: '' }]);
   };
 
   const removeCoPassenger = (id) => {
@@ -299,7 +299,7 @@ const Checkout = () => {
 
   if (!activeBooking) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0a0e1a] flex flex-col items-center justify-center p-4 transition-colors duration-500">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] flex flex-col items-center justify-center p-4 transition-colors duration-500">
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -522,7 +522,7 @@ const Checkout = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0e1a] py-10 px-4 transition-colors duration-500" id="checkout-page">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06080d] py-10 px-4 transition-colors duration-500" id="checkout-page">
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
@@ -760,10 +760,11 @@ const Checkout = () => {
                               <option value="infant">Infant (0-2)</option>
                             </select>
                             <select
-                              value={passenger.gender}
+                              value={passenger.gender || 'Preference'}
                               onChange={(e) => updateCoPassenger(passenger.id, 'gender', e.target.value)}
                               className="bg-white dark:bg-slate-900 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white font-semibold focus:outline-none focus:border-indigo-400"
                             >
+                              <option value="Preference">Preference (Gender)</option>
                               <option value="Male">Male</option>
                               <option value="Female">Female</option>
                               <option value="Other">Other</option>
