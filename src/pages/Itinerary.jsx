@@ -40,7 +40,7 @@ const formatINR = (amount) => {
 // Strips stray markdown syntax like **bold** or ## headings from raw AI text
 const stripMarkdown = (str) => {
   if (!str || typeof str !== 'string') return '';
-  return str.replace(/^#{1,6}\s*/gm, '').replace(/[\*#_]/g, '').trim();
+  return str.replace(/^#{1,6}\s*/gm, '').replace(/[*#_]/g, '').trim();
 };
 
 // ─── Dynamic AI Expedition Modes (Full-Bleed Dynamic Atmosphere Matrix) ─────

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   FaGlobeAmericas, FaShieldAlt, FaLeaf, FaRocket, 
@@ -202,7 +202,6 @@ export const About = () => {
   const [tripDistanceKm, setTripDistanceKm] = useState(650);
 
   const heroRef = useRef(null);
-  const { scrollY } = useScroll();
 
   const activeCause = environmentalCauses[activeCauseIndex];
 

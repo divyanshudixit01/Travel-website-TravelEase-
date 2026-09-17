@@ -47,13 +47,13 @@ function renderInlineSegments(text) {
 
   while ((match = tokenRegex.exec(cleanText)) !== null) {
     if (match.index > lastIdx) {
-      const plain = cleanText.substring(lastIdx, match.index).replace(/[\*#_]/g, '');
+      const plain = cleanText.substring(lastIdx, match.index).replace(/[*#_]/g, '');
       if (plain) parts.push({ type: 'text', value: plain });
     }
 
     const token = match[0];
     if ((token.startsWith('**') && token.endsWith('**')) || (token.startsWith('__') && token.endsWith('__'))) {
-      const inner = token.slice(2, -2).replace(/[\*#_]/g, '');
+      const inner = token.slice(2, -2).replace(/[*#_]/g, '');
       parts.push({ type: 'bold', value: inner });
     } else if (token.startsWith('₹')) {
       parts.push({ type: 'currency', value: token.trim() });
@@ -63,12 +63,12 @@ function renderInlineSegments(text) {
   }
 
   if (lastIdx < cleanText.length) {
-    const remaining = cleanText.substring(lastIdx).replace(/[\*#_]/g, '');
+    const remaining = cleanText.substring(lastIdx).replace(/[*#_]/g, '');
     if (remaining) parts.push({ type: 'text', value: remaining });
   }
 
   if (parts.length === 0) {
-    return cleanText.replace(/[\*#_]/g, '');
+    return cleanText.replace(/[*#_]/g, '');
   }
 
   return parts.map((part, idx) => {
@@ -111,7 +111,7 @@ const ConciergeMessageRenderer = ({ content, isUser }) => {
     const trimmed = line.trim();
     if (!trimmed) return false;
     if (/^#{1,6}\s+/.test(trimmed)) return true;
-    if (/^\d+[\.\)]\s+[A-Za-z]/.test(trimmed)) return true;
+    if (/^\d+[.)]\s+[A-Za-z]/.test(trimmed)) return true;
     if (/^(?:Overview|Highlights|Itinerary|Day-by-Day|Logistics|Transit|IRCTC|Train|Flight|Budget|Tips|Recommendations|Advice|Transport|Accommodation|Food & Dining)\s*:/i.test(trimmed)) return true;
     return false;
   };
@@ -119,7 +119,7 @@ const ConciergeMessageRenderer = ({ content, isUser }) => {
   const cleanHeadingTitle = (line) => {
     return line
       .replace(/^#{1,6}\s*/, '')
-      .replace(/[\*#_]/g, '')
+      .replace(/[*#_]/g, '')
       .trim();
   };
 
@@ -137,7 +137,7 @@ const ConciergeMessageRenderer = ({ content, isUser }) => {
         items: []
       };
     } else {
-      const isBullet = /^[-*•–—]\s+/.test(trimmed) || /^(?:Day\s+\d+|Step\s+\d+|Option\s+\d+)[:\-]/i.test(trimmed);
+      const isBullet = /^[-*•–—]\s+/.test(trimmed) || /^(?:Day\s+\d+|Step\s+\d+|Option\s+\d+)[:-]/i.test(trimmed);
       const cleanedLine = trimmed.replace(/^[-*•–—]\s+/, '');
       currentSection.items.push({
         isBullet,
@@ -152,7 +152,7 @@ const ConciergeMessageRenderer = ({ content, isUser }) => {
 
   // Fallback for simple 1-liner or unstructured responses
   if (sections.length === 0 || (sections.length === 1 && !sections[0].title)) {
-    const fallbackText = content.replace(/[\*#_]/g, '').trim();
+    const fallbackText = content.replace(/[*#_]/g, '').trim();
     return (
       <p className="whitespace-pre-line leading-relaxed text-[13px] text-slate-700 dark:text-slate-200">
         {renderInlineSegments(fallbackText)}
@@ -214,7 +214,6 @@ const AIConcierge = () => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [latency, setLatency] = useState(null);
-  const [aiModel, setAiModel] = useState('');
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -248,7 +247,6 @@ const AIConcierge = () => {
       const clientLatency = Math.round(performance.now() - startMs);
 
       setLatency(result.latencyMs || clientLatency);
-      setAiModel(result.model || 'Travel Desk Engine');
 
       setMessages(prev => [...prev, {
         role: 'ai',
